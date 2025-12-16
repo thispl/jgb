@@ -1,0 +1,83 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "field:year",
+ "creation": "2025-11-04 12:05:50.239856",
+ "doctype": "DocType",
+ "document_type": "Setup",
+ "engine": "InnoDB",
+ "field_order": [
+  "year"
+ ],
+ "fields": [
+  {
+   "description": "For e.g. 2012, 2012-13",
+   "fieldname": "year",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Year Name",
+   "oldfieldname": "year",
+   "oldfieldtype": "Data",
+   "reqd": 1,
+   "unique": 1
+  }
+ ],
+ "icon": "fa fa-calendar",
+ "links": [],
+ "modified": "2025-11-04 12:06:19.986729",
+ "modified_by": "pavithra.s@groupteampro.com",
+ "module": "JGB",
+ "name": "Year",
+ "naming_rule": "By fieldname",
+ "owner": "pavithra.s@groupteampro.com",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Sales User"
+  },
+  {
+   "read": 1,
+   "role": "Purchase User"
+  },
+  {
+   "read": 1,
+   "role": "Accounts User"
+  },
+  {
+   "read": 1,
+   "role": "Stock User"
+  },
+  {
+   "read": 1,
+   "role": "Employee"
+  },
+  {
+   "read": 1,
+   "role": "Accounts Manager"
+  },
+  {
+   "read": 1,
+   "role": "Stock Manager"
+  },
+  {
+   "read": 1,
+   "role": "Auditor"
+  }
+ ],
+ "row_format": "Dynamic",
+ "show_name_in_global_search": 1,
+ "sort_field": "name",
+ "sort_order": "DESC",
+ "states": []
+}

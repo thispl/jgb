@@ -1,0 +1,61 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-11-25 10:33:25.879468",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_1ecy",
+  "file_attachment",
+  "download_template",
+  "upload"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_1ecy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "file_attachment",
+   "fieldtype": "Attach",
+   "label": "File Attachment"
+  },
+  {
+   "fieldname": "download_template",
+   "fieldtype": "Button",
+   "label": "Download Template"
+  },
+  {
+   "depends_on": "eval:doc.file_attachment",
+   "fieldname": "upload",
+   "fieldtype": "Button",
+   "label": "Upload"
+  }
+ ],
+ "grid_page_length": 50,
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-11-25 10:36:52.097832",
+ "modified_by": "bhuvaneswari.a@groupteampro.com",
+ "module": "JGB",
+ "name": "Currency Exchange Upload",
+ "owner": "bhuvaneswari.a@groupteampro.com",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

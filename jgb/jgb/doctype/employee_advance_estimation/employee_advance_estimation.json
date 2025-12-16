@@ -1,0 +1,67 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-11-25 15:14:17.213936",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_u21f",
+  "title_of_estimation",
+  "estimated_value",
+  "advanced_received",
+  "expense_claimed",
+  "advance_needed"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_u21f",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "title_of_estimation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Title of Estimation",
+   "options": "Estimation"
+  },
+  {
+   "fieldname": "estimated_value",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Estimated Value"
+  },
+  {
+   "fieldname": "advanced_received",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Advanced Received"
+  },
+  {
+   "fieldname": "expense_claimed",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Expense Claimed"
+  },
+  {
+   "fieldname": "advance_needed",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Advance Needed"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-11-25 15:24:56.673966",
+ "modified_by": "Administrator",
+ "module": "JGB",
+ "name": "Employee Advance Estimation",
+ "owner": "bhuvaneswari.a@groupteampro.com",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

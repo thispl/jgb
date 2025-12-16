@@ -1,0 +1,365 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:LS-{YYYY}-{#####}",
+ "creation": "2025-06-11 15:06:25.773985",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "employee_details_section",
+  "employee",
+  "employee_name",
+  "department",
+  "designation",
+  "column_break_pvkr",
+  "company",
+  "grade",
+  "date_of_joining",
+  "posting_date",
+  "section_break_yyfy",
+  "leave_application",
+  "from_date",
+  "to_date",
+  "salary_payable_days",
+  "column_break_dopm",
+  "resumed_duty_on",
+  "last_leave_availed",
+  "section_break_bbwd",
+  "last_leave_salary_taken_day",
+  "service_start_date",
+  "service_end_date",
+  "column_break_luxb",
+  "gratuity_days",
+  "leave_salary_days",
+  "total_absent_days",
+  "column_break_gczp",
+  "total_leave_taken_for_previous_cycle",
+  "total_leave_taken_for_during_service",
+  "fixed_section",
+  "basic",
+  "column_break_bhue",
+  "hra",
+  "earnings_section",
+  "earned_basic",
+  "ticket_allowance",
+  "column_break_xquu",
+  "earned_hra",
+  "other_allowance",
+  "deductions_section",
+  "visa",
+  "course_deduction",
+  "column_break_boaf",
+  "air_ticket_expense",
+  "other_deduction",
+  "section_break_jdlp",
+  "gross",
+  "column_break_mdrw",
+  "total_deduction",
+  "column_break_mhdm",
+  "net_pay"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee_details_section",
+   "fieldtype": "Section Break",
+   "label": "Employee Details"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "link_filters": "[[\"Employee\",\"status\",\"=\",\"Active\"]]",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name"
+  },
+  {
+   "fetch_from": "employee.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fetch_from": "employee.designation",
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "label": "Designation",
+   "options": "Designation"
+  },
+  {
+   "fieldname": "column_break_pvkr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "employee.company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fetch_from": "employee.grade",
+   "fieldname": "grade",
+   "fieldtype": "Link",
+   "label": "Grade",
+   "options": "Employee Grade"
+  },
+  {
+   "fetch_from": "employee.date_of_joining",
+   "fieldname": "date_of_joining",
+   "fieldtype": "Date",
+   "label": "Date of Joining"
+  },
+  {
+   "fieldname": "section_break_yyfy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_leave_availed",
+   "fieldtype": "Date",
+   "label": "Last leave availed"
+  },
+  {
+   "fieldname": "column_break_dopm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "From Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "To Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "resumed_duty_on",
+   "fieldtype": "Date",
+   "label": "Resumed Duty On"
+  },
+  {
+   "fieldname": "section_break_bbwd",
+   "fieldtype": "Section Break",
+   "hidden": 1
+  },
+  {
+   "fieldname": "last_leave_salary_taken_day",
+   "fieldtype": "Date",
+   "label": "Last Leave Salary Taken Day"
+  },
+  {
+   "fieldname": "service_start_date",
+   "fieldtype": "Date",
+   "label": "Service Start Date"
+  },
+  {
+   "fieldname": "service_end_date",
+   "fieldtype": "Date",
+   "label": "Service End Date"
+  },
+  {
+   "fieldname": "column_break_luxb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gratuity_days",
+   "fieldtype": "Data",
+   "label": "Gratuity Days"
+  },
+  {
+   "fieldname": "leave_salary_days",
+   "fieldtype": "Int",
+   "label": "Leave Salary Days"
+  },
+  {
+   "fieldname": "total_absent_days",
+   "fieldtype": "Data",
+   "label": "Total Absent Days"
+  },
+  {
+   "fieldname": "column_break_gczp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_leave_taken_for_previous_cycle",
+   "fieldtype": "Data",
+   "label": "Total Leave Taken for Previous Cycle"
+  },
+  {
+   "fieldname": "total_leave_taken_for_during_service",
+   "fieldtype": "Data",
+   "label": "Total Leave Taken for During Service"
+  },
+  {
+   "fieldname": "fixed_section",
+   "fieldtype": "Section Break",
+   "hidden": 1,
+   "label": "Fixed"
+  },
+  {
+   "fetch_from": "employee.custom_basic",
+   "fieldname": "basic",
+   "fieldtype": "Currency",
+   "label": "Basic"
+  },
+  {
+   "fetch_from": "employee.custom_hra",
+   "fieldname": "hra",
+   "fieldtype": "Currency",
+   "label": "HRA"
+  },
+  {
+   "fieldname": "earnings_section",
+   "fieldtype": "Section Break",
+   "label": "Earnings"
+  },
+  {
+   "fieldname": "earned_basic",
+   "fieldtype": "Currency",
+   "label": "Basic"
+  },
+  {
+   "fieldname": "column_break_xquu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "earned_hra",
+   "fieldtype": "Currency",
+   "label": "HRA"
+  },
+  {
+   "fieldname": "deductions_section",
+   "fieldtype": "Section Break",
+   "label": "Deductions"
+  },
+  {
+   "fieldname": "visa",
+   "fieldtype": "Currency",
+   "label": "Visa"
+  },
+  {
+   "fieldname": "course_deduction",
+   "fieldtype": "Currency",
+   "label": "Course Deduction"
+  },
+  {
+   "fieldname": "column_break_boaf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "air_ticket_expense",
+   "fieldtype": "Currency",
+   "label": "Air Ticket Expense"
+  },
+  {
+   "fieldname": "other_deduction",
+   "fieldtype": "Currency",
+   "label": "Other Deduction"
+  },
+  {
+   "fieldname": "section_break_jdlp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "gross",
+   "fieldtype": "Currency",
+   "label": "Gross",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_mdrw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_deduction",
+   "fieldtype": "Currency",
+   "label": "Total Deduction",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_mhdm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "net_pay",
+   "fieldtype": "Currency",
+   "label": "Net Pay",
+   "read_only": 1
+  },
+  {
+   "fieldname": "salary_payable_days",
+   "fieldtype": "Int",
+   "label": "Salary Payable Days",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_bhue",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ticket_allowance",
+   "fieldtype": "Currency",
+   "label": "Ticket Allowance"
+  },
+  {
+   "fieldname": "other_allowance",
+   "fieldtype": "Currency",
+   "label": "Other Allowance"
+  },
+  {
+   "fieldname": "leave_application",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Leave Application"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-12 13:28:33.150968",
+ "modified_by": "jothi.m@groupteampro.com",
+ "module": "JGB",
+ "name": "Leave Salary",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

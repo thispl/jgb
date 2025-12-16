@@ -1,0 +1,484 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2025-06-25 11:32:04.831017",
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_code",
+  "supplier_part_no",
+  "item_name",
+  "voucher_type",
+  "customer",
+  "supplier",
+  "column_break_4",
+  "item_group",
+  "brand",
+  "product_bundle",
+  "voucher_no",
+  "requester_name",
+  "package_details_section",
+  "packing_weight_kg",
+  "box_name",
+  "no_of_boxes",
+  "box_length_mm",
+  "box_breadth_mm",
+  "box_height_mm",
+  "weight_per_unit_kg",
+  "total_box_weight_kg",
+  "net_weight",
+  "column_break_exss",
+  "gross_weight_kg",
+  "pallet_name",
+  "no_of_pallets",
+  "pallet_length_mm",
+  "pallet_breadth_mm",
+  "pallet_height_mm",
+  "p_weight_per_unit_kg",
+  "total_pallet_weight_kg",
+  "cbm",
+  "section_break_5",
+  "description",
+  "col_break1",
+  "image",
+  "image_view",
+  "quantity_and_rate",
+  "qty",
+  "stock_uom",
+  "col_break2",
+  "uom",
+  "conversion_factor",
+  "stock_qty",
+  "sec_break2",
+  "rate",
+  "amount",
+  "col_break4",
+  "base_rate",
+  "base_amount",
+  "stock_uom_rate"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "columns": 2,
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item Code",
+   "oldfieldname": "item_code",
+   "oldfieldtype": "Link",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "supplier_part_no",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Supplier Part Number",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "label": "Item Name",
+   "oldfieldname": "item_name",
+   "oldfieldtype": "Data",
+   "print_hide": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "brand",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Brand",
+   "oldfieldname": "brand",
+   "oldfieldtype": "Link",
+   "options": "Brand",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "product_bundle",
+   "fieldtype": "Link",
+   "label": "Product Bundle",
+   "options": "Product Bundle",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Item Group",
+   "oldfieldname": "item_group",
+   "oldfieldtype": "Link",
+   "options": "Item Group",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_5",
+   "fieldtype": "Section Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description",
+   "oldfieldname": "description",
+   "oldfieldtype": "Small Text",
+   "print_width": "300px",
+   "width": "300px"
+  },
+  {
+   "fieldname": "col_break1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "item_code.image",
+   "fieldname": "image",
+   "fieldtype": "Attach",
+   "hidden": 1,
+   "label": "Image"
+  },
+  {
+   "fieldname": "image_view",
+   "fieldtype": "Image",
+   "label": "Image View",
+   "options": "image",
+   "print_hide": 1
+  },
+  {
+   "fieldname": "quantity_and_rate",
+   "fieldtype": "Section Break",
+   "label": "Quantity and Rate"
+  },
+  {
+   "bold": 1,
+   "columns": 1,
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Quantity",
+   "non_negative": 1,
+   "oldfieldname": "qty",
+   "oldfieldtype": "Currency",
+   "print_width": "60px",
+   "reqd": 1,
+   "width": "60px"
+  },
+  {
+   "depends_on": "eval:doc.uom != doc.stock_uom",
+   "fieldname": "stock_uom",
+   "fieldtype": "Link",
+   "label": "Stock UOM",
+   "oldfieldname": "stock_uom",
+   "oldfieldtype": "Data",
+   "options": "UOM",
+   "print_width": "100px",
+   "read_only": 1,
+   "reqd": 1,
+   "width": "100px"
+  },
+  {
+   "fieldname": "col_break2",
+   "fieldtype": "Column Break",
+   "print_hide": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "UOM",
+   "oldfieldname": "uom",
+   "oldfieldtype": "Link",
+   "options": "UOM",
+   "print_width": "100px",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.uom != doc.stock_uom",
+   "fieldname": "conversion_factor",
+   "fieldtype": "Float",
+   "label": "UOM Conversion Factor",
+   "oldfieldname": "conversion_factor",
+   "oldfieldtype": "Currency",
+   "print_hide": 1,
+   "print_width": "100px",
+   "reqd": 1,
+   "width": "100px"
+  },
+  {
+   "depends_on": "eval:doc.uom != doc.stock_uom",
+   "fieldname": "stock_qty",
+   "fieldtype": "Float",
+   "label": "Qty in Stock UOM",
+   "no_copy": 1,
+   "print_hide": 1,
+   "print_width": "100px",
+   "read_only": 1,
+   "width": "100px"
+  },
+  {
+   "fieldname": "sec_break2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "bold": 1,
+   "columns": 2,
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Rate",
+   "oldfieldname": "import_rate",
+   "oldfieldtype": "Currency",
+   "options": "currency"
+  },
+  {
+   "columns": 2,
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "oldfieldname": "import_amount",
+   "oldfieldtype": "Currency",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "base_rate",
+   "fieldtype": "Currency",
+   "label": "Rate (Company Currency)",
+   "oldfieldname": "purchase_rate",
+   "oldfieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "print_hide": 1,
+   "print_width": "100px",
+   "read_only": 1,
+   "reqd": 1,
+   "width": "100px"
+  },
+  {
+   "fieldname": "base_amount",
+   "fieldtype": "Currency",
+   "label": "Amount (Company Currency)",
+   "oldfieldname": "amount",
+   "oldfieldtype": "Currency",
+   "options": "Company:company:default_currency",
+   "print_hide": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval: doc.uom != doc.stock_uom",
+   "fieldname": "stock_uom_rate",
+   "fieldtype": "Currency",
+   "label": "Rate of Stock UOM",
+   "no_copy": 1,
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "voucher_type",
+   "fieldtype": "Link",
+   "label": "Voucher Type",
+   "link_filters": "[[\"DocType\",\"name\",\"in\",[\"Purchase Order\",\"Sales Invoice\",\"Delivery Note\",\"Sales Order\"]]]",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "voucher_no",
+   "fieldtype": "Dynamic Link",
+   "label": "Voucher No",
+   "options": "voucher_type"
+  },
+  {
+   "depends_on": "eval:doc.voucher_type==\"Sales Invoice\" || doc.voucher_type==\"Sales Order\" || doc.voucher_type==\"Delivery Note\"",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "depends_on": "eval:doc.voucher_type==\"Purchase Order\" ",
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "requester_name",
+   "fieldtype": "Link",
+   "label": "Requester Name",
+   "options": "User"
+  },
+  {
+   "fieldname": "package_details_section",
+   "fieldtype": "Section Break",
+   "label": "Package Details",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "item_code.weight_per_unit",
+   "fetch_if_empty": 1,
+   "fieldname": "net_weight",
+   "fieldtype": "Float",
+   "label": "Net Weight",
+   "read_only": 1
+  },
+  {
+   "fieldname": "box_name",
+   "fieldtype": "Link",
+   "label": "Box Name",
+   "options": "Box",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_exss",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pallet_name",
+   "fieldtype": "Link",
+   "label": "Pallet Name",
+   "options": "Pallet",
+   "read_only": 1
+  },
+  {
+   "fieldname": "no_of_boxes",
+   "fieldtype": "Int",
+   "label": "No of Boxes",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "box_name.length",
+   "fetch_if_empty": 1,
+   "fieldname": "box_length_mm",
+   "fieldtype": "Float",
+   "label": "Box Length (mm)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "no_of_pallets",
+   "fieldtype": "Int",
+   "label": "No of Pallets",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "box_name.breadth",
+   "fetch_if_empty": 1,
+   "fieldname": "box_breadth_mm",
+   "fieldtype": "Float",
+   "label": "Box Breadth (mm)",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "pallet_name.length",
+   "fetch_if_empty": 1,
+   "fieldname": "pallet_length_mm",
+   "fieldtype": "Float",
+   "label": "Pallet Length (mm)",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "pallet_name.breadth",
+   "fetch_if_empty": 1,
+   "fieldname": "pallet_breadth_mm",
+   "fieldtype": "Float",
+   "label": "Pallet Breadth (mm)",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "box_name.height",
+   "fetch_if_empty": 1,
+   "fieldname": "box_height_mm",
+   "fieldtype": "Float",
+   "label": "Box Height (mm)",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "pallet_name.height",
+   "fetch_if_empty": 1,
+   "fieldname": "pallet_height_mm",
+   "fieldtype": "Float",
+   "label": "Pallet Height (mm)",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "box_name.weight",
+   "fetch_if_empty": 1,
+   "fieldname": "weight_per_unit_kg",
+   "fieldtype": "Float",
+   "label": "Weight Per Unit (kg)",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "pallet_name.weight",
+   "fetch_if_empty": 1,
+   "fieldname": "p_weight_per_unit_kg",
+   "fieldtype": "Float",
+   "label": "Weight Per Unit (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_box_weight_kg",
+   "fieldtype": "Float",
+   "label": "Total Box Weight (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_pallet_weight_kg",
+   "fieldtype": "Float",
+   "label": "Total Pallet Weight (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cbm",
+   "fieldtype": "Float",
+   "label": "CBM",
+   "read_only": 1
+  },
+  {
+   "fieldname": "packing_weight_kg",
+   "fieldtype": "Float",
+   "label": "Packing Weight (kg)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gross_weight_kg",
+   "fieldtype": "Float",
+   "label": "Gross Weight (kg)",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-07-30 10:12:23.747860",
+ "modified_by": "divya.p@groupteampro.com",
+ "module": "JGB",
+ "name": "Logistics Request Item",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "search_fields": "item_name",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

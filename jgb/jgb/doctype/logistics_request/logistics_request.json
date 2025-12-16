@@ -1,0 +1,1143 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-06-02 12:39:16.147946",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "company",
+  "exporter_iec",
+  "workflow_state",
+  "logistic_type",
+  "po_so",
+  "order_no",
+  "multiple_pos",
+  "requester_name",
+  "column_break_4",
+  "status",
+  "cargo_type",
+  "supplier",
+  "credit_days",
+  "inventory_destination",
+  "warehouse",
+  "customer",
+  "alert_date",
+  "has_purchase_receipt",
+  "currency_and_price_list_section",
+  "currency",
+  "column_break_20",
+  "conv_rate",
+  "section_break_12",
+  "product_description",
+  "section_break_14",
+  "grand_total",
+  "grand_total_sar",
+  "column_break_17",
+  "currency_inr",
+  "custom_duty",
+  "quantity__packages",
+  "courier__awb__bl_number__container",
+  "dimensions",
+  "gross_wt",
+  "cbm",
+  "pallet",
+  "box_summary",
+  "box",
+  "recommened_container",
+  "column_break_24",
+  "net_wt",
+  "uom",
+  "box_pallet_count",
+  "container_occupancy",
+  "section_break_sekg",
+  "lr_package_details",
+  "section_break_nqsu",
+  "box_summary_table",
+  "pallet_summary",
+  "scheduled_tab",
+  "attach_documents_section",
+  "document_attached",
+  "section_break_28",
+  "date_of_shipment",
+  "jgb_incoterms",
+  "pol_seaport",
+  "pol_city_seaport",
+  "pol_country_seaport",
+  "pol_airport",
+  "pol_city_airport",
+  "pol_country_airport",
+  "source",
+  "destination_name",
+  "shipping_address_name",
+  "etd",
+  "transit_time",
+  "master_bl_number__awb",
+  "carrier_name",
+  "container_type",
+  "column_break_42",
+  "shipping_line",
+  "supplier_incoterms",
+  "customer_incoterms",
+  "pod_seaport",
+  "pod_city_seaport",
+  "pod_country_seaport",
+  "pod_airport",
+  "pod_city_airport",
+  "pod_country_airport",
+  "customer_primary_address",
+  "shipping_address",
+  "eta",
+  "document_dispatch_list",
+  "normal_bl_number__awb",
+  "container_count",
+  "eta_revision_log_section",
+  "remarks",
+  "section_break_sfew",
+  "customer_forwarder",
+  "section_break_49",
+  "forwarded_type",
+  "ffw_quotation",
+  "ffw_quotation_courier",
+  "ffw_quotation_vehicle",
+  "section_break_adrj",
+  "recommended_ffw",
+  "quoted_amount_sar",
+  "column_break_aghm",
+  "recommendation_remarks",
+  "documents_status_section",
+  "received_by",
+  "dispatched_by",
+  "column_break_51",
+  "date",
+  "section_break_eozd",
+  "bills_copy",
+  "dispatched_tab",
+  "support_doc",
+  "support_documents",
+  "download",
+  "lr_costing_section",
+  "table_wdql",
+  "payment_tab",
+  "document_for_payment_clearance_section",
+  "lr_costing_payment",
+  "lr_costing_payment_po",
+  "ofd_tab",
+  "out_for_delivery_section",
+  "table_gqxd",
+  "delivery_section",
+  "driver_contact_number",
+  "driver_name",
+  "gate_pass",
+  "vehicle_number",
+  "vehicle_type",
+  "truck_count",
+  "column_break_45",
+  "iqama_id",
+  "attach_iqama",
+  "isthimara_id",
+  "attach_isthimara",
+  "arrived_tab",
+  "attach_bills_section",
+  "bills",
+  "amended_from",
+  "proof_of_delivery_section",
+  "attachment",
+  "date_of_delivery",
+  "receive_by_name",
+  "column_break_qddi",
+  "carried_by",
+  "closing_remarks",
+  "supplier_invoice_section",
+  "party_name",
+  "bill_amount",
+  "column_break_nigo",
+  "advance",
+  "outstanding",
+  "supplier_invoice_attachment",
+  "section_break_hkgw",
+  "lr_status_details"
+ ],
+ "fields": [
+  {
+   "default": "LR-.YYYY.-",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "LR-.YYYY.-\nLR-NCPLP-.YYYY.-\nLR-NCPLB-.YYYY.-\nLR-NC-.YYYY.-\nLR-NSA-.YYYY.-\nLR-NSPL-.YYYY.-\nLR-NCUL-.YYYY.-\nLR-SNTL-.YYYY.-\nLR-NCMEF-.YYYY.-\nLR-NCMEFD-.YYYY.-"
+  },
+  {
+   "default": "WONJIN AUTOPARTS INDIA PVT.LTD.",
+   "fetch_from": "order_no.company",
+   "fetch_if_empty": 1,
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "company.custom_exporter_iec",
+   "fieldname": "exporter_iec",
+   "fieldtype": "Data",
+   "label": "Exporter IEC",
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "workflow_state",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Workflow State",
+   "no_copy": 1,
+   "options": "Workflow State"
+  },
+  {
+   "fieldname": "logistic_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Logistic Type",
+   "options": "\nImport\nExport\nLocal Delivery",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "po_so",
+   "fieldtype": "Select",
+   "label": "Voucher Type",
+   "options": "\nPurchase Order\nSales Order\nSales Invoice\nDelivery Note",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "order_no",
+   "fieldtype": "Dynamic Link",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "Voucher No",
+   "options": "po_so"
+  },
+  {
+   "fieldname": "multiple_pos",
+   "fieldtype": "Small Text",
+   "label": "Multiple POs",
+   "read_only": 1
+  },
+  {
+   "fieldname": "requester_name",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Requester Name",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Shipment Status",
+   "no_copy": 1,
+   "options": "Draft\nScheduled\nVariation - Pending for Finance\nDispatched\nIn Transit\nDelivered\nClosed",
+   "read_only": 1
+  },
+  {
+   "fetch_if_empty": 1,
+   "fieldname": "cargo_type",
+   "fieldtype": "Link",
+   "label": "Cargo Type",
+   "options": "Cargo Type",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.po_so=='Purchase Order'",
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Supplier Name",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "credit_days",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Credit Days"
+  },
+  {
+   "fieldname": "inventory_destination",
+   "fieldtype": "Select",
+   "label": "Inventory destination ",
+   "options": "\nSEZ\nJGB Warehouse\nWarehouse Bonded\nDirect to Customer",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.inventory_destination == \"Warehouse Bonded\" || doc.inventory_destination==\"JGB Warehouse\"",
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Final Destination",
+   "options": "Warehouse"
+  },
+  {
+   "depends_on": "eval:doc.logistic_type==\"Export\"",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "alert_date",
+   "fieldtype": "Date",
+   "hidden": 1,
+   "label": "Alert Date"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "currency_and_price_list_section",
+   "fieldtype": "Section Break",
+   "hidden": 1,
+   "label": "Currency and Price List"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "conv_rate",
+   "fieldtype": "Float",
+   "label": "Conversion Rate"
+  },
+  {
+   "fieldname": "column_break_20",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_12",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "product_description",
+   "fieldtype": "Table",
+   "label": "Product Description",
+   "options": "Logistics Request Item"
+  },
+  {
+   "fieldname": "section_break_14",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "order_no.grand_total",
+   "fieldname": "grand_total",
+   "fieldtype": "Currency",
+   "label": "Grand Total"
+  },
+  {
+   "fieldname": "column_break_17",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "currency_inr",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Currency INR"
+  },
+  {
+   "depends_on": "eval:doc.company != \"Norden Communication UK Limited\" || doc.company != \"Norden Singapore PTE LTD\"",
+   "fieldname": "custom_duty",
+   "fieldtype": "Currency",
+   "label": "Forecast \u2013 Customs Duty Amount (By default - 45% of Grand Total)",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "quantity__packages",
+   "fieldtype": "Section Break",
+   "label": "Quantity / Packages"
+  },
+  {
+   "depends_on": "eval: doc.logistic_type == \"Import\"",
+   "fieldname": "courier__awb__bl_number__container",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Courier / Container"
+  },
+  {
+   "depends_on": "eval: doc.logistic_type == \"Import\" && doc.cargo_type==\"Courier\"",
+   "fieldname": "dimensions",
+   "fieldtype": "Data",
+   "label": "Dimensions"
+  },
+  {
+   "fieldname": "gross_wt",
+   "fieldtype": "Float",
+   "label": "Gross Weight (in Kg)",
+   "read_only_depends_on": "eval:doc.po_so==\"Sales Invoice\""
+  },
+  {
+   "fieldname": "cbm",
+   "fieldtype": "Float",
+   "label": "CBM"
+  },
+  {
+   "depends_on": "eval:doc.logistic_type == \"Import\"",
+   "fieldname": "box_summary",
+   "fieldtype": "HTML",
+   "label": "Box Summary"
+  },
+  {
+   "depends_on": "eval: doc.logistic_type == \"Import\"",
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "UOM ",
+   "options": "UOM"
+  },
+  {
+   "fieldname": "column_break_24",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval: doc.logistic_type == \"Import\"",
+   "fieldname": "box_pallet_count",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Boxes/Pallet-Count"
+  },
+  {
+   "fieldname": "net_wt",
+   "fieldtype": "Float",
+   "label": "Net Weight (in Kg)",
+   "read_only_depends_on": "eval:doc.po_so=='Sales Invoice'"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_nqsu",
+   "fieldtype": "Section Break",
+   "label": "Summary of Box & Pallet"
+  },
+  {
+   "fieldname": "box_summary_table",
+   "fieldtype": "Table",
+   "label": "Box Summary",
+   "options": "Box Summary",
+   "read_only": 1
+  },
+  {
+   "fieldname": "pallet_summary",
+   "fieldtype": "Table",
+   "label": "Pallet Summary",
+   "options": "Pallet Summary",
+   "read_only": 1,
+   "width": "100"
+  },
+  {
+   "fieldname": "attach_documents_section",
+   "fieldtype": "Section Break",
+   "label": "Attach Schedule Documents"
+  },
+  {
+   "depends_on": "eval:doc.logistic_type == \"Import\" || doc.logistic_type == \"Local Delivery\"",
+   "fieldname": "document_attached",
+   "fieldtype": "Table",
+   "label": "Schedule Document-Attachment Details",
+   "options": "Attach Documents"
+  },
+  {
+   "fieldname": "section_break_28",
+   "fieldtype": "Section Break",
+   "label": "Logistics OPS"
+  },
+  {
+   "fieldname": "date_of_shipment",
+   "fieldtype": "Date",
+   "label": "Scheduled\u00a0Date"
+  },
+  {
+   "depends_on": "eval:doc.cargo_type == \"Sea\"",
+   "fieldname": "pol_seaport",
+   "fieldtype": "Link",
+   "label": "POL SEAPORT",
+   "options": "Port"
+  },
+  {
+   "depends_on": "eval:doc.cargo_type == \"Sea\"",
+   "fetch_from": "pol_seaport.city",
+   "fetch_if_empty": 1,
+   "fieldname": "pol_city_seaport",
+   "fieldtype": "Data",
+   "label": "POL City",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.cargo_type == \"Sea\"",
+   "fetch_from": "pol_seaport.country",
+   "fetch_if_empty": 1,
+   "fieldname": "pol_country_seaport",
+   "fieldtype": "Data",
+   "label": "POL Country",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.cargo_type == 'Air'",
+   "fetch_from": ".",
+   "fieldname": "pol_airport",
+   "fieldtype": "Link",
+   "label": "POL AIRPORT",
+   "options": "Port"
+  },
+  {
+   "depends_on": "eval:doc.cargo_type == 'Air'",
+   "fetch_from": "pol_airport.city",
+   "fetch_if_empty": 1,
+   "fieldname": "pol_city_airport",
+   "fieldtype": "Data",
+   "label": "POL City",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.cargo_type == 'Air'",
+   "fetch_from": "pol_airport.country",
+   "fetch_if_empty": 1,
+   "fieldname": "pol_country_airport",
+   "fieldtype": "Data",
+   "label": "POL Country",
+   "read_only": 1
+  },
+  {
+   "fieldname": "etd",
+   "fieldtype": "Date",
+   "label": "ETD ",
+   "read_only_depends_on": "eval:doc.status != \"Draft\" || (frappe.user.has_role == \"Accounts User\" && !frappe.user.has_role(\"System Manager\"))"
+  },
+  {
+   "fieldname": "transit_time",
+   "fieldtype": "Int",
+   "label": "Transit Time"
+  },
+  {
+   "depends_on": "eval:doc.logistic_type != \"Local Delivery\"",
+   "fieldname": "master_bl_number__awb",
+   "fieldtype": "Data",
+   "label": "Master BL Number / AWB"
+  },
+  {
+   "fieldname": "carrier_name",
+   "fieldtype": "Link",
+   "label": "Carrier Name",
+   "options": "Carrier Name"
+  },
+  {
+   "fieldname": "column_break_42",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.logistics_type!=\"Local Delivery\" && doc.cargo_type==\"Sea\"",
+   "fieldname": "shipping_line",
+   "fieldtype": "Link",
+   "label": "Shipping Line",
+   "options": "Shipping Line"
+  },
+  {
+   "depends_on": "eval:doc.po_so=='Purchase Order'",
+   "fieldname": "supplier_incoterms",
+   "fieldtype": "Link",
+   "label": "Supplier INCOTERMS",
+   "options": "Incoterm"
+  },
+  {
+   "depends_on": "eval:doc.po_so=='Sales Invoice'",
+   "fieldname": "customer_incoterms",
+   "fieldtype": "Link",
+   "label": "Customer INCOTERMS",
+   "options": "Incoterm"
+  },
+  {
+   "depends_on": "eval:doc.cargo_type == \"Sea\"",
+   "fieldname": "pod_seaport",
+   "fieldtype": "Link",
+   "label": "POD SEAPORT",
+   "options": "Port"
+  },
+  {
+   "depends_on": "eval:doc.cargo_type == \"Sea\"",
+   "fetch_from": "pod_seaport.city",
+   "fetch_if_empty": 1,
+   "fieldname": "pod_city_seaport",
+   "fieldtype": "Data",
+   "label": "POD City",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.cargo_type == \"Sea\"",
+   "fetch_from": "pod_seaport.country",
+   "fetch_if_empty": 1,
+   "fieldname": "pod_country_seaport",
+   "fieldtype": "Data",
+   "label": "POD Country",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.cargo_type == 'Air'",
+   "fieldname": "pod_airport",
+   "fieldtype": "Link",
+   "label": "POD AIRPORT",
+   "options": "Port"
+  },
+  {
+   "depends_on": "eval:doc.cargo_type == 'Air'",
+   "fetch_from": "pod_airport.city",
+   "fetch_if_empty": 1,
+   "fieldname": "pod_city_airport",
+   "fieldtype": "Data",
+   "label": "POD City",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.cargo_type == 'Air'",
+   "fetch_from": "pod_airport.country",
+   "fetch_if_empty": 1,
+   "fieldname": "pod_country_airport",
+   "fieldtype": "Data",
+   "label": "POD Country",
+   "read_only": 1
+  },
+  {
+   "fieldname": "eta",
+   "fieldtype": "Date",
+   "label": "ETA",
+   "read_only_depends_on": "eval:doc.status != \"Draft\" || (frappe.user.has_role == \"Accounts User\" && !frappe.user.has_role(\"System Manager\"))"
+  },
+  {
+   "fieldname": "document_dispatch_list",
+   "fieldtype": "Table MultiSelect",
+   "label": "Document Dispatch List",
+   "options": "Document Dispatch Child"
+  },
+  {
+   "depends_on": "eval:doc.logistic_type != \"Local Delivery\"",
+   "fieldname": "normal_bl_number__awb",
+   "fieldtype": "Data",
+   "label": "Normal BL Number / AWB"
+  },
+  {
+   "fieldname": "eta_revision_log_section",
+   "fieldtype": "Section Break",
+   "label": "ETD / ETA Revision Log"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Table",
+   "label": "Remarks",
+   "options": "Remarks",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_49",
+   "fieldtype": "Section Break",
+   "label": "Freight & Forwarder / Delivery Supplier"
+  },
+  {
+   "depends_on": "eval:doc.forwarded_type==\"Forwarder\"",
+   "fieldname": "ffw_quotation",
+   "fieldtype": "Table",
+   "label": "FFW Quotation",
+   "options": "FFW Quotation"
+  },
+  {
+   "depends_on": "eval:doc.forwarded_type==\"Forwarder\"",
+   "fieldname": "recommended_ffw",
+   "fieldtype": "Link",
+   "label": "Recommended FFW",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "documents_status_section",
+   "fieldtype": "Section Break",
+   "hidden": 1,
+   "label": "Documents Status"
+  },
+  {
+   "depends_on": "eval:doc.po_so=='Purchase Order'",
+   "fieldname": "received_by",
+   "fieldtype": "Link",
+   "label": "Received By",
+   "options": "User"
+  },
+  {
+   "depends_on": "eval:doc.po_so=='Sales Order'",
+   "fieldname": "dispatched_by",
+   "fieldtype": "Link",
+   "label": "Dispatched By",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_51",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Datetime",
+   "label": "Date&Time"
+  },
+  {
+   "depends_on": "eval:doc.po_so=='Sales Order'",
+   "fieldname": "section_break_eozd",
+   "fieldtype": "Section Break",
+   "label": "Attach Bills"
+  },
+  {
+   "fieldname": "bills_copy",
+   "fieldtype": "Table",
+   "label": "Bills",
+   "options": "Attach biils"
+  },
+  {
+   "fieldname": "support_doc",
+   "fieldtype": "Section Break",
+   "label": "Attach Dispatch Documents"
+  },
+  {
+   "fieldname": "support_documents",
+   "fieldtype": "Table",
+   "options": "Supporting Document"
+  },
+  {
+   "description": "*Select the list of files to be downloaded.",
+   "fieldname": "download",
+   "fieldtype": "Button",
+   "hidden": 1,
+   "label": "Download"
+  },
+  {
+   "fieldname": "document_for_payment_clearance_section",
+   "fieldtype": "Section Break",
+   "label": "Document for Payment Clearance"
+  },
+  {
+   "depends_on": "eval:doc.po_so=='Purchase Order'",
+   "fieldname": "delivery_section",
+   "fieldtype": "Section Break",
+   "label": "Out for Delivery"
+  },
+  {
+   "fieldname": "vehicle_number",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Vehicle Number"
+  },
+  {
+   "fieldname": "vehicle_type",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Type of Truck",
+   "options": "Truck Type"
+  },
+  {
+   "fieldname": "column_break_45",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name"
+  },
+  {
+   "fieldname": "driver_contact_number",
+   "fieldtype": "Data",
+   "label": "Driver Contact Number",
+   "options": "Phone"
+  },
+  {
+   "depends_on": "eval:doc.po_so=='Purchase Order'",
+   "fieldname": "attach_bills_section",
+   "fieldtype": "Section Break",
+   "label": "Attach Bills"
+  },
+  {
+   "fieldname": "bills",
+   "fieldtype": "Table",
+   "label": "Bills",
+   "options": "Attach biils"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Logistics Request",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "proof_of_delivery_section",
+   "fieldtype": "Section Break",
+   "label": "Proof of Delivery"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Attach Proof"
+  },
+  {
+   "fieldname": "date_of_delivery",
+   "fieldtype": "Date",
+   "label": "Date of Delivery"
+  },
+  {
+   "fieldname": "receive_by_name",
+   "fieldtype": "Data",
+   "label": "Received by"
+  },
+  {
+   "fieldname": "column_break_qddi",
+   "fieldtype": "Column Break",
+   "read_only": 1
+  },
+  {
+   "fieldname": "closing_remarks",
+   "fieldtype": "Small Text",
+   "label": "Closing Remarks",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.logistics_type!=\"Local Delivery\"",
+   "fieldname": "jgb_incoterms",
+   "fieldtype": "Link",
+   "label": "JGB INCOTERMS",
+   "options": "Incoterm"
+  },
+  {
+   "depends_on": "eval:doc.logistic_type == \"Local Delivery\"",
+   "fieldname": "shipping_address_name",
+   "fieldtype": "Link",
+   "label": "Shipping Address Name",
+   "options": "Address"
+  },
+  {
+   "depends_on": "eval:doc.logistic_type == \"Local Delivery\"",
+   "fieldname": "shipping_address",
+   "fieldtype": "Text",
+   "label": "Shipping Address",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.logistic_type == \"Local Delivery\"",
+   "fieldname": "source",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Source",
+   "options": "Lead Source"
+  },
+  {
+   "depends_on": "eval:doc.logistic_type == \"Local Delivery\"",
+   "fieldname": "destination_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Destination Name"
+  },
+  {
+   "fieldname": "supplier_invoice_section",
+   "fieldtype": "Section Break",
+   "hidden": 1,
+   "label": "Freight Forwarder Invoice"
+  },
+  {
+   "depends_on": "eval:doc.attachment && doc.date_of_delivery && doc.receive_by_name && frappe.user.has_role(\"Accounts User\") == 1",
+   "fieldname": "supplier_invoice_attachment",
+   "fieldtype": "Attach",
+   "label": "Attach Bill"
+  },
+  {
+   "depends_on": "eval:['Dispatched','Scheduled','Payment','Out for Delivery','Arrived','Closed','Completed'].includes(doc.workflow_state)",
+   "fieldname": "scheduled_tab",
+   "fieldtype": "Tab Break",
+   "label": "Scheduled"
+  },
+  {
+   "depends_on": "eval:['Dispatched','Payment','Out for Delivery','Arrived','Closed','Completed'].includes(doc.workflow_state) && doc.logistic_type != 'Local Delivery'",
+   "fieldname": "dispatched_tab",
+   "fieldtype": "Tab Break",
+   "label": "Dispatched"
+  },
+  {
+   "fieldname": "container_type",
+   "fieldtype": "Link",
+   "label": "Container Type",
+   "options": "Container Type"
+  },
+  {
+   "fieldname": "container_count",
+   "fieldtype": "Int",
+   "label": "Container Count"
+  },
+  {
+   "fieldname": "table_wdql",
+   "fieldtype": "Table",
+   "options": "LR Costing"
+  },
+  {
+   "depends_on": "eval:['Payment','Out for Delivery','Arrived','Closed','Completed'].includes(doc.workflow_state) && doc.logistic_type != 'Local Delivery'",
+   "fieldname": "payment_tab",
+   "fieldtype": "Tab Break",
+   "label": "Payment"
+  },
+  {
+   "fieldname": "lr_costing_payment",
+   "fieldtype": "Table",
+   "label": "LR Costing Payment",
+   "options": "LR Costing"
+  },
+  {
+   "depends_on": "eval:['Out for Delivery','Arrived','Closed','Completed'].includes(doc.workflow_state)",
+   "fieldname": "ofd_tab",
+   "fieldtype": "Tab Break",
+   "label": "OFD"
+  },
+  {
+   "fieldname": "truck_count",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Truck Count"
+  },
+  {
+   "fieldname": "gate_pass",
+   "fieldtype": "Data",
+   "label": "Gate Pass"
+  },
+  {
+   "fieldname": "iqama_id",
+   "fieldtype": "Data",
+   "label": "IQAMA ID"
+  },
+  {
+   "fieldname": "attach_iqama",
+   "fieldtype": "Attach",
+   "label": "Attach IQAMA"
+  },
+  {
+   "fieldname": "isthimara_id",
+   "fieldtype": "Data",
+   "label": "ISTHIMARA ID"
+  },
+  {
+   "fieldname": "attach_isthimara",
+   "fieldtype": "Attach",
+   "label": "Attach ISTHIMARA"
+  },
+  {
+   "depends_on": "eval:['Arrived','Closed','Completed'].includes(doc.workflow_state)",
+   "fieldname": "arrived_tab",
+   "fieldtype": "Tab Break",
+   "label": "Arrived"
+  },
+  {
+   "depends_on": "eval:doc.logistic_type=='Local Delivery'",
+   "fieldname": "carried_by",
+   "fieldtype": "Link",
+   "label": "Carried By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "party_name",
+   "fieldtype": "Data",
+   "label": "Party Name"
+  },
+  {
+   "fieldname": "bill_amount",
+   "fieldtype": "Currency",
+   "label": "Bill Amount"
+  },
+  {
+   "fieldname": "column_break_nigo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "advance",
+   "fieldtype": "Currency",
+   "label": "Advance"
+  },
+  {
+   "fieldname": "outstanding",
+   "fieldtype": "Currency",
+   "label": "Outstanding"
+  },
+  {
+   "fieldname": "lr_costing_section",
+   "fieldtype": "Section Break",
+   "label": "LR Costing"
+  },
+  {
+   "depends_on": "eval:doc.currency!='SAR'",
+   "fieldname": "grand_total_sar",
+   "fieldtype": "Currency",
+   "label": "Grand Total(SAR)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.recommended_ffw && doc.forwarded_type==\"Forwarder\"",
+   "fieldname": "quoted_amount_sar",
+   "fieldtype": "Currency",
+   "label": "Quoted Amount SAR",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.po_so=='Purchase Order'",
+   "fieldname": "out_for_delivery_section",
+   "fieldtype": "Section Break",
+   "label": "Out for Delivery"
+  },
+  {
+   "fieldname": "table_gqxd",
+   "fieldtype": "Table",
+   "options": "LR Vehicle Details"
+  },
+  {
+   "fieldname": "forwarded_type",
+   "fieldtype": "Select",
+   "label": "Forwarded Type",
+   "options": "\nForwarder\nCourier\nJGB Vehicle"
+  },
+  {
+   "depends_on": "eval:doc.forwarded_type==\"Courier\"",
+   "fieldname": "ffw_quotation_courier",
+   "fieldtype": "Table",
+   "label": "FFW Quotation",
+   "options": "FFW Quotation Courier"
+  },
+  {
+   "depends_on": "eval:doc.forwarded_type==\"JGB Vehicle\"",
+   "fieldname": "ffw_quotation_vehicle",
+   "fieldtype": "Table",
+   "label": "FFW Quotation",
+   "options": "FFW Quotation Vehicle"
+  },
+  {
+   "depends_on": "eval:doc.logistic_type == \"Local Delivery\"",
+   "description": "Reselect, if the chosen address is edited after save",
+   "fetch_from": "customer.customer_primary_address",
+   "fetch_if_empty": 1,
+   "fieldname": "customer_primary_address",
+   "fieldtype": "Link",
+   "label": "Customer Primary Address",
+   "options": "Address"
+  },
+  {
+   "fieldname": "box",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "#Box"
+  },
+  {
+   "fieldname": "pallet",
+   "fieldtype": "Int",
+   "label": "#Pallet"
+  },
+  {
+   "fieldname": "section_break_hkgw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "lr_status_details",
+   "fieldtype": "Table",
+   "label": "LR Status Details",
+   "options": "LR Status Details"
+  },
+  {
+   "default": "0",
+   "fieldname": "has_purchase_receipt",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Has Purchase Receipt"
+  },
+  {
+   "depends_on": "eval:doc.cargo_type==\"Sea\"",
+   "fieldname": "recommened_container",
+   "fieldtype": "Link",
+   "label": "Recommened Container",
+   "options": "Container"
+  },
+  {
+   "depends_on": "eval:doc.cargo_type==\"Sea\"",
+   "fieldname": "container_occupancy",
+   "fieldtype": "Percent",
+   "label": "Container Occupancy"
+  },
+  {
+   "fieldname": "section_break_sfew",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.custom_payment_by==\"Customer\"",
+   "fieldname": "customer_forwarder",
+   "fieldtype": "Data",
+   "label": "Customer Forwarder"
+  },
+  {
+   "fieldname": "lr_costing_payment_po",
+   "fieldtype": "Table",
+   "label": "LR Costing Payment",
+   "options": "LR Costing Payment PO"
+  },
+  {
+   "fieldname": "section_break_sekg",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:(doc.cargo_type==\"Air\")",
+   "fieldname": "lr_package_details",
+   "fieldtype": "Table",
+   "label": "LR Package Details",
+   "options": "LR Package Details"
+  },
+  {
+   "fieldname": "section_break_adrj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_aghm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.recommended_ffw && doc.forwarded_type==\"Forwarder\"",
+   "fieldname": "recommendation_remarks",
+   "fieldtype": "Small Text",
+   "label": "Recommendation Remarks"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-15 13:41:45.249387",
+ "modified_by": "divya.p@groupteampro.com",
+ "module": "JGB",
+ "name": "Logistics Request",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "order_no",
+ "track_changes": 1
+}

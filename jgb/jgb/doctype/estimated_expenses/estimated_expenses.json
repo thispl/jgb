@@ -1,0 +1,52 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-11-20 07:26:57.100439",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_h8pl",
+  "description",
+  "amount_in_selected_currency",
+  "amount_in_company_currency"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_h8pl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Description"
+  },
+  {
+   "fieldname": "amount_in_selected_currency",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount in Selected Currency"
+  },
+  {
+   "fieldname": "amount_in_company_currency",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount in Company Currency"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-11-20 07:43:33.236102",
+ "modified_by": "Administrator",
+ "module": "JGB",
+ "name": "Estimated Expenses",
+ "owner": "bhuvaneswari.a@groupteampro.com",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,227 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-19 09:45:01.289940",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_npg8",
+  "item_code",
+  "column_break_mayp",
+  "company",
+  "column_break_4iit",
+  "description",
+  "allocated_item_details_section",
+  "allocated_item_details",
+  "po_details_section",
+  "po_details",
+  "po_details_summary_section",
+  "total_order_qty",
+  "column_break_4ov4",
+  "total_pr_qty",
+  "column_break_zdec",
+  "total_qc_qty",
+  "column_break_3qrn",
+  "total_bal_qty",
+  "so_details_section",
+  "so_details",
+  "so_details_summary_section",
+  "total_order",
+  "column_break_emfu",
+  "total_res_qty",
+  "column_break_j7gv",
+  "total_delivery_qty",
+  "column_break_jo7i",
+  "total_pending_qty",
+  "price_list_details_section",
+  "price_list_details"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_npg8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "label": "Item Code",
+   "options": "Item"
+  },
+  {
+   "fieldname": "column_break_mayp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "column_break_4iit",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "item_code.description",
+   "fieldname": "description",
+   "fieldtype": "Read Only",
+   "label": "Description"
+  },
+  {
+   "fieldname": "allocated_item_details",
+   "fieldtype": "Table",
+   "label": "Allocated Item Details",
+   "options": "Allocated Item Details",
+   "read_only": 1
+  },
+  {
+   "fieldname": "po_details_section",
+   "fieldtype": "Section Break",
+   "label": "PO Details"
+  },
+  {
+   "fieldname": "allocated_item_details_section",
+   "fieldtype": "Section Break",
+   "label": "Allocated Item Details "
+  },
+  {
+   "fieldname": "po_details",
+   "fieldtype": "Table",
+   "label": "PO Details",
+   "options": "PO Details",
+   "read_only": 1
+  },
+  {
+   "fieldname": "po_details_summary_section",
+   "fieldtype": "Section Break",
+   "label": "PO Details Summary"
+  },
+  {
+   "fieldname": "total_order_qty",
+   "fieldtype": "Float",
+   "label": "Total Order Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4ov4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_pr_qty",
+   "fieldtype": "Float",
+   "label": "Total PR Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_zdec",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_qc_qty",
+   "fieldtype": "Float",
+   "label": "Total QC Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3qrn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_bal_qty",
+   "fieldtype": "Float",
+   "label": "Total Bal qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "so_details_section",
+   "fieldtype": "Section Break",
+   "label": "SO Details"
+  },
+  {
+   "fieldname": "so_details",
+   "fieldtype": "Table",
+   "label": "SO Details",
+   "options": "SO Details"
+  },
+  {
+   "fieldname": "so_details_summary_section",
+   "fieldtype": "Section Break",
+   "label": "SO Details Summary"
+  },
+  {
+   "fieldname": "total_order",
+   "fieldtype": "Float",
+   "label": "Total Order Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_emfu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_res_qty",
+   "fieldtype": "Float",
+   "label": "Total Res Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_j7gv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_delivery_qty",
+   "fieldtype": "Float",
+   "label": "Total Delivery Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_jo7i",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_pending_qty",
+   "fieldtype": "Float",
+   "label": "Total Pending Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "price_list_details_section",
+   "fieldtype": "Section Break",
+   "label": "Price List Details"
+  },
+  {
+   "fieldname": "price_list_details",
+   "fieldtype": "Table",
+   "label": "Price List Details",
+   "options": "Price List Details",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-06-19 11:27:35.890507",
+ "modified_by": "sivarenisha.m@groupteampro.com",
+ "module": "JGB",
+ "name": "Allocation Details",
+ "owner": "sivarenisha.m@groupteampro.com",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

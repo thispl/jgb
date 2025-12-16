@@ -74,10 +74,22 @@ app_license = "mit"
 # ----------
 
 # add methods and filters to jinja environment
-# jinja = {
-# 	"methods": "jgb.utils.jinja_methods",
-# 	"filters": "jgb.utils.jinja_filters"
-# }
+jinja = {
+	"methods":[
+        "jgb.utils.packing_list",
+		"jgb.jgb.custom.return_account_total",
+		"jgb.jgb.custom.get_sales_person",
+		"jgb.jgb.custom.receivable_report",
+		"jgb.jgb.custom.get_accounts_ledger",
+		"jgb.jgb.custom.statement_of_account",
+		"jgb.jgb.custom.supplier_statement_of_account",
+		"jgb.jgb.custom.receipt_report",
+		"jgb.jgb.custom.return_total_amt_consolidate",
+		"jgb.jgb.custom.ageing_report_test",
+		"jgb.jgb.custom.return_account_summary_total",
+		"jgb.jgb.custom.return_total_amt1"
+	] 
+}
 
 # Installation
 # ------------
@@ -129,21 +141,109 @@ app_license = "mit"
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Salary Slip": "jgb.overrides.CustomSalarySlip"
+}
 
 # Document Events
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	# "Delivery Note": {
+	# 	"on_submit": "jgb.jgb.custom.update_logistics_status_from_dn",
+	# 	"validate": "jgb.jgb.custom.update_logistics_status_from_dn",
+	# 	"on_cancel": "jgb.jgb.custom.update_logistics_status_from_dn",
+	# },
+	"Payment Entry":{
+        "on_update":"jgb.jgb.doctype.logistics_request.logistics_request.on_payment_entry_submit",
+		"on_cancel":"jgb.jgb.doctype.logistics_request.logistics_request.update_lr_for_pi_cancel",
+	},
+	"Leave Application":{
+		'validate':'jgb.jgb.custom.check_leave_validations',
+	},
+    "Payroll Entry":{
+		'validate':'jgb.jgb.custom.create_additional_salary',
+        "on_trash":'jgb.jgb.custom.delete_additional_salary',
+	},
+	"Leave Allocation":{
+		'validate':'jgb.jgb.custom.check_allocations',
+	},
+	"Purchase Order":{
+		'validate':'jgb.jgb.custom.update_advance_po',
+		'after_insert':'jgb.utils.update_po_status',
+		'on_update':'jgb.utils.update_po_status_ref',
+		'on_cancel':'jgb.utils.update_po_status_ref',
+        'before_insert': 'jgb.jgb.custom.set_po_series'
+	},
+	"Purchase Invoice":{
+        "on_update":["jgb.jgb.doctype.logistics_request.logistics_request.purchase_lr_status_update"],
+		"on_cancel":["jgb.jgb.doctype.logistics_request.logistics_request.purchase_lr_status_update"],
+        "on_update_after_submit":["jgb.jgb.doctype.logistics_request.logistics_request.purchase_lr_status_update"],
+	},
+	'Purchase Receipt': {
+		"on_submit":["jgb.jgb.custom.update_logistic_request","jgb.jgb.custom.update_excess_qty_pr","jgb.jgb.custom.update_pr_in_lr_submit","jgb.utils.update_pr_status_update"],
+		"after_insert":["jgb.jgb.custom.update_pr_in_lr_draft","jgb.utils.update_pr_status_ref","jgb.jgb.custom.send_notification_to_sales"],
+		"on_cancel":["jgb.jgb.custom.update_pr_in_lr_cancel","jgb.utils.update_pr_status_update"],
+		"on_update":["jgb.utils.update_pr_status_update","jgb.jgb.custom.update_pr_currency"],
+		"validate":["jgb.jgb.custom.set_expense_account_from_division","jgb.jgb.custom.set_inventory_account_from_division"],
+        # "before_save":"jgb.utils.update_currency"
+	},
+	
+	'Sales Order':{
+		"on_submit":"jgb.jgb.custom.create_project_on_so_submit",
+		"after_insert":"jgb.utils.update_so_status",
+		"on_update":"jgb.utils.update_status_so",
+		"on_cancel":"jgb.utils.update_so_status_cancel",
+        'before_insert': 'jgb.jgb.custom.set_so_series',
+        'validate': ['jgb.jgb.custom.validate_sow_amount']
+	},
+	'Lead':{
+		"after_insert":["jgb.jgb.custom.update_lead_name"]
+	},
+	'Sales Follow UP':{
+		"after_insert":"jgb.jgb.custom.update_sfp_status"
+	},
+	'Opportunity':{
+		"after_insert":"jgb.jgb.custom.update_opp_status"
+	},
+	'Employee':{
+		"before_save":"jgb.jgb.custom.before_save_employee",
+	},
+	'Quotation':{
+		"after_insert":"jgb.utils.update_qn_status",
+		"on_update":"jgb.utils.update_status_quotation",
+		"validate": ["jgb.jgb.custom.validate_items_before_hod_review","jgb.jgb.custom.validate_sow_amount"],
+		# "on_submit":"jgb.jgb.custom.update_selling_rate"
+		# "on_cancel":"jgb.utils.update_status_quotation"
+	},
+	'Sales Invoice':{
+		"after_insert":"jgb.utils.update_si_status",
+		"on_update":"jgb.utils.update_si_status_ref",
+		"on_cancel":"jgb.utils.update_si_status_ref"
+	},
+	'Delivery Note':{
+		"after_insert":["jgb.utils.update_dn_status","jgb.jgb.custom.update_logistics_status_from_dn"],
+		"on_submit": ["jgb.jgb.custom.update_logistics_status_from_dn","jgb.jgb.custom.send_mail_for_dn"],
+		"on_cancel": ["jgb.jgb.custom.update_logistics_status_from_dn","jgb.utils.update_dn_status_update"],
+		"on_update":"jgb.utils.update_dn_status_update",
+		"validate":["jgb.jgb.custom.set_expense_account_from_division",]
+	},
+	"User":{
+        "before_save": "jgb.jgb.custom.update_full_name_hook"
+	},
+	"Retention Invoice":{
+        "on_submit":"jgb.jgb.custom.create_new_journal_entry_retention",
+        "on_cancel":"jgb.jgb.custom.cancel_journal_entry_retention",
+	},
+	"Customer":{
+		"after_insert":"jgb.jgb.custom.create_new_address",
+	}
+	# 'Expense Claim':{
+	# 	"validate":"jgb.jgb.custom.restrict_expense_claim"
+	# }
+
+}
 
 # Scheduled Tasks
 # ---------------

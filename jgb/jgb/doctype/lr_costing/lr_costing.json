@@ -1,0 +1,90 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-25 07:37:47.854313",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "cost",
+  "attach_challan",
+  "column_break_ygah",
+  "currency",
+  "cost_in_sar",
+  "attach_payment",
+  "read_only"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "read_only_depends_on": "read_only"
+  },
+  {
+   "fieldname": "cost",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Cost",
+   "read_only_depends_on": "read_only"
+  },
+  {
+   "fieldname": "attach_challan",
+   "fieldtype": "Attach",
+   "hidden": 1,
+   "label": "Attach Challan"
+  },
+  {
+   "fieldname": "attach_payment",
+   "fieldtype": "Attach",
+   "hidden": 1,
+   "label": "Attach Payment"
+  },
+  {
+   "fieldname": "column_break_ygah",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "SAR",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Currency",
+   "options": "Currency",
+   "read_only_depends_on": "read_only"
+  },
+  {
+   "default": "0",
+   "fieldname": "cost_in_sar",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Cost in (SAR)",
+   "precision": "2",
+   "read_only": 1,
+   "read_only_depends_on": "read_only"
+  },
+  {
+   "default": "0",
+   "fieldname": "read_only",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Read Only"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-12-15 14:43:08.363988",
+ "modified_by": "divya.p@groupteampro.com",
+ "module": "JGB",
+ "name": "LR Costing",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

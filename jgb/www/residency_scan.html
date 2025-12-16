@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Residency OCR Scanner</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f8f9fa;
+      flex-direction: column;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* Video in center with ID card ratio and rounded edges */
+    #video {
+      width: 60vw;
+      max-width: 600px;
+      aspect-ratio: 400 / 250;
+      border-radius: 40px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      object-fit: cover;
+    }
+
+    #scanned_value {
+      font-size: 28px;
+      font-weight: bold;
+      color: #ff3b3b;
+      margin-top: 20px;
+      white-space: pre-line;
+      text-align: center;
+    }
+
+    button {
+      margin: 20px 10px;
+      padding: 12px 25px;
+      font-size: 20px;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+
+    /* Popup overlay */
+    #popup_overlay {
+      display: none;
+      position: fixed;
+      top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    #popup_content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 40px; /* same curve as video */
+      text-align: center;
+      max-width: 90%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #popup_content img {
+      width: 60vw;           /* same size as video */
+      max-width: 600px;
+      aspect-ratio: 400 / 250;
+      border-radius: 40px;   /* same rounded corners */
+      object-fit: cover;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      margin-bottom: 20px;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>Residency OCR Scanner</h1>
+  <video id="video" autoplay></video>
+  <div id="scanned_value">🔎 Waiting for capture...</div>
+  <button id="capture_btn">📸 Capture</button>
+
+  <!-- Popup for captured image -->
+  <div id="popup_overlay">
+    <div id="popup_content">
+      <img id="popup_image" src="" alt="Captured Image">
+      <button id="confirm_btn">✅ OK</button>
+    </div>
+  </div>
+
+  <script>
+    const video = document.getElementById('video');
+    const scannedValueBox = document.getElementById('scanned_value');
+    const captureBtn = document.getElementById('capture_btn');
+    const popupOverlay = document.getElementById('popup_overlay');
+    const popupImage = document.getElementById('popup_image');
+    const confirmBtn = document.getElementById('confirm_btn');
+
+    // Start camera
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+      .then(stream => { video.srcObject = stream; })
+      .catch(err => { scannedValueBox.innerText = "❌ Camera error: " + err; });
+
+    let capturedDataUrl = null;
+
+    // Capture button
+    captureBtn.addEventListener("click", async () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      capturedDataUrl = canvas.toDataURL();
+
+      // Show popup
+      popupImage.src = capturedDataUrl;
+      popupOverlay.style.display = "flex";
+
+      scannedValueBox.innerText = "🔄 Scanning image...";
+
+      try {
+        const { data: { text } } = await Tesseract.recognize(capturedDataUrl, 'eng');
+        const normalizedText = text.replace(/\s+/g, ' ').trim();
+
+        let idMatch = normalizedText.match(/ID\s*\.?\s*No\s*[:\s]*([0-9]{6,15})/i);
+        if (!idMatch) {
+          let numbers = normalizedText.match(/\b[0-9]{6,15}\b/g);
+          idMatch = numbers ? [null, numbers[0]] : null;
+        }
+        let nameMatch = normalizedText.match(/Name\s*[:\s]*([A-Za-z\s]+)/i);
+
+        const idText = idMatch ? idMatch[1].trim() : null;
+        const nameText = nameMatch ? nameMatch[1].trim() : null;
+
+        if(!idText || !nameText){
+          scannedValueBox.innerText = "❌ Failed to detect ID or Name";
+          return;
+        }
+
+        scannedValueBox.innerText = `✅ Q.ID: ${idText}\n👤 Name: ${nameText}\n💾 Creating document...`;
+
+        const createResp = await fetch("/api/resource/Residency Permit Details", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ qid: idText, name1: nameText }),
+          credentials: "same-origin"
+        });
+        const docData = await createResp.json();
+        if(docData.data && docData.data.name){
+          scannedValueBox.innerText += `\n✅ Document created: ${docData.data.name}`;
+        } else {
+          scannedValueBox.innerText += `\n❌ Failed to create document`;
+          console.error(docData);
+        }
+
+      } catch(err){
+        scannedValueBox.innerText = "❌ OCR failed: " + err;
+        console.error(err);
+      }
+    });
+
+    // Close popup
+    confirmBtn.addEventListener("click", () => {
+      popupOverlay.style.display = "none";
+    });
+  </script>
+</body>
+</html>

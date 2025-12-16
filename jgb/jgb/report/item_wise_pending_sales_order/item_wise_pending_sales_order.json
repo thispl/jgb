@@ -1,0 +1,41 @@
+{
+ "add_total_row": 1,
+ "add_translate_data": 0,
+ "columns": [],
+ "creation": "2025-06-16 09:12:36.787201",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "JGB",
+ "letterhead": null,
+ "modified": "2025-06-16 09:18:04.049357",
+ "modified_by": "Administrator",
+ "module": "JGB",
+ "name": "Item Wise Pending Sales Order",
+ "owner": "bhuvaneswari.a@groupteampro.com",
+ "prepared_report": 0,
+ "ref_doctype": "Sales Order",
+ "report_name": "Item Wise Pending Sales Order",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "Sales User"
+  },
+  {
+   "role": "Sales Manager"
+  },
+  {
+   "role": "Maintenance User"
+  },
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Stock User"
+  }
+ ],
+ "timeout": 0
+}

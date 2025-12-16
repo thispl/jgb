@@ -1,0 +1,60 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-12 09:43:22.295722",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "get_template",
+  "column_break_li2h",
+  "upload",
+  "process_of_item_creation"
+ ],
+ "fields": [
+  {
+   "fieldname": "upload",
+   "fieldtype": "Attach",
+   "label": "Upload"
+  },
+  {
+   "fieldname": "get_template",
+   "fieldtype": "Button",
+   "label": "Get Template"
+  },
+  {
+   "fieldname": "column_break_li2h",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "process_of_item_creation",
+   "fieldtype": "Button",
+   "label": "Import Items"
+  }
+ ],
+ "grid_page_length": 50,
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-06-17 16:17:01.296893",
+ "modified_by": "Administrator",
+ "module": "JGB",
+ "name": "Item Template",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

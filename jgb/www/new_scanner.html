@@ -1,0 +1,411 @@
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>Residency OCR Scanner</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+  <style>
+    body { font-family: "Segoe UI", sans-serif; margin:0; height:100vh; display:flex; justify-content:center; align-items:center; background: linear-gradient(135deg,#f0f3f7,#d9e2ec); flex-direction:column;}
+    h1 { font-size:36px; margin-bottom:20px; text-align:center; color:#1e3a8a; text-shadow:1px 1px 2px rgba(0,0,0,0.1);}
+    #video { width:60vw; max-width:600px; aspect-ratio:400/250; border-radius:40px; box-shadow:0 12px 35px rgba(0,0,0,0.3); object-fit:cover; border:4px solid #1e3a8a; transition: transform 0.3s ease;}
+    #video:hover { transform: scale(1.02);}
+    #scanned_value { font-size:26px; font-weight:bold; color:#ff3b3b; margin-top:20px; white-space:pre-line; text-align:center; min-height:60px;}
+    button { margin:20px 10px; padding:12px 30px; font-size:20px; cursor:pointer; border-radius:12px; border:none; background:#1e3a8a; color:#fff; box-shadow:0 5px 15px rgba(0,0,0,0.2); transition: transform 0.2s, box-shadow 0.2s;}
+    button:hover { transform: translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,0.3);}
+    #popup_overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:999; animation:fadeIn 0.3s ease;}
+    #popup_content { background:#fff; padding:20px; border-radius:40px; text-align:center; max-width:90%; display:flex; flex-direction:column; align-items:center; box-shadow:0 12px 35px rgba(0,0,0,0.3); animation:popIn 0.3s ease;}
+    #popup_content img { width:60vw; max-width:600px; aspect-ratio:400/250; border-radius:40px; object-fit:cover; box-shadow:0 12px 35px rgba(0,0,0,0.3); margin-bottom:20px; border:4px solid #1e3a8a;}
+    .spinner { border:5px solid #f3f3f3; border-top:5px solid #1e3a8a; border-radius:50%; width:40px; height:40px; animation:spin 1s linear infinite; display:inline-block; margin-top:15px;}
+    @keyframes spin {0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+    @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+    @keyframes popIn { from{transform:scale(0.8);} to{transform:scale(1);} }
+    form { display:flex; flex-direction:column; gap:15px; width:100%; max-width:500px; margin-top:10px;}
+    input, select { padding:10px; font-size:18px; border-radius:8px; border:1px solid #ccc;}
+  </style>
+</head>
+<body>
+<h1>Residency OCR Scanner</h1>
+<video id="video" autoplay></video>
+<div id="scanned_value">🔎 Waiting for capture...</div>
+<button id="capture_btn">📸 Capture</button>
+
+<div id="popup_overlay">
+  <div id="popup_content">
+    <img id="popup_image" src="" alt="Captured Image">
+    <div id="popup_details"></div>
+    <button id="ok_btn">✅ OK</button>
+    <button id="proceed_btn" style="display:none;">➡ Proceed</button>
+    <button id="cancel_btn" style="display:none;">❌ Cancel</button>
+    <div id="form_container" style="display:none;">
+      <form id="visitor_form">
+        <input type="text" name="mobile" placeholder="Mobile Number" required>
+        <input type="text" name="flat_no" placeholder="Flat Number" required>
+        <input type="text" name="flat_name" placeholder="Flat Name" required>
+        <select name="purpose" id="purpose" required>
+          <option value="">Select Purpose</option>
+          <option value="Delivery">Delivery</option>
+          <option value="Relative">Relative</option>
+          <option value="Personal">Personal</option>
+          <option value="Others">Others</option>
+        </select>
+        <input type="text" name="delivery_partner" placeholder="Delivery Partner Name" style="display:none;">
+        <input type="text" name="reason" placeholder="Reason" style="display:none;">
+        <button type="submit">✅ Confirm & Create</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const video = document.getElementById('video');
+const scannedValueBox = document.getElementById('scanned_value');
+const captureBtn = document.getElementById('capture_btn');
+const popupOverlay = document.getElementById('popup_overlay');
+const popupImage = document.getElementById('popup_image');
+const popupDetails = document.getElementById('popup_details');
+const okBtn = document.getElementById('ok_btn');
+const proceedBtn = document.getElementById('proceed_btn');
+const cancelBtn = document.getElementById('cancel_btn');
+const formContainer = document.getElementById('form_container');
+const visitorForm = document.getElementById('visitor_form');
+const purposeSelect = document.getElementById('purpose');
+
+let capturedDataUrl = null;
+let detectedID = null;
+let detectedName = null;
+
+// Camera
+navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+  .then(stream => { video.srcObject = stream; })
+  .catch(err => { scannedValueBox.innerText = "❌ Camera error: " + err; });
+
+// Capture button
+captureBtn.addEventListener("click", async () => {
+  const canvas = document.createElement('canvas');
+  const maxWidth = 800;
+  const scale = maxWidth / video.videoWidth;
+  canvas.width = maxWidth;
+  canvas.height = video.videoHeight * scale;
+  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  capturedDataUrl = canvas.toDataURL("image/png");
+  popupImage.src = capturedDataUrl;
+  popupOverlay.style.display = "flex";
+  okBtn.style.display = "inline-block";
+  proceedBtn.style.display = "none";
+  cancelBtn.style.display = "inline-block";
+  formContainer.style.display = "none";
+  popupDetails.innerHTML = "🔄 Scanning image... <div class='spinner'></div>";
+  scannedValueBox.innerHTML = "🔄 Scanning image... <div class='spinner'></div>";
+
+  try {
+    const { data: { text } } = await Tesseract.recognize(capturedDataUrl, 'eng');
+    const normalizedText = text.replace(/\s+/g,' ').trim();
+    let idMatch = normalizedText.match(/\b[0-9]{6,15}\b/);
+    let nameMatch = normalizedText.match(/Name\s*[:\s]*([A-Za-z\s]+)/i);
+    detectedID = idMatch ? idMatch[0] : null;
+    detectedName = nameMatch ? nameMatch[1].trim() : null;
+
+    if(!detectedID || !detectedName){
+      scannedValueBox.innerHTML = "❌ Failed to detect ID or Name. Please capture again.";
+      captureBtn.style.display = "inline-block";
+      popupOverlay.style.display = "none";
+      return;
+    }
+
+    popupDetails.innerHTML = `✅ ID: ${detectedID}<br>👤 Name: ${detectedName}`;
+    scannedValueBox.innerHTML = `✅ ID: ${detectedID}<br>👤 Name: ${detectedName}`;
+  } catch(err){
+    scannedValueBox.innerHTML = "❌ OCR failed: " + err;
+    captureBtn.style.display = "inline-block";
+    popupOverlay.style.display = "none";
+    console.error(err);
+  }
+});
+
+// Cancel
+cancelBtn.addEventListener("click", ()=>{
+  popupOverlay.style.display = "none";
+  captureBtn.style.display = "inline-block";
+  detectedID = null;
+  detectedName = null;
+});
+
+// OK → Proceed
+okBtn.addEventListener("click", ()=>{
+  okBtn.style.display = "none";
+  proceedBtn.style.display = "inline-block";
+});
+
+// Show form
+proceedBtn.addEventListener("click", ()=>{
+  proceedBtn.style.display = "none";
+  formContainer.style.display = "block";
+});
+
+// Show/hide delivery/reason fields
+purposeSelect.addEventListener("change", ()=>{
+  const deliveryInput = visitorForm.elements['delivery_partner'];
+  const reasonInput = visitorForm.elements['reason'];
+  deliveryInput.style.display = reasonInput.style.display = "none";
+  if(purposeSelect.value === "Delivery") deliveryInput.style.display = "block";
+  else if(purposeSelect.value === "Others") reasonInput.style.display = "block";
+});
+
+// Form submit → create document
+visitorForm.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  if(!detectedID || !detectedName){
+    alert("OCR data missing. Capture again.");
+    return;
+  }
+
+  scannedValueBox.innerHTML = "💾 Creating document... <div class='spinner'></div>";
+
+  try {
+    const imgHTML = `<img src="${capturedDataUrl}" style="max-width:400px; border-radius:12px;">`;
+
+    const dataToCreate = {
+      qid: detectedID,
+      name1: detectedName,
+      mobile_number: visitorForm.elements['mobile'].value,
+      flat_no: visitorForm.elements['flat_no'].value,
+      flat_name: visitorForm.elements['flat_name'].value,
+      purpose_of_visit: visitorForm.elements['purpose'].value,
+      delivery_partner_name: visitorForm.elements['delivery_partner'].value || "",
+      reason: visitorForm.elements['reason'].value || "",
+      captured_image: imgHTML
+    };
+
+    const resp = await fetch("/api/resource/Residency Permit Details", {
+      method:"POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify(dataToCreate),
+      credentials:"same-origin"
+    });
+
+    const docData = await resp.json();
+
+    if(docData.data && docData.data.name){
+      scannedValueBox.innerHTML = "✅ Details saved!";
+      popupOverlay.style.display = "none";
+      visitorForm.reset();
+      detectedID = null;
+      detectedName = null;
+    } else {
+      scannedValueBox.innerHTML = "❌ Failed to create document.";
+      console.error(docData);
+    }
+  } catch(err){
+    scannedValueBox.innerHTML = "❌ Creation failed: " + err;
+    console.error(err);
+  }
+});
+</script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Residency OCR Scanner</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+  <style>
+    body { font-family: "Segoe UI", sans-serif; margin:0; height:100vh; display:flex; justify-content:center; align-items:center; background: linear-gradient(135deg,#f0f3f7,#d9e2ec); flex-direction:column;}
+    h1 { font-size:36px; margin-bottom:20px; text-align:center; color:#1e3a8a; text-shadow:1px 1px 2px rgba(0,0,0,0.1);}
+    #video { width:60vw; max-width:600px; aspect-ratio:400/250; border-radius:40px; box-shadow:0 12px 35px rgba(0,0,0,0.3); object-fit:cover; border:4px solid #1e3a8a; transition: transform 0.3s ease;}
+    #video:hover { transform: scale(1.02);}
+    #scanned_value { font-size:26px; font-weight:bold; color:#ff3b3b; margin-top:20px; white-space:pre-line; text-align:center; min-height:60px;}
+    button { margin:20px 10px; padding:12px 30px; font-size:20px; cursor:pointer; border-radius:12px; border:none; background:#1e3a8a; color:#fff; box-shadow:0 5px 15px rgba(0,0,0,0.2); transition: transform 0.2s, box-shadow 0.2s;}
+    button:hover { transform: translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,0.3);}
+    #popup_overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:999; animation:fadeIn 0.3s ease;}
+    #popup_content { background:#fff; padding:20px; border-radius:40px; text-align:center; max-width:90%; display:flex; flex-direction:column; align-items:center; box-shadow:0 12px 35px rgba(0,0,0,0.3); animation:popIn 0.3s ease;}
+    #popup_content img { width:60vw; max-width:600px; aspect-ratio:400/250; border-radius:40px; object-fit:cover; box-shadow:0 12px 35px rgba(0,0,0,0.3); margin-bottom:20px; border:4px solid #1e3a8a;}
+    .spinner { border:5px solid #f3f3f3; border-top:5px solid #1e3a8a; border-radius:50%; width:20px; height:20px; animation:spin 1s linear infinite; display:inline-block; margin-left:10px;}
+    @keyframes spin {0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+    @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+    @keyframes popIn { from{transform:scale(0.8);} to{transform:scale(1);} }
+    form { display:flex; flex-direction:column; gap:15px; width:100%; max-width:500px; margin-top:10px;}
+    input, select { padding:10px; font-size:18px; border-radius:8px; border:1px solid #ccc;}
+  </style>
+</head>
+<body>
+<h1>Residency OCR Scanner</h1>
+<video id="video" autoplay></video>
+<div id="scanned_value">🔎 Waiting for capture...</div>
+<button id="capture_btn">📸 Capture</button>
+
+<div id="popup_overlay">
+  <div id="popup_content">
+    <img id="popup_image" src="" alt="Captured Image">
+    <div id="popup_details"></div>
+    <button id="ok_btn">✅ OK</button>
+    <button id="proceed_btn" style="display:none;">➡ Proceed</button>
+    <button id="cancel_btn" style="display:none;">❌ Cancel</button>
+    <div id="form_container" style="display:none;">
+      <form id="visitor_form">
+        <input type="text" name="mobile" placeholder="Mobile Number" required>
+        <input type="text" name="flat_no" placeholder="Flat Number" required>
+        <input type="text" name="flat_name" placeholder="Flat Name" required>
+        <select name="purpose" id="purpose" required>
+          <option value="">Select Purpose</option>
+          <option value="Delivery">Delivery</option>
+          <option value="Relative">Relative</option>
+          <option value="Personal">Personal</option>
+          <option value="Others">Others</option>
+        </select>
+        <input type="text" name="delivery_partner" placeholder="Delivery Partner Name" style="display:none;">
+        <input type="text" name="reason" placeholder="Reason" style="display:none;">
+        <button type="submit">✅ Confirm</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const video = document.getElementById('video');
+const scannedValueBox = document.getElementById('scanned_value');
+const captureBtn = document.getElementById('capture_btn');
+const popupOverlay = document.getElementById('popup_overlay');
+const popupImage = document.getElementById('popup_image');
+const popupDetails = document.getElementById('popup_details');
+const okBtn = document.getElementById('ok_btn');
+const proceedBtn = document.getElementById('proceed_btn');
+const cancelBtn = document.getElementById('cancel_btn');
+const formContainer = document.getElementById('form_container');
+const visitorForm = document.getElementById('visitor_form');
+const purposeSelect = document.getElementById('purpose');
+
+let capturedDataUrl = null;
+let detectedID = null;
+let detectedName = null;
+
+navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+  .then(stream => { video.srcObject = stream; })
+  .catch(err => { scannedValueBox.innerText = "❌ Camera error: " + err; });
+
+captureBtn.addEventListener("click", async () => {
+  const canvas = document.createElement('canvas');
+  const maxWidth = 800;
+  const scale = maxWidth / video.videoWidth;
+  canvas.width = maxWidth;
+  canvas.height = video.videoHeight * scale;
+  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  capturedDataUrl = canvas.toDataURL("image/png");
+  popupImage.src = capturedDataUrl;
+  popupOverlay.style.display = "flex";
+  okBtn.style.display = "inline-block";
+  proceedBtn.style.display = "none";
+  cancelBtn.style.display = "inline-block";
+  formContainer.style.display = "none";
+  popupDetails.innerHTML = "🔄 Scanning image... <div class='spinner'></div>";
+  scannedValueBox.innerHTML = "🔄 Scanning image... <div class='spinner'></div>";
+
+  try {
+    const { data: { text } } = await Tesseract.recognize(capturedDataUrl, 'eng');
+    const normalizedText = text.replace(/\s+/g,' ').trim();
+    let idMatch = normalizedText.match(/\b[0-9]{6,15}\b/);
+    let nameMatch = normalizedText.match(/Name\s*[:\s]*([A-Za-z\s]+)/i);
+    detectedID = idMatch ? idMatch[0] : null;
+    detectedName = nameMatch ? nameMatch[1].trim() : null;
+
+    if(!detectedID || !detectedName){
+      scannedValueBox.innerHTML = "❌ Failed to detect ID or Name. Please capture again.";
+      captureBtn.style.display = "inline-block";
+      popupOverlay.style.display = "none";
+      return;
+    }
+
+    popupDetails.innerHTML = `✅ ID: ${detectedID}<br>👤 Name: ${detectedName}`;
+    scannedValueBox.innerHTML = `✅ ID: ${detectedID}<br>👤 Name: ${detectedName}`;
+  } catch(err){
+    scannedValueBox.innerHTML = "❌ OCR failed: " + err;
+    captureBtn.style.display = "inline-block";
+    popupOverlay.style.display = "none";
+    console.error(err);
+  }
+});
+
+cancelBtn.addEventListener("click", ()=>{
+  popupOverlay.style.display = "none";
+  captureBtn.style.display = "inline-block";
+  detectedID = null;
+  detectedName = null;
+});
+
+okBtn.addEventListener("click", ()=>{
+  okBtn.style.display = "none";
+  proceedBtn.style.display = "inline-block";
+});
+
+proceedBtn.addEventListener("click", ()=>{
+  proceedBtn.style.display = "none";
+  formContainer.style.display = "block";
+});
+
+purposeSelect.addEventListener("change", ()=>{
+  const deliveryInput = visitorForm.elements['delivery_partner'];
+  const reasonInput = visitorForm.elements['reason'];
+  deliveryInput.style.display = reasonInput.style.display = "none";
+  if(purposeSelect.value === "Delivery") deliveryInput.style.display = "block";
+  else if(purposeSelect.value === "Others") reasonInput.style.display = "block";
+});
+
+visitorForm.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  if(!detectedID || !detectedName){
+    alert("OCR data missing. Capture again.");
+    return;
+  }
+
+  const submitBtn = visitorForm.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  const originalBtnText = submitBtn.innerHTML;
+  submitBtn.innerHTML = `💾 Creating... <span class='spinner'></span>`;
+  scannedValueBox.innerHTML = "💾 Creating document... <div class='spinner'></div>";
+
+  try {
+    const imgHTML = `<img src="${capturedDataUrl}" style="max-width:400px; border-radius:12px;">`;
+
+    const dataToCreate = {
+      qid: detectedID,
+      name1: detectedName,
+      mobile_number: visitorForm.elements['mobile'].value,
+      flat_no: visitorForm.elements['flat_no'].value,
+      flat_name: visitorForm.elements['flat_name'].value,
+      purpose_of_visit: visitorForm.elements['purpose'].value,
+      delivery_partner_name: visitorForm.elements['delivery_partner'].value || "",
+      reason: visitorForm.elements['reason'].value || "",
+      captured_image: imgHTML
+    };
+
+    const resp = await fetch("/api/resource/Residency Permit Details", {
+      method:"POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify(dataToCreate),
+      credentials:"same-origin"
+    });
+
+    const docData = await resp.json();
+
+    if(docData.data && docData.data.name){
+      scannedValueBox.innerHTML = "✅ Visitors created successfully!";
+      popupOverlay.style.display = "none";
+      visitorForm.reset();
+      detectedID = null;
+      detectedName = null;
+    } else {
+      scannedValueBox.innerHTML = "❌ Failed to create document.";
+      console.error(docData);
+    }
+  } catch(err){
+    scannedValueBox.innerHTML = "❌ Creation failed: " + err;
+    console.error(err);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalBtnText;
+  }
+});
+</script>
+</body>
+</html>

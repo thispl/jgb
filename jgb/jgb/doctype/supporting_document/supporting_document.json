@@ -1,0 +1,84 @@
+{
+ "actions": [],
+ "creation": "2025-05-05 15:23:41.844351",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "document_type",
+  "attach",
+  "cost",
+  "download",
+  "column_break_gjic",
+  "currency",
+  "cost_in_sar"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "document_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Document Type",
+   "options": "Documents"
+  },
+  {
+   "columns": 2,
+   "fieldname": "attach",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "Attach"
+  },
+  {
+   "default": "0",
+   "fieldname": "download",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Download"
+  },
+  {
+   "columns": 2,
+   "fieldname": "cost",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Cost"
+  },
+  {
+   "fieldname": "column_break_gjic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 2,
+   "default": "SAR",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "columns": 2,
+   "fieldname": "cost_in_sar",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Cost in (SAR)",
+   "precision": "2",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-12-15 14:47:37.480765",
+ "modified_by": "divya.p@groupteampro.com",
+ "module": "JGB",
+ "name": "Supporting Document",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

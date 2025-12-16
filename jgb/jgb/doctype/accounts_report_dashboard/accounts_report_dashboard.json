@@ -1,0 +1,130 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-12 12:31:23.443068",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "report",
+  "from_date",
+  "to_date",
+  "company",
+  "account",
+  "column_break_rhas",
+  "download",
+  "print",
+  "customer",
+  "sales_person",
+  "project",
+  "sales_order",
+  "supplier"
+ ],
+ "fields": [
+  {
+   "fieldname": "report",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Report",
+   "options": "\nGroup Summary Report\nCustomer Ledger Report\nLedger Summary Report\nSales Person Wise Income Report\nStatement of Account\nAccounts Ledger Summary\nSupplier Statement of Account\nReceipt Report\nConsolidated Ledger Report\nAccounts Receivable Aging Report\nGroup Account Summary Report\nSupplier Statement of Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From Date"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To Date"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "account",
+   "fieldtype": "Link",
+   "label": "Account",
+   "link_filters": "[[\"Account\", \"company\", \"=\", \"eval:doc.company\"]]",
+   "options": "Account"
+  },
+  {
+   "fieldname": "download",
+   "fieldtype": "Button",
+   "label": "Download"
+  },
+  {
+   "depends_on": "eval:doc.report=='Customer Ledger Report' || doc.report=='Statement of Account' || doc.report=='Accounts Ledger Summary'|| doc.report =='Accounts Receivable Aging Report'|| doc.report =='Consolidated Customer and Supplier Ledger Summary'",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "column_break_rhas",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.report=='Sales Person Wise Income Report'",
+   "fieldname": "sales_person",
+   "fieldtype": "Link",
+   "label": "Sales person",
+   "options": "Sales Person"
+  },
+  {
+   "depends_on": "eval:doc.report=='Accounts Receivable Report'",
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "depends_on": "eval:doc.report=='Accounts Receivable Report'",
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order"
+  },
+  {
+   "depends_on": "eval:doc.report=='Supplier Statement of Account' || doc.report =='Consolidated Customer and Supplier Ledger Summary'",
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier"
+  },
+  {
+   "depends_on": "eval:doc.report != \"Sales Person Wise Summary\"",
+   "fieldname": "print",
+   "fieldtype": "Button",
+   "label": "Print"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-06-27 13:41:19.656243",
+ "modified_by": "jothi.m@groupteampro.com",
+ "module": "JGB",
+ "name": "Accounts Report Dashboard",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

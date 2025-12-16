@@ -1,0 +1,83 @@
+{
+ "actions": [],
+ "creation": "2025-11-27 07:12:49.641682",
+ "doctype": "DocType",
+ "document_type": "Document",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "receipt_document_type",
+  "receipt_document",
+  "supplier",
+  "col_break1",
+  "posting_date",
+  "grand_total",
+  "logistics_request"
+ ],
+ "fields": [
+  {
+   "fieldname": "receipt_document_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Receipt Document Type",
+   "options": "\nPurchase Invoice"
+  },
+  {
+   "fieldname": "receipt_document",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Receipt Document",
+   "oldfieldname": "purchase_receipt_no",
+   "oldfieldtype": "Link",
+   "options": "receipt_document_type",
+   "print_width": "220px",
+   "width": "220px"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Supplier",
+   "options": "Supplier",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break1",
+   "fieldtype": "Column Break",
+   "width": "50%"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "grand_total",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Grand Total",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "logistics_request",
+   "fieldtype": "Link",
+   "label": "Logistics Request",
+   "options": "Logistics Request",
+   "read_only": 1
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2025-12-16 07:19:20.483207",
+ "modified_by": "divya.p@groupteampro.com",
+ "module": "JGB",
+ "name": "Landed Cost Purchase Invoice",
+ "owner": "bhuvaneswari.a@groupteampro.com",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "ASC",
+ "states": []
+}

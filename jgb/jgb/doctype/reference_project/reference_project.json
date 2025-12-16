@@ -1,0 +1,169 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:project",
+ "creation": "2025-06-30 09:26:45.009063",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_iepm",
+  "amended_from",
+  "project_name",
+  "column_break_yhex",
+  "project_end_client",
+  "project",
+  "column_break_afml",
+  "status",
+  "section_break_icrp",
+  "currency",
+  "project_value",
+  "project_value_company_currency",
+  "column_break_jnyc",
+  "project_description",
+  "section_break_znoh",
+  "table_shaw",
+  "crm_status_section",
+  "table_gygr",
+  "total_project_projection"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_iepm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Reference Project",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "project_end_client",
+   "fieldtype": "Data",
+   "label": "Project End Client",
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_yhex",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_afml",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Identified",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Identified\nDesign\nTender\nConstruction",
+   "reqd": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "project_value",
+   "fieldtype": "Currency",
+   "label": "Project Value"
+  },
+  {
+   "depends_on": "eval:doc.currency!=\"SAR\"",
+   "fieldname": "project_value_company_currency",
+   "fieldtype": "Currency",
+   "label": "Project Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_icrp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "project_description",
+   "fieldtype": "Small Text",
+   "label": "Project Description"
+  },
+  {
+   "fieldname": "column_break_jnyc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "table_shaw",
+   "fieldtype": "Table",
+   "label": "Project Parties",
+   "options": "Project Parties"
+  },
+  {
+   "fieldname": "crm_status_section",
+   "fieldtype": "Section Break",
+   "label": "CRM Status"
+  },
+  {
+   "fieldname": "table_gygr",
+   "fieldtype": "Table",
+   "label": "CRM Status Details",
+   "options": "CRM Status"
+  },
+  {
+   "fieldname": "total_project_projection",
+   "fieldtype": "Currency",
+   "label": "Total Project Projection",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Project Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_znoh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "project_name.project_name",
+   "fetch_if_empty": 1,
+   "fieldname": "project",
+   "fieldtype": "Data",
+   "label": "Project",
+   "unique": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-04 16:43:40.930477",
+ "modified_by": "jenisha.p@groupteampro.com",
+ "module": "JGB",
+ "name": "Reference Project",
+ "naming_rule": "By fieldname",
+ "owner": "divya.p@groupteampro.com",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "search_fields": "project_name",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

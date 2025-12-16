@@ -1,0 +1,116 @@
+{
+ "actions": [],
+ "creation": "2025-05-05 15:23:09.132515",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "forwarder_type",
+  "ffw_name",
+  "currency",
+  "column_break_wgip",
+  "quoted_value",
+  "quoted_value_sar",
+  "credit_period",
+  "quote_attach",
+  "way_bill_no",
+  "date",
+  "exchange_rate"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "ffw_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "FFW Name",
+   "options": "Supplier"
+  },
+  {
+   "columns": 1,
+   "fetch_from": "ffw_name.default_currency",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "columns": 1,
+   "fieldname": "quoted_value",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Quoted Value"
+  },
+  {
+   "fieldname": "column_break_wgip",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 1,
+   "fieldname": "credit_period",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Credit Period"
+  },
+  {
+   "columns": 1,
+   "fieldname": "quote_attach",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "Attach"
+  },
+  {
+   "fieldname": "forwarder_type",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Forwarder Type",
+   "options": "\nForwarder\nCourier\nJGB Vehicle"
+  },
+  {
+   "depends_on": "eval:doc.forwarder_type=='Courier'",
+   "fieldname": "way_bill_no",
+   "fieldtype": "Data",
+   "label": "Way Bill No",
+   "mandatory_depends_on": "eval:doc.forwarder_type =='Courier'"
+  },
+  {
+   "depends_on": "eval:doc.forwarder_type=='Courier'",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "mandatory_depends_on": "eval:doc.forwarder_type =='Courier'"
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "depends_on": "eval:doc.currency!='SAR'",
+   "fieldname": "quoted_value_sar",
+   "fieldtype": "Currency",
+   "label": "Quoted Value (SAR)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.currency!='SAR'",
+   "fieldname": "exchange_rate",
+   "fieldtype": "Float",
+   "label": "Exchange Rate",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-07-29 13:33:52.442955",
+ "modified_by": "divya.p@groupteampro.com",
+ "module": "JGB",
+ "name": "FFW Quotation",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
