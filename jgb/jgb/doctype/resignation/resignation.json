@@ -28,7 +28,6 @@
   "column_break_18",
   "approved_relieving_date",
   "actual_relieving_date",
-  "amended_from",
   "amended_from"
  ],
  "fields": [
@@ -165,19 +164,15 @@
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
-   "no_copy": 1,
-   "options": "Resignation",
-   "print_hide": 1,
-   "read_only": 1,
-   "search_index": 1
+   "options": "Resignation Form"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-06-10 12:54:31.079149",
- "modified_by": "Administrator",
+ "modified": "2025-12-29 08:42:11.523316",
+ "modified_by": "sivarenisha.m@groupteampro.com",
  "module": "JGB",
  "name": "Resignation",
  "naming_rule": "By fieldname",

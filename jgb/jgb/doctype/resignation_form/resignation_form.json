@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "field:employee",
+ "autoname": "RES-.#####",
  "creation": "2025-06-10 12:56:10.122049",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -20,10 +20,12 @@
   "reason",
   "section_break_17",
   "hods_relieving_date",
+  "posting_date",
   "column_break_18",
   "approved_relieving_date",
   "actual_relieving_date",
-  "amended_from"
+  "amended_from",
+  "workflow_state"
  ],
  "fields": [
   {
@@ -140,17 +142,31 @@
    "fieldtype": "Link",
    "label": "Amended From",
    "options": "Resignation Form"
+  },
+  {
+   "fieldname": "workflow_state",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Workflow State",
+   "options": "Workflow State"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-06-10 13:11:11.379268",
- "modified_by": "pavithra.s@groupteampro.com",
+ "modified": "2025-12-29 08:44:24.223509",
+ "modified_by": "sivarenisha.m@groupteampro.com",
  "module": "JGB",
  "name": "Resignation Form",
- "naming_rule": "By fieldname",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {

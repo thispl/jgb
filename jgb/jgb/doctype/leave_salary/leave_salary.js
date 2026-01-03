@@ -2,6 +2,27 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on('Leave Salary', {
+	paid_on(frm){
+		if (frm.doc.paid_on && frm.doc.remarks && frm.doc.proof_of_payment && frm.doc.payment_entry_created==1){
+			frm.set_value('status','Paid')
+		}else{
+			frm.set_value('status','Unpaid')
+		}
+	},
+	proof_of_payment(frm){
+		if (frm.doc.paid_on && frm.doc.remarks && frm.doc.proof_of_payment && frm.doc.payment_entry_created==1){
+			frm.set_value('status','Paid')
+		}else{
+			frm.set_value('status','Unpaid')
+		}
+	},
+	remarks(frm){
+		if (frm.doc.paid_on && frm.doc.remarks && frm.doc.proof_of_payment && frm.doc.payment_entry_created==1){
+			frm.set_value('status','Paid')
+		}else{
+			frm.set_value('status','Unpaid')
+		}
+	},
     refresh(frm){
         if(!frm.doc.__islocal){
             frm.add_custom_button(__("Print"), function () {
@@ -15,7 +36,49 @@ frappe.ui.form.on('Leave Salary', {
     				+ "&no_letterhead=0"
     		    ));
             });
-        }
+			if (frm.doc.docstatus === 1) {
+			frm.add_custom_button(__('Payment Entry'), function () {
+
+	frappe.db.get_list('Payment Entry', {
+		filters: {
+			custom_leave_salary: frm.doc.name,
+			docstatus: ['!=', 2]
+		},
+		fields: ['name'],
+		limit: 1
+	}).then(r => {
+
+		if (r && r.length) {
+			frappe.set_route('Form', 'Payment Entry', r[0].name);
+			return;
+		}
+
+		frappe.call({
+			method: 'jgb.jgb.doctype.leave_salary.leave_salary.create_payment_entry_ignore_mandatory',
+			args: {
+				
+					company:frm.doc.company,
+					party: frm.doc.employee,  
+					custom_leave_salary: frm.doc.name,
+					net_pay:frm.doc.net_pay,
+				
+			},
+			callback(res) {
+				if (res.message) {
+					frappe.set_route('Form', 'Payment Entry', res.message);
+					// frappe.ui.form.open_in_new_tab('Payment Entry', res.message);
+				}
+			}
+		});
+	});
+
+}, __('Create'));
+
+
+}
+
+
+					}
     },
     from_date(frm){
         if (frm.doc.basic && frm.doc.salary_payable_days && frm.doc.from_date) {

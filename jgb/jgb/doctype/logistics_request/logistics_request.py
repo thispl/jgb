@@ -929,7 +929,7 @@ def send_lr_eta_team_mail():
 
 from erpnext.setup.utils import get_exchange_rate
 @frappe.whitelist()
-def create_pi_for_lr(parent_name=None,row_title=None,cost=None,supplier=None,currency=None,cost_sar=None):
+def create_pi_for_lr(parent_name=None,row_title=None,cost=None,supplier=None,currency=None,cost_sar=None,lr_type=None):
     doc = frappe.get_doc("Logistics Request", parent_name)
     if not supplier:
         frappe.throw("Kindly select supplier before create Purchase Invoice")
@@ -952,9 +952,29 @@ def create_pi_for_lr(parent_name=None,row_title=None,cost=None,supplier=None,cur
     pi.posting_date = nowdate()
     pi.currency = currency or default_currency
     pi.conversion_rate = conversion
+    pi.cost_center="Main - JGB"
     pi.custom_zoho_pi_number = f"{row_title}-{parent_name}"
-
-    if row_title=="SAL Charges":
+    if lr_type=="Local Delivery":
+        pi.append("items",{
+            "item_code":"NST-OTH-000025",
+            "item_name":"Delivery & Distribution Charges",
+            "qty":1,
+            "uom":"NOS",
+            "rate":cost,
+            "amount":amount_value,
+            "expense_account":"5093 - Delivery & Distribution Charges - JGB"
+        })
+    if row_title=="Bill of Lading (B/L) / AWB" and lr_type!="Local Delivery":
+        pi.append("items",{
+            "item_code":"NST-OTH-000016",
+            "item_name":"Bill of Lading (B/L) / AWB",
+            "qty":1,
+            "uom":"NOS",
+            "rate":cost,
+            "amount":amount_value,
+        })
+    if row_title=="SAL Charges" and lr_type!="Local Delivery":
+    
         pi.append("items",{
             "item_code":"NST-OTH-000007",
             "item_name":"SAL Charges",
@@ -963,7 +983,7 @@ def create_pi_for_lr(parent_name=None,row_title=None,cost=None,supplier=None,cur
             "rate":cost,
             "amount":amount_value,
         })
-    if row_title=="Customs":
+    if row_title=="Customs" and lr_type!="Local Delivery":
         pi.append("items",{
             "item_code":"NST-OTH-000008",
             "item_name":"Customs Charges",
@@ -972,7 +992,7 @@ def create_pi_for_lr(parent_name=None,row_title=None,cost=None,supplier=None,cur
             "rate":cost,
             "amount":amount_value,
         })
-    if row_title=="Customs Clearance":
+    if row_title=="Customs Clearance" and lr_type!="Local Delivery":
         pi.append("items",{
             "item_code":"NST-OTH-000009",
             "item_name":"Customs Clearance",
@@ -981,7 +1001,7 @@ def create_pi_for_lr(parent_name=None,row_title=None,cost=None,supplier=None,cur
             "rate":cost,
             "amount":amount_value,
         })
-    if row_title=="Saber Charges":
+    if row_title=="Saber Charges" and lr_type!="Local Delivery":
         pi.append("items",{
             "item_code":"NST-OTH-000010",
             "item_name":"Saber Charges",
@@ -990,7 +1010,7 @@ def create_pi_for_lr(parent_name=None,row_title=None,cost=None,supplier=None,cur
             "rate":cost,
             "amount":amount_value,
         })
-    if row_title=="Freight & Forwarding Charges":
+    if row_title=="Freight & Forwarding Charges" and lr_type!="Local Delivery":
         pi.append("items",{
             "item_code":"NST-OTH-000011",
             "item_name":"Freight & Forwarding Charges",
@@ -999,25 +1019,11 @@ def create_pi_for_lr(parent_name=None,row_title=None,cost=None,supplier=None,cur
             "rate":cost,
             "amount":amount_value,
         })
+
     pi.save()
     return pi.name
 
-# @frappe.whitelist()
-# def purchase_lr_status_update(doc, method):
-#     if doc.custom_logistics_request and frappe.db.exists("Logistics Request", doc.custom_logistics_request):
-#         lr = frappe.get_doc("Logistics Request", doc.custom_logistics_request)
-#         updated = False
-#         for row in lr.lr_costing_payment_po:
-#             if row.purchase_invoice == doc.name:
-#                 if doc.status == "Cancelled":
-#                     row.purchase_invoice = ""
-#                     row.status = ""
-#                 else:
-#                     row.status = doc.status
-#                 updated = True
-#         if updated:
-#             lr.save(ignore_permissions=True)
-#             lr.reload()
+
 
 @frappe.whitelist()
 def purchase_lr_status_update(doc, method=None):
@@ -1037,6 +1043,15 @@ def purchase_lr_status_update(doc, method=None):
             else:
                 row.status = doc.status
             updated = True
+    if lr.custom_lr_costing_payment_si:
+        for i in lr.custom_lr_costing_payment_si:
+            if i.purchase_invoice == doc.name:
+                if doc.status == "Cancelled":
+                    i.purchase_invoice = ""
+                    i.status = ""
+                else:
+                    i.status = doc.status
+                updated = True
     if updated:
         lr.save(ignore_permissions=True)
         lr.reload()
@@ -1065,17 +1080,18 @@ def get_pi_from_lr(logistics_request):
     return pi_list
 
 @frappe.whitelist()
-def on_payment_entry_submit(doc, method=None):
+def on_payment_entry_submit(doc, method):
     if not doc.references:
         return
     for ref in doc.references:
         if not ref.reference_name:
             continue
-        pi = frappe.get_doc("Purchase Invoice", ref.reference_name)
-        if not pi.custom_logistics_request:
-            continue
-        if ref.idx==1:
-            update_lr_for_paid_pi(pi, payment_entry=doc)
+        if ref.reference_name=="Purchase Invoice":
+            pi = frappe.get_doc("Purchase Invoice", ref.reference_name)
+            if not pi.custom_logistics_request:
+                continue
+            if ref.idx==1:
+                update_lr_for_paid_pi(pi, payment_entry=doc)
 
 
 def update_lr_for_paid_pi(pi, payment_entry=None):
@@ -1127,8 +1143,8 @@ def update_lr_for_paid_pi(pi, payment_entry=None):
         """
 
         frappe.sendmail(
-            recipients=["divya.p@groupteampro.com"],
-            # recipients=["ajmal@jgbksa.com"],
+            # recipients=["divya.p@groupteampro.com"],
+            recipients=["ajmal@jgbksa.com"],
             subject=subject,
             message=message
         )
@@ -1139,20 +1155,21 @@ def update_lr_for_pi_cancel(doc,method):
     for ref in doc.references:
         if not ref.reference_name:
             continue
-        pi = frappe.get_doc("Purchase Invoice", ref.reference_name)
-        if not pi.custom_logistics_request:
-            continue
-        if ref.idx==1:
-            if not frappe.db.exists("Logistics Request", pi.custom_logistics_request):
-                return
+        if ref.reference_name=="Purchase Invoice":
+            pi = frappe.get_doc("Purchase Invoice", ref.reference_name)
+            if not pi.custom_logistics_request:
+                continue
+            if ref.idx==1:
+                if not frappe.db.exists("Logistics Request", pi.custom_logistics_request):
+                    return
 
-            lr = frappe.get_doc("Logistics Request", pi.custom_logistics_request)
+                lr = frappe.get_doc("Logistics Request", pi.custom_logistics_request)
 
-            updated = False
-            for row in lr.lr_costing_payment_po:
-                if row.purchase_invoice == pi.name:
-                    row.is_paid=0
-                    updated = True
+                updated = False
+                for row in lr.lr_costing_payment_po:
+                    if row.purchase_invoice == pi.name:
+                        row.is_paid=0
+                        updated = True
 
-            if updated:
-                lr.save(ignore_permissions=True)
+                if updated:
+                    lr.save(ignore_permissions=True)

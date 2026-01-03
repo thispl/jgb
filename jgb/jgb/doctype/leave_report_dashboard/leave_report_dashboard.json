@@ -1,0 +1,75 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-24 07:59:32.627902",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_2p1h",
+  "employee",
+  "column_break_5rzj",
+  "year",
+  "section_break_zdnw",
+  "leave_html"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_2p1h",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "year",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Year",
+   "options": "Year",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_5rzj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_zdnw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "leave_html",
+   "fieldtype": "HTML",
+   "label": "Leave HTML"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-12-24 08:22:28.670441",
+ "modified_by": "sivarenisha.m@groupteampro.com",
+ "module": "JGB",
+ "name": "Leave Report Dashboard",
+ "owner": "sivarenisha.m@groupteampro.com",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

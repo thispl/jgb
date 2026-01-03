@@ -20,9 +20,9 @@ frappe.ui.form.on("Full and Final Settlement", {
 	employee(frm) {
         frm.trigger('update_working_days')
 	},
-    last_day_of_work(frm){
-        frm.trigger('update_working_days')
-    },
+    // last_day_of_work(frm){
+    //     frm.trigger('update_working_days')
+    // },
     update_working_days(frm){
         if (frm.doc.date_of_joining && frm.doc.last_day_of_work && frm.doc.employee){
             frappe.call({

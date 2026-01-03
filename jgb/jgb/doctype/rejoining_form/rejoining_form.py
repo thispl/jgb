@@ -51,7 +51,7 @@ class RejoiningForm(Document):
 
         if self.start_date and self.end_date and getdate(self.end_date) < getdate(self.start_date):
             frappe.throw(_("End date cannot be before start date"))
-
+    
 
 @frappe.whitelist()
 def send_reminder_for_rejoining(employee,company,user_id):

@@ -164,28 +164,139 @@ def upload_currency_exchange_excel(file_url):
 		"details": created_or_updated
 	}
 
-
-
-# def update_all_invoice_stock():
 	
-#     invoices = frappe.get_all("Sales Invoice", filters={"docstatus":0, 'name':["not in",["JGB-HVA-SI-2025-00010","JGB-CMN-SI-2025-00005"]]}, fields=["name", "posting_date","posting_time"])
 
-#     for inv in invoices:
-#         si = frappe.get_doc("Sales Invoice", inv.name)
+import frappe
+from frappe.utils import add_days
+from frappe.utils import getdate, add_days
 
-#         for item in si.items:
-#             stock = frappe.db.sql("""
-#                 SELECT SUM(actual_qty) AS qty
-#                 FROM `tabStock Ledger Entry`
-#                 WHERE item_code=%s 
-#                 AND warehouse=%s
-#                 AND posting_date = %s
-# 				AND posting_time = %s
-#                 AND is_cancelled = 0
-#             """, (item.item_code, item.warehouse, si.posting_date, si.posting_time), as_dict=True)
+def update_internal_work(doc, method):
+	mis_doc = frappe.get_doc("Employee", doc.employee)
 
-#             available_qty = stock[0].qty or 0
+	prev_promo = frappe.db.get_value(
+		"Employee Promotion",
+		{
+			"employee": doc.employee,
+			"docstatus": ["!=",2],
+			"promotion_date": ["<=", doc.promotion_date]
+		},
+		"promotion_date",
+		order_by="promotion_date desc"
+	)
 
-#             item.custom_current_stock = available_qty
+	if prev_promo:
+		from_date = prev_promo
+	else:
+		from_date = frappe.get_value(
+			"Employee",
+			doc.employee,
+			"date_of_joining"
+		)
 
-#         si.save()
+	
+	from_date = getdate(from_date)
+	to_date = add_days(getdate(doc.promotion_date), -1)
+
+	if from_date > to_date:
+		to_date = from_date
+
+	# for row in mis_doc.internal_work_history:
+	#     if row.from_date == from_date and row.to_date == to_date:
+	#         return
+
+	designation = None
+	department = None
+	branch = None
+	basic = 0.0
+	hra =0.0
+	telephone =0.0
+	gosi =0.0
+
+	for promo in doc.promotion_details:
+		if promo.property == "Designation":
+			designation = promo.current
+		elif promo.property == "Department":
+			department = promo.current
+		elif promo.property == "Branch":
+			branch = promo.current
+		elif promo.property == "Basic":
+			basic = promo.current
+		elif promo.property == "HRA":
+			hra = promo.current
+		elif promo.property == "GOSI":
+			gosi = promo.current
+		elif promo.property == "Telephone":
+			telephone = promo.current
+
+	mis_doc.append("custom_internal_work_historys", {
+		"from_date": from_date,
+		"to_date": to_date,
+		"designation": designation,
+		"department": department,
+		"branch": branch,
+		"basic":basic,
+		"hra":hra,
+		"telephone":telephone,
+		"gosi":gosi
+	})
+
+	mis_doc.save(ignore_permissions=True)
+
+
+
+import frappe
+from frappe.utils import getdate, add_days, today
+
+def rejoining_reminder_mail():
+    today_date = getdate(today())
+    leaves = frappe.get_all(
+        "Leave Application",
+        filters={
+            "status": "Approved",
+            "docstatus": 1,
+            "leave_type":"Annual Vacation"
+        },
+        fields=["name", "employee", "to_date"]
+    )
+
+    for leave in leaves:
+        if not leave.to_date:
+            continue
+
+        rejoin_date = add_days(leave.to_date, 1)
+        if rejoin_date < today_date:
+            rejoined = frappe.db.exists(
+                "Rejoining Form",
+                {
+                    "employee": leave.employee,
+                    "rejoining_date": rejoin_date,
+                    "docstatus": ["!=",2]
+                }
+            )
+
+            if rejoined:
+                continue  
+
+            emp = frappe.get_doc("Employee", leave.employee)
+            reports_to = emp.reports_to
+            reports_to_mail = frappe.db.get_value("Employee",{'name':reports_to},'user_id')
+
+            if not emp.user_id:
+                continue
+
+            subject = "Reminder for Rejoining Form"
+
+            message = f"""
+            Dear {emp.employee_name},<br><br>
+
+            Your leave ended on <b>{leave.to_date}</b>.
+            You were expected to rejoin on <b>{rejoin_date}</b>.<br><br>
+
+            Kindly submit your <b>Rejoining Form</b> at the earliest.<br><br>
+            """
+
+            frappe.sendmail(
+                recipients=[emp.user_id,reports_to_mail],
+                subject=subject,
+                message=message
+            )

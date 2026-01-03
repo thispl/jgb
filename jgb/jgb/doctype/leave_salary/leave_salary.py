@@ -52,3 +52,25 @@ class LeaveSalary(Document):
             frappe.throw(_("To date cannot be before From date"))
 
 
+@frappe.whitelist()
+def create_payment_entry_ignore_mandatory(company,party,custom_leave_salary,net_pay):
+    doc = frappe.new_doc("Payment Entry")
+    net_pay=float(net_pay)
+    doc.company = company
+    doc.posting_date = today()
+    doc.paid_amount = net_pay or 0
+    doc.received_amount = net_pay or 0
+    doc.payment_type= 'Pay'
+    doc.party_type= 'Employee'
+    doc.source_exchange_rate=1
+    doc.target_exchange_rate=1
+    doc.custom_currency='SAR'
+    doc.party= party
+    doc.naming_series='ACC-PAY-.YYYY.-'
+    doc.custom_leave_salary=custom_leave_salary
+
+    doc.flags.ignore_mandatory = True
+    doc.flags.ignore_permissions = True
+
+    doc.insert()
+    return doc.name

@@ -376,7 +376,10 @@ def estimation_details(total,base_total,estimated,estimate,currency=None):
     
     if currency=="SAR":
         margin_value = total - estimated
-        margin_percent = (margin_value / total) * 100
+        if total !=0:
+            margin_percent = (margin_value / total) * 100
+        else:
+            margin_percent = 0
         percent_color = "green" if margin_percent >= 0 else "red"
         html = '''
         <br>
@@ -403,7 +406,7 @@ def estimation_details(total,base_total,estimated,estimate,currency=None):
                 <th>Total Quoted Value</th>
                 <th>Total Estimated Value</th>
                 <th>Projected Margin in Value</th>
-                <th>Estimated Margin Percentage</th>
+                <th>Profit on Cost</th>
             </tr>
             <tr>
                 <td style="text-align:right;">{total:,.2f}</td>
@@ -421,9 +424,15 @@ def estimation_details(total,base_total,estimated,estimate,currency=None):
         )
     else:
         margin_value_quote = total - estimate
-        margin_percent_quote = (margin_value_quote / total) * 100
+        if total !=0:
+            margin_percent_quote = (margin_value_quote / total) * 100
+        else:
+            margin_percent_quote = 0
         margin_value_sar = base_total - estimated
-        margin_percent_sar = (margin_value_sar / base_total) * 100
+        if base_total != 0:
+            margin_percent_sar = (margin_value_sar / base_total) * 100
+        else:
+            margin_percent_sar = 0
         percent_color = "green" if margin_percent_quote >= 0 else "red"
         percent_color1 = "green" if margin_percent_sar >= 0 else "red"
         html = '''
@@ -453,9 +462,9 @@ def estimation_details(total,base_total,estimated,estimate,currency=None):
             <th>Total Estimated Value({currency})</th>
             <th>Total Estimated Value(SAR)</th>
             <th>Projected Margin in Value({currency})</th>
-            <th>Estimated Margin Percentage({currency})</th>
+            <th>Profit on Cost({currency})</th>
             <th>Projected Margin in Value(SAR)</th>
-            <th>Estimated Margin Percentage(SAR)</th>
+            <th>Profit on Cost(SAR)</th>
         </tr>
         <tr>
             <td style="text-align:right;">{total:,.2f}</td>
@@ -483,6 +492,69 @@ def estimation_details(total,base_total,estimated,estimate,currency=None):
 
     )
 
+    return html
+
+@frappe.whitelist()
+def estimation_details_po(total,base_total,estimated,currency=None,custom_quote_value=None):
+    try:
+        custom_quote_value = float(custom_quote_value)
+        total = float(total)
+        base_total=float(base_total)
+        estimated = float(estimated)
+        currency = currency or "Quotation Currency"
+    except (TypeError, ValueError):
+        return "<p style='color:red;'>Invalid input: total and estimated must be numeric.</p>"
+
+    if estimated == 0:
+        return "<p style='color:red;'>Estimated value cannot be zero (division by zero).</p>"
+
+    
+
+    # Conditional color for margin percentage
+    
+    margin_value = float(custom_quote_value) - estimated
+    
+    margin_percent = (margin_value / estimated) * 100
+    percent_color = "green" if margin_percent >= 0 else "red"
+    html = '''
+    <br>
+    <style>
+        td, th {{
+            text-align: center;
+            padding: 5px;
+            border: 1px solid black;
+            font-size: 11px;
+            border-collapse: collapse;
+        }}
+        table {{
+            border-collapse: collapse;
+            width: 100%;
+        }}
+    </style>
+    <table>
+        <tr>
+            <th colspan="4" style="font-size:14px;background-color:#5E3B63;color:white;">
+                <b>Estimated vs Order Value</b>
+            </th>
+        </tr>
+        <tr style="background-color:lightgrey;">
+            <th>Total Order Value</th>
+            <th>Total Estimated Value</th>
+            <th>Profit on Cost</th>
+        </tr>
+        <tr>
+            <td style="text-align:right;">{custom_quote_value:,.2f}</td>
+            <td style="text-align:right;">{estimated:,.2f}</td>
+            <td style="text-align:right; color:{percent_color};"><b>{margin_percent:.2f}%</b></td>
+        </tr>
+    </table>
+    '''.format(
+        custom_quote_value=custom_quote_value,
+        estimated=estimated,
+        margin_value=margin_value,
+        margin_percent=margin_percent,
+        percent_color=percent_color
+    )
     return html
 
 # @frappe.whitelist()
@@ -560,13 +632,31 @@ def getstock_detail(item_details, company):
 
     for compa in companies:
         data += f'<td colspan=1 style="width:70px;padding:1px;border:1px solid black;font-size:14px;font-size:12px;background-color:#75506A;color:white;"><center><b>{compa["abbr"]}</b></center></td>'
-
+    data += '<td colspan=1 style="width:70px;padding:1px;border:1px solid black;font-size:14px;font-size:12px;background-color:#75506A;color:white;"><center><b>To RECEIVE</b></center></td>'
+    data += '<td colspan=1 style="width:70px;padding:1px;border:1px solid black;font-size:14px;font-size:12px;background-color:#75506A;color:white;"><center><b>To SELL</b></center></td>'
     data += '</tr>'
 
     for j in item_details:
         total_stock = 0
         company_stock_map = {}
-
+        
+        new_po = frappe.db.sql("""select sum(`tabPurchase Order Item`.qty) as qty,sum(`tabPurchase Order Item`.received_qty) as d_qty from `tabPurchase Order` 
+        left join `tabPurchase Order Item` on `tabPurchase Order`.name = `tabPurchase Order Item`.parent
+        where `tabPurchase Order Item`.item_code = '%s' and `tabPurchase Order`.docstatus = 1 and `tabPurchase Order`.status != 'Closed' """ % (j["item_code"]), as_dict=True)[0]
+        if not new_po['qty']:
+            new_po['qty'] = 0
+        if not new_po['d_qty']:
+            new_po['d_qty'] = 0
+        in_transit = new_po['qty'] - new_po['d_qty']
+        
+        new_so = frappe.db.sql("""select sum(`tabSales Order Item`.qty) as qty,sum(`tabSales Order Item`.delivered_qty) as d_qty from `tabSales Order`
+        left join `tabSales Order Item` on `tabSales Order`.name = `tabSales Order Item`.parent
+        where `tabSales Order Item`.item_code = '%s' and `tabSales Order`.docstatus = 1 and `tabSales Order`.status != "Closed" """ % (j["item_code"]), as_dict=True)[0]
+        if not new_so['qty']:
+            new_so['qty'] = 0
+        if not new_so['d_qty']:
+            new_so['d_qty'] = 0
+        del_total = new_so['qty'] - new_so['d_qty']
         for compa in companies:
             st = 0
             res = 0
@@ -587,6 +677,8 @@ def getstock_detail(item_details, company):
         for compa in companies:
             data += '<td style="text-align:center;border: 1px solid black" colspan=1>%.2f</td>' % (company_stock_map[compa["abbr"]])
 
+        data += '<td style="text-align:center;border: 1px solid black" colspan=1>%s</td>'%(in_transit or 0)
+        data += '<td style="text-align:center;border: 1px solid black" colspan=1>%s</td>'%(del_total or 0)
         data += '</tr>'
 
     data += '</table>'
@@ -1042,7 +1134,7 @@ def update_rate(so,item):
     item_details = []
     for i in sales.items:
         if i.item_code == item:
-            return i.custom_cost , sales.custom_estimation_margin , sales.custom_margin_on_cost
+            return i.custom_price_cost , sales.custom_estimation_margin , sales.custom_margin_on_cost
         
 
 @frappe.whitelist()

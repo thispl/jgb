@@ -20,5 +20,24 @@ frappe.ui.form.on("Resignation Form", {
                 
             });
 		   }
+
+        if (frm.doc.workflow_state === "Draft") {
+            frm.add_custom_button(__('Apply No Due'), function () {
+                frappe.db.get_value('No due',{ employee: frm.doc.employee },'name'
+                ).then(r => {
+                    if (r.message && r.message.name) {
+                        frappe.set_route('Form', 'No due', r.message.name);
+                    } 
+                    else {
+                        frappe.route_options = {
+                            employee: frm.doc.employee,
+                            employee_name: frm.doc.employee_name
+                        };
+                        frappe.set_route('Form', 'No due', 'new-no-due-1');
+                    }
+                });
+            });
+        }
+
 	},
 });

@@ -7,7 +7,8 @@
  "engine": "InnoDB",
  "field_order": [
   "division",
-  "code"
+  "code",
+  "manager"
  ],
  "fields": [
   {
@@ -20,13 +21,19 @@
    "fieldname": "code",
    "fieldtype": "Data",
    "label": "Short Code"
+  },
+  {
+   "fieldname": "manager",
+   "fieldtype": "Link",
+   "label": "Division Manager",
+   "options": "User"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-19 16:02:54.614396",
- "modified_by": "Administrator",
+ "modified": "2025-12-29 14:57:36.703804",
+ "modified_by": "jenisha.p@groupteampro.com",
  "module": "JGB",
  "name": "Division",
  "naming_rule": "By fieldname",

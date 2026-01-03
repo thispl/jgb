@@ -4,6 +4,7 @@ from frappe.utils import get_first_day, get_last_day, format_datetime, get_url_t
 from frappe.utils import cint
 from frappe.utils.data import date_diff, now_datetime, nowdate, today, add_days
 import datetime
+from frappe.utils import money_in_words
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import getdate, nowdate
@@ -16,6 +17,8 @@ from frappe.utils import add_months, nowdate, getdate
 from frappe.utils import flt, fmt_money
 import json
 from erpnext.setup.utils import get_exchange_rate
+import frappe
+from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry
 
 # Update the total cost estimation value in quotation
 @frappe.whitelist()
@@ -175,35 +178,36 @@ def create_logistics_request(doc, method):
 
 
 
+
 @frappe.whitelist()
 def check_leave_validations(doc, method):
     if doc.leave_type=='Marriage Leave':
         if frappe.db.exists('Leave Application',{'leave_type':doc.leave_type,'name':('!=',doc.name),'docstatus':['!=',2],'employee':doc.employee}) :
             frappe.throw(f'Already another application found.Marriage leave only allowed once.') 
-    if doc.leave_type == "Sick Leave":
-        today = getdate(nowdate())
-        fdate = getdate(doc.from_date)
-        month_start = date(fdate.year, fdate.month, 1)
-        if fdate.month == 12:
-            next_month_start = date(fdate.year + 1, 1, 1)
-        else:
-            next_month_start = date(fdate.year, fdate.month + 1, 1)
-        max_monthly_allowance = 2.5
-        taken_leave_this_month = frappe.db.sql("""
-            SELECT SUM(total_leave_days)
-            FROM `tabLeave Application`
-            WHERE employee = %s
-            AND leave_type = 'Sick Leave'
-            AND status NOT IN ('Rejected', 'Cancelled')
-            AND from_date >= %s AND from_date < %s
-            AND name != %s
-        """, (doc.employee, month_start, next_month_start, doc.name))[0][0] or 0
-        total_requested = taken_leave_this_month + doc.total_leave_days
-        if total_requested > max_monthly_allowance:
-            frappe.throw(
-                f"You are allowed only 2.5 Sick Leave days in {today.strftime('%B')}. "
-                f"Already requested: {taken_leave_this_month}."
-            )
+    # if doc.leave_type == "Sick Leave":
+    #     today = getdate(nowdate())
+    #     fdate = getdate(doc.from_date)
+    #     month_start = date(fdate.year, fdate.month, 1)
+    #     if fdate.month == 12:
+    #         next_month_start = date(fdate.year + 1, 1, 1)
+    #     else:
+    #         next_month_start = date(fdate.year, fdate.month + 1, 1)
+    #     max_monthly_allowance = 2.5
+    #     taken_leave_this_month = frappe.db.sql("""
+    #         SELECT SUM(total_leave_days)
+    #         FROM `tabLeave Application`
+    #         WHERE employee = %s
+    #         AND leave_type = 'Sick Leave'
+    #         AND status NOT IN ('Rejected', 'Cancelled')
+    #         AND from_date >= %s AND from_date < %s
+    #         AND name != %s
+    #     """, (doc.employee, month_start, next_month_start, doc.name))[0][0] or 0
+    #     total_requested = taken_leave_this_month + doc.total_leave_days
+    #     if total_requested > max_monthly_allowance:
+    #         frappe.throw(
+    #             f"You are allowed only 2.5 Sick Leave days in {today.strftime('%B')}. "
+    #             f"Already requested: {taken_leave_this_month}."
+    #         )
     elif doc.leave_type=='Pilgrimage Leave':
         if frappe.db.exists('Leave Application',{'leave_type':doc.leave_type,'name':('!=',doc.name),'docstatus':['!=',2],'custom_pilgrimage_for':doc.custom_pilgrimage_for,'employee':doc.employee}) :
             frappe.throw(f'Already another application found for {doc.custom_pilgrimage_for}.') 
@@ -213,11 +217,13 @@ def check_leave_validations(doc, method):
             frappe.throw('Maternity leave is applicable for <b>Female</b> employees only.') 
     elif doc.leave_type=="Relative's Death":
         if doc.custom_death_in=='Family Member':
-            if doc.total_leave_days > 5:
-                frappe.throw(f'Maximum of 5 Days is applicable for death of <b>{doc.custom_death_in}</b>.') 
+            family = frappe.db.get_value("Leave Type",{'name':"Relative's Death"},"custom_maximum_leave_allowed_for_family_member")
+            if doc.total_leave_days > float(family):
+                frappe.throw(f'Maximum of {family} Days is applicable for death of <b>{doc.custom_death_in}</b>.') 
         else:
-            if doc.total_leave_days > 3:
-                frappe.throw(f'Maximum of 3 Days is applicable for death of <b>{doc.custom_death_in}</b>.') 
+            close_relative = frappe.db.get_value("Leave Type",{'name':"Relative's Death"},"custom_maximum_leave_allowed_for_close_relative")
+            if doc.total_leave_days > float(close_relative):
+                frappe.throw(f'Maximum of {close_relative} Days is applicable for death of <b>{doc.custom_death_in}</b>.') 
     # elif doc.leave_type=="Injury Leave":
     #     current_year_start = date(getdate(nowdate()).year, 1, 1)
     #     current_year_end = date(getdate(nowdate()).year, 12, 31)
@@ -244,8 +250,9 @@ def check_leave_validations(doc, method):
             AND name != %s
         """, (doc.employee, doc.name))[0][0] or 0
         total_requested = total_leave + doc.total_leave_days
-        if total_requested > 2:
-            frappe.throw(f"Child Birth Leave only applicable for 2 days per employee .")
+        child_birth_leave = frappe.db.get_value("Leave Type",{'name':"Child Birth Leave"},'custom_maximum_leave_allowed')
+        if total_requested > child_birth_leave:
+            frappe.throw(f"Child Birth Leave only applicable for {child_birth_leave} days per employee .")
     elif doc.leave_type=="Annual Vacation":
         today = getdate(nowdate())
         doj = frappe.db.get_value("Employee", {'name': doc.employee}, 'date_of_joining')
@@ -307,6 +314,7 @@ def check_leave_validations(doc, method):
             )
 
 
+
 def ensure_date(val):
     if isinstance(val, str):
         return datetime.datetime.strptime(val, "%Y-%m-%d").date()
@@ -353,16 +361,17 @@ def check_allocations(doc,method):
         retirement_date = add_years(employees, 60)
         if today < fifth_anniversary:
             frappe.throw("Employees who completed 5 years of service only eligible for <b>Pilgrimage Leave</b>")
-        if doc.new_leaves_allocated > 6:
-            frappe.throw("<b>Pilgrimage Leave</b> allocation should not exceed 6")
+        pilgrimage_leave = frappe.db.get_value("Leave Type",{'name':'Pilgrimage Leave'},"custom_maximum_leave_allowed")
+        if doc.new_leaves_allocated > float(pilgrimage_leave):
+            frappe.throw(f"<b>Pilgrimage Leave</b> allocation should not exceed {pilgrimage_leave}")
         if frappe.db.exists('Leave Allocation',{'employee':doc.employee,'docstatus':['!=',2],'leave_type':doc.leave_type,'name':['!=',doc.name]}):
             docs=frappe.db.get_all('Leave Allocation',{'employee':doc.employee,'docstatus':['!=',2],'leave_type':doc.leave_type,'name':['!=',doc.name]})
             tot=0
             for i in docs:
                 tot+=i.new_leaves_allocated
             tot=tot+doc.new_leaves_allocated
-            if tot > 6:
-                frappe.throw("<b>Pilgrimage Leave</b> allocation should not exceed 6.Already another allocation present.Kindly check.")
+            if tot > float(pilgrimage_leave):
+                frappe.throw(f"<b>Pilgrimage Leave</b> allocation should not exceed {pilgrimage_leave}.Already another allocation present.Kindly check.")
     elif doc.leave_type == 'Marriage Leave':
 
         allocations = frappe.db.get_all(
@@ -381,15 +390,15 @@ def check_allocations(doc,method):
 
         # Total after adding current allocation
         combined_total = previous_total + (doc.new_leaves_allocated or 0)
-
-        if combined_total > 3:
+        marriage_leave = frappe.db.get_value("Leave Type",{'name':'Marriage Leave'},"custom_maximum_leave_allowed")
+        if combined_total > marriage_leave:
             frappe.throw(
-                "<b>Marriage Leave</b> allocation cannot exceed 3 days in total. "
+                f"<b>Marriage Leave</b> allocation cannot exceed {marriage_leave} days in total. "
                 "Another allocation already exists. Kindly check."
             )
 
-        if (doc.new_leaves_allocated or 0) > 3:
-            frappe.throw("<b>Marriage Leave</b> allocation cannot exceed 3 days.")
+        if (doc.new_leaves_allocated or 0) > marriage_leave:
+            frappe.throw(f"<b>Marriage Leave</b> allocation cannot exceed {marriage_leave} days.")
 
     elif doc.leave_type=='Annual Vacation':    
         employees = frappe.db.get_value("Employee", {'name':doc.employee}, [ 'date_of_joining'])
@@ -3773,8 +3782,6 @@ import base64
 def get_base64_images(file_url):
     from frappe.utils import get_files_path
     import os
-
-    # Remove /private/files/ prefix
     file_rel_path = file_url.replace("/private/files/", "")
     file_path = os.path.join(get_files_path("pdf_images", is_private=True), os.path.basename(file_rel_path))
 
@@ -3786,62 +3793,6 @@ def get_base64_images(file_url):
 
     return f"data:image/png;base64,{encoded}"
 
-
-# import frappe
-# import os
-# import requests
-# from frappe.utils import get_files_path
-# from pdf2image import convert_from_path
-
-# @frappe.whitelist()
-# def convert_pdf_to_images(file_url):
-#     if not file_url:
-#         frappe.throw("No file URL provided")
-
-#     pdf_url = f"https://dev.jgbksa.com{file_url}"
-#     frappe.logger().error(f"Fetching PDF from: {pdf_url}")
-
-#     output_dir = get_files_path("pdf_images", is_private=True)
-#     os.makedirs(output_dir, exist_ok=True)
-
-#     pdf_filename = os.path.basename(file_url).replace(' ', '_')
-#     pdf_path = os.path.join(output_dir, pdf_filename)
-
-#     try:
-#         response = requests.get(pdf_url, stream=True)
-#         response.raise_for_status()
-#         with open(pdf_path, "wb") as f:
-#             for chunk in response.iter_content(1024):
-#                 f.write(chunk)
-#     except requests.exceptions.RequestException as e:
-#         frappe.throw(f"Failed to download PDF: {str(e)}")
-
-#     try:
-#         images = convert_from_path(pdf_path, dpi=150, poppler_path="/usr/bin")  # Update if different
-#     except Exception as e:
-#         frappe.throw(f"PDF conversion error: {str(e)}")
-
-#     image_paths = []
-#     for i, img in enumerate(images):
-#         img_filename = f"{pdf_filename}_page_{i + 1}.png"
-#         img_path = os.path.join(output_dir, img_filename)
-#         img.save(img_path, "PNG")
-#         image_paths.append(f"/private/files/pdf_images/{img_filename}")
-
-#     return image_paths
-# {% if doc.custom_attach_annexure_ and '.pdf' in doc.custom_attach_annexure_.lower() %}
-#         {% set images = frappe.call('jgb.jgb.custom.convert_pdf_to_images', file_url=doc.custom_attach_annexure_) %}
-        
-#         {% if images %}
-#             <h4 align="center">ANNEXURE</h4>
-#             {% for image in images %}
-#                 {% set base64_img = frappe.call("jgb.jgb.custom.get_base64_images", file_url=image) %}
-#                 <img src="{{ base64_img }}" style="width: 100%; margin-bottom: 10px;" />
-#             {% endfor %}
-#         {% else %}
-#             <p style="color: red;">No images were generated from the PDF.</p>
-#         {% endif %}
-#     {% endif %}
 
 import frappe
 import os
@@ -3864,7 +3815,6 @@ def convert_file_to_images(file_url):
     original_filename = os.path.basename(file_url).replace(' ', '_')
     download_path = os.path.join(output_dir, original_filename)
 
-    # Download file
     try:
         response = requests.get(full_url, stream=True)
         response.raise_for_status()
@@ -3874,7 +3824,6 @@ def convert_file_to_images(file_url):
     except requests.exceptions.RequestException as e:
         frappe.throw(f"Failed to download file: {str(e)}")
 
-    # Convert to PDF if needed
     if file_ext != "pdf":
         try:
             subprocess.run([
@@ -3889,7 +3838,6 @@ def convert_file_to_images(file_url):
     else:
         pdf_path = download_path
 
-    # Convert PDF to images
     try:
         images = convert_from_path(pdf_path, dpi=150, poppler_path="/usr/bin")
     except Exception as e:
@@ -5479,257 +5427,179 @@ def process_uploaded_file(file_url, quotation_name):
     if not rows:
         frappe.throw("Excel file is empty.")
 
-    data_rows = rows[2:]
+   
 
+    
     quotation = frappe.get_doc("Quotation", quotation_name)
-    division_code = quotation.custom_division_short_code
-    product_short = quotation.custom_product_short_code
-    cost_center = quotation.custom_cost_center
-    brand = quotation.custom_brand
-    quo = quotation.custom_brand_exchange_rate
+    if quotation.custom_brand == "Pennbarry":
+        data_rows = rows[2:]
+        division_code = quotation.custom_division_short_code
+        product_short = quotation.custom_product_short_code
+        cost_center = quotation.custom_cost_center
+        brand = quotation.custom_brand
+        quo = quotation.custom_brand_exchange_rate
 
-    quotation.items = [row for row in quotation.items if row.item_code]
+        quotation.items = [row for row in quotation.items if row.item_code]
 
-    created_items = []  
+        created_items = []  
 
-    for row in data_rows:
-        if not any(row):
-            continue
+        for row in data_rows:
+            if not any(row):
+                continue
 
-        row_vals = list(row)
+            row_vals = list(row)
 
-        qty = row_vals[9] or 0
-        rate = row_vals[10] or 0
-
-
-        item_name_parts = [str(v).strip() for v in row_vals[:-3] if v]
-
-        if brand:
-            item_name_parts.append(str(brand).strip())
-
-        item_name = "-".join(item_name_parts)
+            qty = row_vals[9] or 0
+            rate = row_vals[10] or 0
 
 
-        prefix = f"{division_code}-{product_short}"
+            item_name_parts = [str(v).strip() for v in row_vals[:-3] if v]
 
-        existing_item = frappe.db.get_value(
-            "Item",
-            {
+            if brand:
+                item_name_parts.append(str(brand).strip())
+
+            item_name = "-".join(item_name_parts)
+
+
+            prefix = f"{division_code}-{product_short}"
+
+            existing_item = frappe.db.get_value(
+                "Item",
+                {
+                    "item_name": item_name,
+                    "item_code": ["like", f"{prefix}%"]   
+                },
+                "name"
+            )
+
+            if existing_item:
+                created_items.append({
+                    "item_code": existing_item,
+                    "item_name": item_name,
+                    "qty": qty,
+                    "rate": rate,
+                    "custom_cost": rate,
+                    "custom_price_cost":rate*quo,
+                    "custom_total_cost": rate * qty,
+                    "custom_total_costcompany_currency": rate * qty * quo
+                    
+                })
+                continue
+
+            last_item = frappe.db.sql("""
+                SELECT name FROM `tabItem`
+                WHERE item_code LIKE %s
+                ORDER BY creation DESC LIMIT 1
+            """, (f"{prefix}%",), as_dict=True)
+
+            last_number = 0
+            if last_item:
+                try:
+                    last_number = int(last_item[0]["name"].split("-")[-1])
+                except:
+                    pass
+
+            new_code = f"{prefix}-{last_number + 1:06d}"
+
+            item = frappe.get_doc({
+                "doctype": "Item",
+                "item_code": new_code,
                 "item_name": item_name,
-                "item_code": ["like", f"{prefix}%"]   
-            },
-            "name"
-        )
-
-        if existing_item:
+                "description": item_name,
+                "item_group": quotation.custom_division,
+                "custom_quotation_ref": quotation_name,
+                "custom_auto_created_item": 1,
+                "custom_product": quotation.custom_product
+            })
+            item.insert(ignore_permissions=True)
+            frappe.db.commit()
             created_items.append({
-                "item_code": existing_item,
+                "item_code": new_code,
                 "item_name": item_name,
                 "qty": qty,
                 "rate": rate,
-                "custom_cost": rate,
                 "custom_price_cost":rate*quo,
                 "custom_total_cost": rate * qty,
                 "custom_total_costcompany_currency": rate * qty * quo
                 
             })
-            continue
 
-        last_item = frappe.db.sql("""
-            SELECT name FROM `tabItem`
-            WHERE item_code LIKE %s
-            ORDER BY creation DESC LIMIT 1
-        """, (f"{prefix}%",), as_dict=True)
-
-        last_number = 0
-        if last_item:
-            try:
-                last_number = int(last_item[0]["name"].split("-")[-1])
-            except:
-                pass
-
-        new_code = f"{prefix}-{last_number + 1:06d}"
-
-        item = frappe.get_doc({
-            "doctype": "Item",
-            "item_code": new_code,
-            "item_name": item_name,
-            "description": item_name,
-            "item_group": quotation.custom_division,
-            "custom_quotation_ref": quotation_name,
-            "custom_auto_created_item": 1,
-            "custom_product": quotation.custom_product
-        })
-        item.insert(ignore_permissions=True)
-        frappe.db.commit()
-        created_items.append({
-            "item_code": new_code,
-            "item_name": item_name,
-            "qty": qty,
-            "rate": rate,
-            "custom_price_cost":rate*quo,
-            "custom_total_cost": rate * qty,
-            "custom_total_costcompany_currency": rate * qty * quo
-            
-        })
-
-    quotation.set("items", [])
+        quotation.set("items", [])
 
 
-    division_settings = {
-        "HVAC Division - (HVA)": {
-            "warehouse": "HVAC Stores - JGB",
-            "income_account": "4001 - Revenue - HVAC - JGB",
-            "expense_account": "5011 - COG - HVAC - JGB"
-        },
-        "MECH": {
-            "warehouse": "Main Warehouse - JGB",
-            "income_account": "Sales Mechanical - JGB",
-            "expense_account": "COGS Mechanical - JGB"
+        division_settings = {
+            "HVAC Division - (HVA)": {
+                "warehouse": "HVAC Stores - JGB",
+                "income_account": "4001 - Revenue - HVAC - JGB",
+                "expense_account": "5011 - COG - HVAC - JGB"
+            },
+            "MECH": {
+                "warehouse": "Main Warehouse - JGB",
+                "income_account": "Sales Mechanical - JGB",
+                "expense_account": "COGS Mechanical - JGB"
+            }
         }
-    }
 
-    div = quotation.custom_division_short_code
+        div = quotation.custom_division_short_code
 
-    warehouse = division_settings.get(div, {}).get("warehouse")
-    income_account = division_settings.get(div, {}).get("income_account")
-    expense_account = division_settings.get(div, {}).get("expense_account")
+        warehouse = division_settings.get(div, {}).get("warehouse")
+        income_account = division_settings.get(div, {}).get("income_account")
+        expense_account = division_settings.get(div, {}).get("expense_account")
 
-    for it in created_items:
-        quotation.append("items", {
-            "item_code": it["item_code"],
-            "item_name": it["item_name"],
-            "description": it["item_name"],
-            "qty": it["qty"],
-            "uom": "Nos",
-            "rate": it["rate"],
-            "base_rate": it["rate"],
-            "custom_cost_center": cost_center,
-            "custom_cost":it["rate"],
-            "custom_price_cost":it["custom_price_cost"],
-            "custom_total_cost":it["custom_total_cost"],
-            "custom_total_costcompany_currency": it["custom_total_costcompany_currency"],
-            "custom_cost_amount":it["custom_total_cost"],
-            "custom_cost_amount_sar":it["custom_total_costcompany_currency"]
-        })
+        for it in created_items:
+            quotation.append("items", {
+                "item_code": it["item_code"],
+                "item_name": it["item_name"],
+                "description": it["item_name"],
+                "qty": it["qty"],
+                "uom": "Nos",
+                "rate": it["rate"] *quo,
+                "base_rate": it["rate"] * quo,
+                "custom_cost_center": cost_center,
+                "custom_cost":it["rate"],
+                "custom_price_cost":it["custom_price_cost"],
+                "custom_total_cost":it["custom_total_cost"],
+                "custom_total_costcompany_currency": it["custom_total_costcompany_currency"],
+                "custom_cost_amount":it["custom_total_cost"],
+                "custom_cost_amount_sar":it["custom_total_costcompany_currency"]
+            })
 
-    quotation.save(ignore_permissions=True)
-    frappe.db.commit()
+        quotation.save(ignore_permissions=True)
+        frappe.db.commit()
+    elif quotation.custom_brand == "Hattersley":
+        quotation.price_list = ""
+
+        data_rows = rows[0:]
+        for pp in data_rows:
+            if not pp[6] or pp[0] == "Qty":
+                continue
+
+            # Description should be index 1 to 4 only
+            description = "-".join(str(x) for x in pp[1:4] if x)
+
+            # Rate logic
+            rate = pp[4] if pp[4] else pp[5]
+
+            quotation.append("items", {
+                "item_code": pp[6],
+                "item_name": pp[7],
+                "qty": pp[0],
+                "rate": rate,
+                "description": description,
+            })
+        for row in list(quotation.items):
+            if not row.item_code:
+                quotation.remove(row)
+
+        quotation.save(ignore_permissions=True)
+        frappe.db.commit()
+
+
 
     return "Items created successfully"
 
 
 
-
-# import frappe, os
-# from io import BytesIO
-# from openpyxl import load_workbook
-# from frappe.utils.file_manager import get_file
-# from frappe.utils import today
-
-# @frappe.whitelist()
-# def process_uploaded_file_po(file_url, purchaseorder_name):
-#     """Process Excel file, create Items dynamically, and append to PO."""
-
-#     # Get file content
-#     file_doc = frappe.get_doc("File", {"file_url": file_url})
-#     content = None
-#     file_path = frappe.utils.get_site_path(file_doc.file_url.strip("/"))
-
-#     if not os.path.exists(file_path):
-#         content = file_doc.get_content()
-
-#     # Open workbook
-#     wb = load_workbook(filename=BytesIO(content) if content else file_path, data_only=True)
-#     sheet = wb.active
-#     rows = list(sheet.iter_rows(values_only=True))
-#     if not rows or len(rows) <= 2:
-#         frappe.throw("Excel is empty or missing data rows")
-
-#     data_rows = rows[2:]  # skip header
-
-#     po = frappe.get_doc("Purchase Order", purchaseorder_name)
-#     division_code = po.custom_division_short_code
-#     product_short = po.custom_product_short_code
-
-#     created_items = []
-
-#     for idx, row in enumerate(data_rows, start=3):
-#         if not any(row):
-#             continue
-
-#         row_vals = list(row)
-#         qty = float(row_vals[9] or 1)
-#         rate = float(row_vals[10] or 0)
-#         item_name_parts = [str(v).strip() for v in row_vals[:-3] if v]
-#         if not item_name_parts:
-#             frappe.throw(f"Row #{idx}: Item name is empty")
-
-#         item_name = "-".join(item_name_parts)
-#         prefix = f"{division_code}-{product_short}"
-
-#         # Check if Item exists
-#         existing_item = frappe.db.get_value(
-#             "Item",
-#             {"item_name": item_name, "item_code": ["like", f"{prefix}%"]},
-#             "name"
-#         )
-
-#         if existing_item:
-#             item_code = existing_item
-#         else:
-#             # Create new Item
-#             last_item = frappe.db.sql("""
-#                 SELECT item_code FROM `tabItem`
-#                 WHERE item_code LIKE %s
-#                 ORDER BY creation DESC LIMIT 1
-#             """, (f"{prefix}%",), as_dict=True)
-
-#             last_number = 0
-#             if last_item:
-#                 try:
-#                     last_number = int(last_item[0]["item_code"].split("-")[-1])
-#                 except:
-#                     last_number = 0
-
-#             new_code = f"{prefix}-{last_number + 1:06d}"
-
-#             item_doc = frappe.get_doc({
-#                 "doctype": "Item",
-#                 "item_code": new_code,
-#                 "item_name": item_name,
-#                 "description": item_name,
-#                 "item_group": po.custom_division,
-#                 "custom_purchase_order_reference": purchaseorder_name,
-#                 "custom_auto_created_item": 1,
-#                 "custom_product": po.custom_product
-#             })
-#             item_doc.insert(ignore_permissions=True)
-#             frappe.db.commit()
-#             item_code = new_code
-
-#         created_items.append({
-#             "item_code": item_code,
-#             "item_name": item_name,
-#             "qty": qty,
-#             "rate": rate
-#         })
-
-#     # Append items to PO
-#     for it in created_items:
-#         po.append("items", {
-#             "item_code": it["item_code"],
-#             "item_name": it["item_name"],
-#             "description": it["item_name"],
-#             "qty": it["qty"],
-#             "uom": "Nos",
-#             "rate": it["rate"],
-#             "schedule_date": today()
-#         })
-
-#     po.save(ignore_permissions=True)  # Save PO with new items
-#     frappe.db.commit()
-#     return "Items created successfully"
 
 
 @frappe.whitelist()
@@ -5858,6 +5728,9 @@ def process_uploaded_file_so(file_url, salesorder_name):
     product_short = salesorder.custom_product_short_code
     cost_center = salesorder.cost_center
     brand = salesorder.custom_brand
+    quo = salesorder.custom_brand_exchange_rate
+    conver = salesorder.conversion_rate
+
 
     salesorder.items = [row for row in salesorder.items if row.item_code]
 
@@ -5898,7 +5771,11 @@ def process_uploaded_file_so(file_url, salesorder_name):
                 "item_name": item_name,
                 "qty": qty,
                 "rate": rate,
-                "custom_cost": rate 
+                "custom_cost": rate,
+                "custom_price_cost":rate*quo,
+                "custom_total_cost": rate * qty,
+                "custom_custom_total_costcompany_currency": rate * qty * quo
+
             })
             continue
 
@@ -5934,6 +5811,11 @@ def process_uploaded_file_so(file_url, salesorder_name):
             "item_name": item_name,
             "qty": qty,
             "rate": rate,
+            "custom_cost": rate,
+            "custom_price_cost":rate*quo,
+            "custom_total_cost": rate * qty,
+            "custom_custom_total_costcompany_currency": rate * qty * quo
+
         })
 
     salesorder.set("items", [])
@@ -5968,16 +5850,22 @@ def process_uploaded_file_so(file_url, salesorder_name):
             "item_code": it["item_code"],
             "item_name": it["item_name"],
             "description": it["item_name"],
+            "delivery_date":salesorder.delivery_date,
             "qty": it["qty"],
             "uom": "Nos",
-            "rate": it["rate"],
+            "rate": it["custom_price_cost"]/salesorder.conversion_rate,
             "cost_center": cost_center,
             "delivery_date": today(),
             "warehouse": warehouse,
             "custom_income_account": income_account,
             "custom_cost":it["rate"],
             "base_rate": it["rate"],
-            "custom_custom_total_costcompany_currency": it["rate"]
+            "custom_price_cost":it["custom_price_cost"],
+            "custom_total_cost":it["custom_total_cost"],
+            "custom_custom_total_costcompany_currency": it["custom_custom_total_costcompany_currency"],
+            "custom_cost_amount":it["custom_total_cost"],
+            "custom_cost_amount_sar":it["custom_custom_total_costcompany_currency"]
+
         })
 
     salesorder.save(ignore_permissions=True)
@@ -6075,7 +5963,7 @@ def set_so_series(doc, method):
     prefix = "SOJGBKSA"
     latest = frappe.db.sql("""
         SELECT name FROM `tabSales Order`
-        WHERE name LIKE %s
+        WHERE name LIKE %s and amended_from is null
         ORDER BY name DESC
         LIMIT 1
     """, (prefix + "%",), as_dict=True)
@@ -6245,8 +6133,44 @@ def get_pi_items(invoice):
             "amount": item.amount,
             "expense_account": item.expense_account
         })
+    
 
     return data
+
+import frappe
+
+def update_pi_items(doc, method):
+    doc.taxes = []
+    for ro in doc.purchase_receipts:  
+        if not ro.receipt_document:
+            continue
+        pi = frappe.get_doc("Purchase Invoice", ro.receipt_document)
+        ro.supplier = pi.supplier
+        ro.grand_total = pi.grand_total
+        ro.posting_date = pi.posting_date
+
+    
+    for row in doc.custom_purchase_invoice:  
+        if not row.receipt_document:
+            continue
+        pi = frappe.get_doc("Purchase Invoice", row.receipt_document)
+        row.supplier = pi.supplier
+        row.grand_total = pi.grand_total
+        row.posting_date = pi.posting_date
+
+        pi_items = get_pi_items(row.receipt_document)
+        
+
+        if not pi_items:
+            continue
+
+        for d in pi_items:
+            doc.append("taxes", {
+                "description": d.get("description"),
+                "amount": d.get("amount"),
+                "expense_account": d.get("expense_account")
+            })
+            
 
 
 import frappe
@@ -6591,74 +6515,74 @@ def update_pr_currency(doc, method):
 
 
 
-# @frappe.whitelist()
-# def check_customer_field_so(doc, method):
-#     customer = doc.customer
-#     cust = frappe.get_doc("Customer", customer)
+@frappe.whitelist()
+def check_customer_field_so(doc, method):
+    customer = doc.customer
+    cust = frappe.get_doc("Customer", customer)
 
-#     sections = {
-#         "Billing": {
-#             "custom_attention": "Attention",
-#             "custom_email": "Email",
-#             "custom_contact_no": "Contact No",
-#             "custom_territory": "Territory",
-#             "custom_building_number": "Building Number",
-#             "custom_street_name": "Street",
-#             "custom_district": "District",
-#             "custom_city": "City",
-#             "custom_state": "State",
-#             "custom_zippostal_code": "ZIP/Postal Code",
-#             "custom_phone": "Phone",
-#             "custom_attention_in_arabic": "Attention in Arabic",
-#             "custom_email_in_arabic": "Email in Arabic",
-#             "custom_contact_no_in_arabic": "Contact No in Arabic",
-#             "custom_territory_in_arabic": "Territory in Arabic",
-#             "custom_building_number_in_arabic": "Building Number in Arabic",
-#             "custom_street_in_arabic": "Street in Arabic",
-#             "custom_district_in_arabic": "District in Arabic",
-#             "custom_city_in_arabic": "City in Arabic",
-#             "custom_state_in_arabic": "State in Arabic",
-#             "custom_postal_code_in_arabic": "ZIP/Postal Code in Arabic",
-#             "custom_phone_number_in_arabic": "Phone Number in Arabic",
-#         },
-#         "Shipping": {
-#             "custom_attention_": "Attention",
-#             "custom_email_": "Email",
-#             "custom_contact_no_": "Contact No",
-#             "custom_region_": "Territory",
-#             "custom_building_number_": "Building Number",
-#             "custom_street": "Street",
-#             "custom_district_": "District",
-#             "custom_city_": "City",
-#             "custom_state_": "State",
-#             "custom_postal_code": "ZIP/Postal Code",
-#             "custom_phone_number": "Phone",
-#             "custom_attention_in_arabic_": "Attention in Arabic",
-#             "custom_email_in_arabic_": "Email in Arabic",
-#             "custom_contact_no_in_arabic_": "Contact No in Arabic",
-#             "custom_territory_in_arabic_": "Territory in Arabic",
-#             "custom_building_number_in_arabic_": "Building Number in Arabic",
-#             "custom_street_in_arabic": "Street in Arabic",
-#             "custom_district_in_arabic_": "District in Arabic",
-#             "custom_city_in_arabic_": "City in Arabic",
-#             "custom_state_in_arabic_": "State in Arabic",
-#             "custom_postal_code_in_arabic": "ZIP/Postal Code in Arabic",
-#             "custom_phone_number_in_arabic": "Phone Number in Arabic",
-#         }
-#     }
+    sections = {
+        "Billing": {
+            "custom_attention": "Attention",
+            "custom_email": "Email",
+            "custom_contact_no": "Contact No",
+            "custom_territory": "Territory",
+            "custom_building_number": "Building Number",
+            "custom_street_name": "Street",
+            "custom_district": "District",
+            "custom_city": "City",
+            "custom_state": "State",
+            "custom_zippostal_code": "ZIP/Postal Code",
+            "custom_phone": "Phone",
+            "custom_attention_in_arabic": "Attention in Arabic",
+            "custom_email_in_arabic": "Email in Arabic",
+            "custom_contact_no_in_arabic": "Contact No in Arabic",
+            "custom_territory_in_arabic": "Territory in Arabic",
+            "custom_building_number_in_arabic": "Building Number in Arabic",
+            "custom_street_in_arabic": "Street in Arabic",
+            "custom_district_in_arabic": "District in Arabic",
+            "custom_city_in_arabic": "City in Arabic",
+            "custom_state_in_arabic": "State in Arabic",
+            "custom_postal_code_in_arabic": "ZIP/Postal Code in Arabic",
+            "custom_phone_number_in_arabic": "Phone Number in Arabic",
+        },
+        "Shipping": {
+            "custom_attention_": "Attention",
+            "custom_email_": "Email",
+            "custom_contact_no_": "Contact No",
+            "custom_region_": "Territory",
+            "custom_building_number_": "Building Number",
+            "custom_street": "Street",
+            "custom_district_": "District",
+            "custom_city_": "City",
+            "custom_state_": "State",
+            "custom_postal_code": "ZIP/Postal Code",
+            "custom_phone_number": "Phone",
+            "custom_attention_in_arabic_": "Attention in Arabic",
+            "custom_email_in_arabic_": "Email in Arabic",
+            "custom_contact_no_in_arabic_": "Contact No in Arabic",
+            "custom_territory_in_arabic_": "Territory in Arabic",
+            "custom_building_number_in_arabic_": "Building Number in Arabic",
+            "custom_street_in_arabic": "Street in Arabic",
+            "custom_district_in_arabic_": "District in Arabic",
+            "custom_city_in_arabic_": "City in Arabic",
+            "custom_state_in_arabic_": "State in Arabic",
+            "custom_postal_code_in_arabic": "ZIP/Postal Code in Arabic",
+            "custom_phone_number_in_arabic": "Phone Number in Arabic",
+        }
+    }
 
-#     missing_fields = []
+    missing_fields = []
 
-#     for section_name, fields in sections.items():
-#         for field, label in fields.items():
-#             if not cust.get(field):
-#                 missing_fields.append(f"{label} ({section_name})")
+    for section_name, fields in sections.items():
+        for field, label in fields.items():
+            if not cust.get(field):
+                missing_fields.append(f"{label} ({section_name})")
 
-#     if missing_fields:
-#         frappe.throw(
-#             "Please fill the following fields in Customer before saving the Sales Order:\n- " 
-#             + "\n- ".join(missing_fields)
-#         )
+    if missing_fields:
+        frappe.throw(
+            "Please fill the following fields in Customer before saving the Sales Order:\n- " 
+            + "\n- ".join(missing_fields)
+        )
 
 # Email to ajmal@jgbksa.com on submission of DN
 @frappe.whitelist()
@@ -6691,3 +6615,329 @@ def send_mail_for_dn(doc, method):
 #     frappe.db.set_value("Logistics Request","LR-2025-00002","master_bl_number__awb","")
 #     frappe.db.set_value("Logistics Request","LR-2025-00002","custom_schedule",0)
 #     frappe.db.set_value("Logistics Request","LR-2025-00002","workflow_state","Scheduled")
+
+@frappe.whitelist()
+def money_in_words_advance_invoice(amt):
+    
+    if amt:
+        amt_word = money_in_words(flt(amt))
+        return amt_word
+
+
+import frappe
+from frappe.utils import add_days, getdate
+
+
+@frappe.whitelist()
+def on_extend_leave(employee, previous_to_date, current_to_date, name):
+
+    previous_to_date = getdate(previous_to_date)
+    current_to_date = getdate(current_to_date)
+
+    att_date = add_days(previous_to_date, 1)
+
+    while att_date <= current_to_date:
+        create_or_update_attendance(employee, att_date, name)
+        att_date = add_days(att_date, 1)
+
+def create_or_update_attendance(employee, att_date,name):
+        
+    if frappe.db.get_value("Attendance",{'employee':employee,"attendance_date":att_date,"docstatus":['!=',2]}):
+        doc = frappe.get_doc("Attendance", attendance_name)
+        doc.leave_type = "Annual Vacation"
+        doc.leave_application = name
+        doc.save(ignore_permissions=True)
+    else:
+        doc = frappe.new_doc("Attendance")
+        doc.employee = employee
+        doc.attendance_date = att_date
+        doc.leave_type = "Annual Vacation"
+        doc.leave_application = name
+        doc.status = "On Leave"
+        doc.flags.ignore_validate = True
+        doc.insert(ignore_permissions=True)
+        doc.submit()
+        
+# @frappe.whitelist()
+# def update_advance_amount(doc,method):
+#     if doc.advance_amount1:
+#         frappe.db.set_value("Advance Invoice",doc.name,"advance_amount1",doc.advance_amount1)
+
+@frappe.whitelist()
+def create_new_journal_entry(doc,method):
+    document = frappe.get_doc("Advance Invoice", doc.name)
+    sales=frappe.get_doc("Sales Order",doc.sales_order)
+    jv = frappe.new_doc("Journal Entry")
+    jv.voucher_type = "Journal Entry"
+    jv.company = document.company
+    jv.posting_date = doc.transaction_date
+    jv.user_remark = f"Customer Name : {sales.customer} Order No : {doc.sales_order} Order Date : {sales.transaction_date} Project : {sales.project}"
+    jv.cheque_no = doc.name
+    jv.custom_advance_invoice=doc.name
+    jv.cheque_date = document.transaction_date
+    advance_account = frappe.db.get_value("Company", {"name": document.company}, "custom_default_advance_account")
+    receivable_account = frappe.db.get_value("Company", {"name": document.company}, "default_receivable_account")
+    accounts = [
+        {
+            'account': advance_account,
+            'credit_in_account_currency': document.advance_amount1
+        },
+        {
+            'account': receivable_account,
+            'debit_in_account_currency': document.advance_amount1,
+            'party_type': 'Customer',
+            'party': document.customer
+        }
+    ]
+
+    for account in accounts:
+        jv.append('accounts', account)
+
+    jv.save(ignore_permissions=True)
+    jv.submit()
+    custom_invoice = jv.custom_advance_invoice
+    existing_docs = frappe.db.sql("""
+        SELECT name FROM `tabJournal Entry`
+        WHERE name LIKE %s
+        ORDER BY name DESC
+    """, (custom_invoice + '%'), as_dict=True)
+    if not existing_docs:
+        new_name = f"{custom_invoice}-01"
+    else:
+        last_doc = existing_docs[0]
+        last_number = int(last_doc.name.split('-')[-1])
+        new_sequence = last_number + 1
+        new_name = f"{custom_invoice}-{new_sequence}"
+    frappe.rename_doc("Journal Entry", jv.name, new_name, force=1)
+
+
+
+@frappe.whitelist()
+def cancel_journal_entry(doc,method):
+    jv = frappe.db.get_value("Journal Entry",{"cheque_no":doc.name},["name"])
+    if jv:
+        jv_cancel=frappe.get_doc("Journal Entry",jv)
+        if jv_cancel.docstatus == 1:
+            jv_cancel.cancel()
+            
+
+
+
+
+
+
+
+
+@frappe.whitelist()
+def make_payment_entry_from_advance_invoice(advance_invoice):
+    ai = frappe.get_doc("Advance Invoice", advance_invoice)
+
+    pe = frappe.new_doc("Payment Entry")
+
+   
+    pe.payment_type = "Receive"
+    pe.party_type = "Customer"
+    pe.party = ai.customer
+    pe.party_name = ai.customer
+    pe.company = ai.company
+    pe.posting_date = frappe.utils.nowdate()
+
+    pe.paid_amount = ai.advance_amount1
+    pe.received_amount = ai.advance_amount1
+
+    pe.custom_sales_order = ai.sales_order
+    pe.custom_advance_invoice = ai.name
+    pe.custom_is_advance = 1
+    pe.custom_outstanding_amount = ai.advance_amount1
+    
+    pe.project = ai.project
+
+    
+    receivable_account = (
+        frappe.get_cached_value("Customer", ai.customer, "default_receivable_account")
+        or frappe.get_cached_value("Company", ai.company, "default_receivable_account")
+    )
+
+    cash_or_bank_account = (
+        frappe.get_cached_value("Company", ai.company, "default_cash_account")
+        or frappe.get_cached_value("Company", ai.company, "default_bank_account")
+    )
+
+    pe.paid_from = receivable_account
+    pe.paid_to = cash_or_bank_account
+
+    
+    pe.party_account = receivable_account
+
+   
+    pe.append("references", {
+        "reference_doctype": "Sales Order",
+        "reference_name": ai.sales_order,
+        "total_amount": ai.grand_total,
+        "outstanding_amount": ai.advance_amount1,
+        "allocated_amount": ai.advance_amount1
+    })
+
+   
+    pe.set_missing_values()
+    pe.set_amounts()
+
+    return pe
+    
+
+@frappe.whitelist()
+def update_leave_salary(doc,method):
+    if doc.custom_leave_salary:
+        if frappe.db.exists('Leave Salary',{'name':doc.custom_leave_salary,'docstatus':['!=',2]}):
+            frappe.db.set_value('Leave Salary',doc.custom_leave_salary,'status','Unpaid')
+            frappe.db.set_value('Leave Salary',doc.custom_leave_salary,'payment_entry_created',1)
+
+
+@frappe.whitelist()
+def update_party(doc,method):
+    if doc.custom_leave_salary:
+        if frappe.db.exists('Leave Salary',{'name':doc.custom_leave_salary,'docstatus':['!=',2]}):
+            employee=frappe.db.get_value('Leave Salary',doc.custom_leave_salary,'employee')
+            doc.party=employee
+
+
+@frappe.whitelist()
+def get_annual_leave_details(employee):
+    leaves = frappe.get_all("Leave Application",filters={ "employee": employee,"leave_type": "Annual Vacation","docstatus":["!=",2] , "workflow_state":["!=", "Rejected"]},fields=["from_date","to_date", "total_leave_days","description"], order_by="from_date desc")
+
+    html = """
+    <div>
+        <table class="table table-bordered table-striped" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>From Date</th>
+                    <th>To Date</th>
+                    <th>No. of Days</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody>
+    """
+
+    if leaves:
+        for i, l in enumerate(leaves, start=1):
+            html += f"""
+                <tr>
+                    <td>{i}</td>
+                    <td>{formatdate(l.from_date, "dd-MM-yyyy")}</td>
+                    <td>{formatdate(l.to_date, "dd-MM-yyyy")}</td>
+                    <td>{l.total_leave_days}</td>
+                    <td>{l.description or '-'}
+                </td>
+            </tr>
+            """
+    else:
+        html += """
+            <tr>
+                <td colspan="5" style="text-align:center;">
+                    No Annual Leave Records Found
+                </td>
+            </tr>
+        """
+
+    html += """
+            </tbody>
+        </table>
+    </div>
+    """
+
+    return html
+
+import frappe
+from frappe.utils import nowdate
+
+@frappe.whitelist()
+def create_new_pi(
+    expense_claim,
+    supplier,
+    description,
+    amount,
+    vat,
+    account,
+    company,
+    name,
+    row_name,
+    division=None,
+    project=None,
+    currency=None,
+    
+):
+    if frappe.db.exists("Purchase Invoice", {"custom_expense_claim": expense_claim,"custom_expense_claim_number": row_name}):
+        return frappe.db.get_value(
+            "Purchase Invoice",
+            {"custom_expense_claim": expense_claim,"custom_expense_claim_number": row_name},
+            "name"
+        )
+    else:
+        VAT_PERCENT = 15
+
+        amount = float(amount or 0)
+        vat = float(vat or 0)
+
+        pi = frappe.new_doc("Purchase Invoice")
+        pi.supplier = supplier
+        pi.posting_date = nowdate()
+        pi.due_date = nowdate()
+        pi.company = company
+        pi.custom_division = division
+        pi.project = project
+        pi.currency = currency
+        pi.update_stock = 0
+        pi.custom_expense_claim = expense_claim
+        pi.custom_expense_claim_number = row_name
+        # ---------------- Item ----------------
+        item = pi.append("items", {})
+        item.item_code = "NST-OTH-000022"
+        item.item_name = frappe.db.get_value("Item", item.item_code, "item_name")
+        item.description = description
+        item.qty = 1
+
+        # Amount logic
+        if vat == 0:
+            item.rate = amount
+            net_amount = amount
+        else:
+            net_amount = amount - (amount * VAT_PERCENT / 100)
+            item.rate = net_amount
+
+        expense_account = frappe.db.get_value(
+            "Expense Claim Account",
+            {"parent": account},
+            "default_account"
+        )
+
+        if not expense_account:
+            frappe.throw(f"No Expense Account found for {account}")
+
+        item.expense_account = expense_account
+
+        # ---------------- VAT Tax ----------------
+        tax = pi.append("taxes", {})
+        tax.charge_type = "Actual"
+        tax.account_head = expense_account
+        tax.description = "VAT 15%"
+        tax.rate = VAT_PERCENT
+        tax.tax_amount = amount * VAT_PERCENT / 100
+
+        pi.insert(ignore_permissions=True)
+
+        return pi.name
+
+@frappe.whitelist()
+def on_update_sales_person(doc, method):
+    sales_person = frappe.db.get_value("Sales Person", {"employee": doc.name}, "name")
+    if sales_person:
+        sp = frappe.get_doc("Sales Person", sales_person)
+        sp.custom_user_id = doc.user_id
+        sp.custom_designation = doc.designation
+        sp.custom_cell_number = doc.cell_number
+        
+        sp.save(ignore_permissions=True)
+        if sp.name != doc.employee_name:
+            frappe.rename_doc("Sales Person", sp.name,doc.employee_name)

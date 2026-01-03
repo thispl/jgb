@@ -140,6 +140,15 @@ frm.set_query('recommended_ffw', () => {
                 ]
             };
         });
+		if (frm.doc.logistic_type=="Local Delivery"){
+			frm.set_query('cargo_type', () => {
+				return {
+					filters: [
+						['name', 'in',["Courier","JGB Vehicle","Road","Supplier Scope","Customer Scope"]]
+					]
+				};
+			});
+		}
 
 
 frappe.after_ajax(() => {
@@ -1062,6 +1071,14 @@ frappe.ui.form.on('LR Costing Payment', {
 	
 })
 frappe.ui.form.on('LR Costing Payment PO', {
+	cost(frm, cdt, cdn){
+		const child = locals[cdt][cdn];
+		update_cost_in_sar(frm, cdt, cdn);
+	},
+	currency(frm, cdt, cdn){
+		const child = locals[cdt][cdn];
+		update_cost_in_sar(frm, cdt, cdn);
+	},
 	attach_payment(frm, cdt, cdn){
 		const child = locals[cdt][cdn];
 
@@ -1072,7 +1089,8 @@ frappe.ui.form.on('LR Costing Payment PO', {
 				parent_name: frm.doc.name,
 				row_title: child.title,
 				cost: child.cost,
-				attach_payment: child.attach_payment
+				attach_payment: child.attach_payment,
+				
 			},
 			callback: function(r) {
 				if (!r.exc) {
@@ -1093,7 +1111,8 @@ frappe.ui.form.on('LR Costing Payment PO', {
 					cost: child.cost,
 					supplier: child.supplier,
 					currency: child.currency,
-					cost_sar: child.cost_in_sar
+					cost_sar: child.cost_in_sar,
+					lr_type:frm.doc.logistic_type
 				},
 				callback: function(r) {
 					if (r.message) {

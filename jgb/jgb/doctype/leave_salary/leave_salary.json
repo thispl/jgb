@@ -56,7 +56,14 @@
   "column_break_mdrw",
   "total_deduction",
   "column_break_mhdm",
-  "net_pay"
+  "net_pay",
+  "amended_from",
+  "tab_break_sdjd",
+  "paid_on",
+  "remarks",
+  "proof_of_payment",
+  "status",
+  "payment_entry_created"
  ],
  "fields": [
   {
@@ -333,13 +340,63 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Leave Application"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Leave Salary",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "depends_on": "eval:doc.docstatus==1",
+   "fieldname": "tab_break_sdjd",
+   "fieldtype": "Tab Break",
+   "label": "Payment Details"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "paid_on",
+   "fieldtype": "Date",
+   "label": "Paid on"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "proof_of_payment",
+   "fieldtype": "Attach",
+   "label": "Proof of Payment"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "\nDraft\nSubmitted\nUnpaid\nPaid",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "payment_entry_created",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Payment entry created"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2025-06-12 13:28:33.150968",
- "modified_by": "jothi.m@groupteampro.com",
+ "modified": "2025-12-24 09:06:50.044521",
+ "modified_by": "pavithra.s@groupteampro.com",
  "module": "JGB",
  "name": "Leave Salary",
  "naming_rule": "Expression",
@@ -355,6 +412,7 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],

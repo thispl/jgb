@@ -13,8 +13,6 @@
   "department",
   "date_of_joining",
   "total_working_days",
-  "annual_leave_balance",
-  "leave_balance_amount",
   "column_break_3sgt",
   "company",
   "grade",
@@ -26,6 +24,7 @@
   "transportation_pay",
   "hra",
   "payroll_details_section",
+  "annual_leave_balance",
   "pay_start_date",
   "pay_end_date",
   "noof_days_worked",
@@ -34,6 +33,7 @@
   "normal_over_time",
   "holiday_over_time",
   "column_break_yjpa",
+  "leave_balance_amount",
   "total_ot",
   "earned_basic",
   "hra_pay",
@@ -42,12 +42,13 @@
   "arrears",
   "ot_incentive",
   "transportation",
+  "employment_duration",
   "total_salary",
   "section_break_irqf",
   "leaves_encashed",
-  "employment_duration",
   "total_worked",
   "eligible_gratuity",
+  "loan_other_deduction",
   "leave_pay",
   "column_break_9nom",
   "gratuity_amount",
@@ -55,7 +56,6 @@
   "air_ticket_fare",
   "monthly_deduction",
   "air_ticket_deduction",
-  "loan_other_deduction",
   "leave_pay_gratuity_total",
   "section_break_tssv",
   "net_pay",
@@ -116,6 +116,7 @@
   {
    "fieldname": "total_working_days",
    "fieldtype": "Int",
+   "hidden": 1,
    "label": "Total Working Days"
   },
   {
@@ -135,6 +136,7 @@
    "fetch_if_empty": 1,
    "fieldname": "basic_salary",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Basic Salary",
    "read_only": 1
   },
@@ -172,6 +174,7 @@
    "fetch_if_empty": 1,
    "fieldname": "hra",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "HRA",
    "read_only": 1
   },
@@ -180,7 +183,8 @@
    "fieldname": "grade",
    "fieldtype": "Link",
    "label": "Grade",
-   "options": "Employee Grade"
+   "options": "Employee Grade",
+   "read_only": 1
   },
   {
    "fieldname": "payroll_details_section",
@@ -190,29 +194,34 @@
   {
    "fieldname": "pay_start_date",
    "fieldtype": "Date",
+   "hidden": 1,
    "label": "Pay Start Date"
   },
   {
    "fieldname": "pay_end_date",
    "fieldtype": "Date",
+   "hidden": 1,
    "label": "Pay End Date"
   },
   {
    "default": "0",
    "fieldname": "noof_days_worked",
    "fieldtype": "Float",
-   "label": "No.of Days Worked"
+   "label": "No.of Days Worked",
+   "read_only": 1
   },
   {
    "default": "0",
    "fieldname": "absent_days",
    "fieldtype": "Float",
-   "label": "Absent Days"
+   "label": "Absent Days",
+   "read_only": 1
   },
   {
    "default": "0",
    "fieldname": "earned_basic",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Earned Basic"
   },
   {
@@ -240,7 +249,8 @@
    "default": "0",
    "fieldname": "total_ot",
    "fieldtype": "Currency",
-   "label": "Total OT"
+   "label": "Total OT",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_yjpa",
@@ -250,6 +260,7 @@
    "default": "0",
    "fieldname": "hra_pay",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "HRA"
   },
   {
@@ -291,6 +302,7 @@
    "default": "0",
    "fieldname": "total_salary",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Total Salary"
   },
   {
@@ -300,12 +312,14 @@
   {
    "fieldname": "leaves_encashed",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Leaves Encashed"
   },
   {
    "fieldname": "employment_duration",
    "fieldtype": "Data",
-   "label": "Employment Duration"
+   "label": "Employment Duration",
+   "read_only": 1
   },
   {
    "fieldname": "total_worked",
@@ -316,12 +330,14 @@
   {
    "fieldname": "eligible_gratuity",
    "fieldtype": "Data",
-   "label": "Eligible Gratuity"
+   "label": "Eligible Gratuity",
+   "read_only": 1
   },
   {
    "default": "0",
    "fieldname": "leave_pay",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Leave Pay"
   },
   {
@@ -332,7 +348,8 @@
    "default": "0",
    "fieldname": "gratuity_amount",
    "fieldtype": "Currency",
-   "label": "Gratuity Amount"
+   "label": "Gratuity Amount",
+   "read_only": 1
   },
   {
    "default": "0",
@@ -366,13 +383,13 @@
    "default": "0",
    "fieldname": "loan_other_deduction",
    "fieldtype": "Currency",
-   "label": "Loan/Other Deduction"
+   "label": "Other Deduction"
   },
   {
    "default": "0",
    "fieldname": "leave_pay_gratuity_total",
    "fieldtype": "Currency",
-   "label": "Leave Pay/Gratuity Total"
+   "label": "Loan/Advance Deduction"
   },
   {
    "fieldname": "section_break_tssv",
@@ -417,8 +434,8 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-05 11:30:23.927998",
- "modified_by": "bhuvaneswari.a@groupteampro.com",
+ "modified": "2025-12-19 10:32:09.352392",
+ "modified_by": "pavithra.s@groupteampro.com",
  "module": "JGB",
  "name": "Full and Final Settlement",
  "naming_rule": "Expression",

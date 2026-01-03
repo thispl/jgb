@@ -158,16 +158,30 @@ doc_events = {
 	"Payment Entry":{
         "on_update":"jgb.jgb.doctype.logistics_request.logistics_request.on_payment_entry_submit",
 		"on_cancel":"jgb.jgb.doctype.logistics_request.logistics_request.update_lr_for_pi_cancel",
+        "on_submit":'jgb.jgb.custom.update_leave_salary',
 	},
+ 
+	"Advance Invoice":{
+     
+        # "after_insert":"jgb.jgb.custom.update_advance_amount",
+        "on_submit":"jgb.jgb.custom.create_new_journal_entry",
+        "on_cancel":"jgb.jgb.custom.cancel_journal_entry",
+     
+     },
 	"Leave Application":{
 		'validate':'jgb.jgb.custom.check_leave_validations',
 	},
     "Payroll Entry":{
 		'validate':'jgb.jgb.custom.create_additional_salary',
         "on_trash":'jgb.jgb.custom.delete_additional_salary',
+        
+		# "before_insert":'jgb.jgb.custom.update_party',
 	},
 	"Leave Allocation":{
 		'validate':'jgb.jgb.custom.check_allocations',
+	},
+	"Landed Cost Voucher":{
+		'validate':'jgb.jgb.custom.update_pi_items',
 	},
 	"Purchase Order":{
 		'validate':'jgb.jgb.custom.update_advance_po',
@@ -209,6 +223,10 @@ doc_events = {
 	},
 	'Employee':{
 		"before_save":"jgb.jgb.custom.before_save_employee",
+		"on_update":"jgb.jgb.custom.on_update_sales_person"
+	},
+	'Employee Promotion':{
+		"on_submit":"jgb.jgb.doctype.currency_exchange_upload.currency_exchange_upload.update_internal_work"
 	},
 	'Quotation':{
 		"after_insert":"jgb.utils.update_qn_status",
