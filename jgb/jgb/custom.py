@@ -6941,3 +6941,26 @@ def on_update_sales_person(doc, method):
         sp.save(ignore_permissions=True)
         if sp.name != doc.employee_name:
             frappe.rename_doc("Sales Person", sp.name,doc.employee_name)
+
+def update_leave_ticket_payment_status(doc, method=None):
+    leave_application = doc.get("custom_ticket_reference")
+    if not leave_application:
+        return
+    if not frappe.db.exists("Leave Application", leave_application):
+        return
+    status_map = {
+        "after_insert": "JV in Draft",
+        "on_submit": "Paid",
+        "on_cancel": "JV Creation Pending",
+        "on_trash": "JV Creation Pending",
+    }
+    status = status_map.get(method)
+    if not status:
+        return
+    frappe.db.set_value(
+        "Leave Application",
+        leave_application,
+        "custom_ticket_payment_status",
+        status,
+        update_modified=False,
+    )
