@@ -256,6 +256,12 @@ doc_events = {
 	},
 	"Customer":{
 		"after_insert":"jgb.jgb.custom.create_new_address",
+	},
+	"Journal Entry":{
+		"after_insert":"jgb.jgb.custom.update_leave_application_ticket_payment_status",
+		"on_submit":"jgb.jgb.custom.update_leave_application_ticket_payment_status",
+		"on_cancel":"jgb.jgb.custom.update_leave_application_ticket_payment_status",
+		"on_trash":"jgb.jgb.custom.update_leave_application_ticket_payment_status",
 	}
 	# 'Expense Claim':{
 	# 	"validate":"jgb.jgb.custom.restrict_expense_claim"
