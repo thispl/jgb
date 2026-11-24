@@ -35,6 +35,24 @@ frappe.query_reports["Quotation Report"] = {
 			"options": "Sales Person"
 		},
 		{
+			"fieldname":"territory",
+			"label": __("Territory"),
+			"fieldtype": "Link",
+			"options": "Territory"
+		},
+		{
+			"fieldname":"item",
+			"label": __("Item"),
+			"fieldtype": "Link",
+			"options": "Item"
+		},
+		{
+			"fieldname":"item_group",
+			"label": __("Item Group"),
+			"fieldtype": "Link",
+			"options": "Item Group"
+		},
+		{
 			"fieldname":"docstatus",
 			"label":__("Document Status"),
 			"fieldtype":"Select",
@@ -64,6 +82,20 @@ frappe.query_reports["Quotation Report"] = {
 			"label": __("Amount To"),
 			"fieldtype": "Currency",
 			"depends_on": "eval: doc.amount_condition == 'between'"
-		}
+		},
+		{
+			"fieldname":"quotation_status",
+			"label":__("Quotation Status"),
+			"fieldtype":"Select",
+			"options":["","Quoted","LOI / Negotiations","In Negotiation","MTS Approved","PQD Approved","Ordered","Lost"],
+			"width": "100px"
+		},
 	]
 };
+
+
+
+
+
+
+

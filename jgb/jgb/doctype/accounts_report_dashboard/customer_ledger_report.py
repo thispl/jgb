@@ -34,6 +34,8 @@ from six import BytesIO, string_types
 import openpyxl.styles as styles
 from frappe.utils import flt, fmt_money
 
+from jgb.jgb.doctype.accounts_report_dashboard.report_styles import *
+
 
 @frappe.whitelist()
 def download():
@@ -51,18 +53,18 @@ def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
     column_widths = column_widths or []
     if wb is None:
         wb = openpyxl.Workbook()
-         
+
     ws = wb.create_sheet(sheet_name, 0)
     ws.column_dimensions['A'].width = 20
     ws.column_dimensions['B'].width = 20
-    ws.column_dimensions['C'].width = 20 
+    ws.column_dimensions['C'].width = 20
     ws.column_dimensions['D'].width = 50
     company = frappe.db.get_value('Company',{'name':args.company},'parent_company')
     if(company):
         ws.append([company," "," "," "," "," "," ","","","",""])
         ws.append([args.company," "," "," "," "," "," ","","","",""])
     else:
-        ws.append([args.company," "," "," "," "," "," ","","","",""]) 
+        ws.append([args.company," "," "," "," "," "," ","","","",""])
         ws.append([""," "," "," "," "," "," ","","","",""])
     ws.append(["Customer Ledger Summary Report"," "," "," ","",""])
     from_date_str = args.from_date
@@ -73,60 +75,112 @@ def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
     formatted_to_date = to_date_obj.strftime("%d-%m-%Y")
     header3=["For the Period From: "+ formatted_from_date +" "+"to"+" "+formatted_to_date]
     ws.append(header3 + [""] * 5)
-    ws.append([''])
-    ws.append(["Customer Name",args.customer,"","Currency",args.currency,""])
+    currency = frappe.db.get_value('Company', args.company, 'default_currency') or 'SAR'
+    ws.append([f'Currency: {currency}'])
+    customer_name = frappe.db.get_value("Customer",args.customer,"customer_name")
+
+    ws.append(["Customer Name",customer_name,"","Currency",args.currency,""])
     ws.append(['Date','Voucher No','Voucher Type','Narration',"Debit","Credit"])
     ws.append(['','','','','',''])
     data1= get_data(args)
     for row in data1:
         ws.append(row)
-    align_center = Alignment(horizontal='center',vertical='center')
-    align_right = Alignment(horizontal='right',vertical='bottom')
-    for header in ws.iter_rows(min_row=1 , max_row=1, min_col=1, max_col=4):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_center
-            # cell.fill = PatternFill(fgColor='fcff42', fill_type = "solid")
-    for header in ws.iter_rows(min_row=2 , max_row=6, min_col=1, max_col=5):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_center
-    for header in ws.iter_rows(min_row=8 , max_row=8, min_col=1, max_col=6):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_right
-    for header in ws.iter_rows(min_row=len(get_data(args))+7 , max_row=len(get_data(args))+7, min_col=1, max_col=6):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_center
-    for header in ws.iter_rows(min_row=len(get_data(args))+8 , max_row=len(get_data(args))+8, min_col=1, max_col=6):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_right
-    for header in ws.iter_rows(min_row=7 , max_row=7, min_col=1, max_col=6):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.fill = PatternFill(fgColor='D3D3D3', fill_type = "solid")
-    border_thin = Border(
-    left=Side(style='thin'),
-    right=Side(style='thin'),
-    top=Side(style='thin'),
-    bottom=Side(style='thin'))
-    header_range = ws['A1':ws.cell(row=len(get_data(args))+8, column=6).coordinate]
-    for row in header_range:
+
+    # --- Styling using shared report_styles ---
+    num_cols = 6
+    text_cols = 4  # Date, Voucher No, Voucher Type, Narration
+    entries_count = len(data1) - 2  # last 2 rows are "No. of Entries:" and "Total"
+    data_start_row = 9               # first entry row (after title+header+blank)
+    entries_end_row = data_start_row + entries_count - 1
+    subtotal_row_idx = data_start_row + entries_count        # "No. of Entries:"
+    grand_total_row_idx = data_start_row + entries_count + 1  # "Total"
+    last_row = grand_total_row_idx
+
+    # Title rows: row 1-2 company, row 3 title, row 4 date
+    for cell in ws[1]:
+        cell.font = company_font
+        cell.alignment = align_center
+    for cell in ws[2]:
+        cell.font = company_font
+        cell.alignment = align_center
+    for cell in ws[3]:
+        cell.font = title_font
+        cell.alignment = align_center
+    for cell in ws[4]:
+        cell.font = date_font
+        cell.alignment = align_center
+
+    # Customer info row (row 6)
+    for cell in ws[6]:
+        cell.font = bold_font
+        cell.alignment = align_center
+        cell.border = border_thin
+
+    # Header row (row 7) - dark navy fill, white bold text
+    apply_header_row(ws, 7, num_cols)
+
+    # Blank spacer row (row 8) - borders only
+    for cell in ws[8]:
+        cell.border = border_thin
+
+    # Data rows with alternating row colors
+    alt_row = False
+    if entries_count > 0:
+        for row in ws.iter_rows(min_row=data_start_row, max_row=entries_end_row, min_col=1, max_col=num_cols):
+            for i, cell in enumerate(row):
+                cell.border = border_thin
+                cell.font = data_font
+                cell.alignment = align_left if i < text_cols else align_right
+                if i >= text_cols:
+                    cell.number_format = currency_format
+                if alt_row:
+                    cell.fill = alt_row_fill
+            alt_row = not alt_row
+
+    # Subtotal row ("No. of Entries:") - light blue fill, dark blue bold
+    for i, cell in enumerate(ws[subtotal_row_idx]):
+        cell.border = border_thin
+        cell.font = subtotal_font
+        cell.fill = subtotal_fill
+        cell.alignment = align_left if i < text_cols else align_right
+        if i >= text_cols:
+            cell.number_format = currency_format
+
+    # Grand total row ("Total") - dark navy fill, white bold
+    for i, cell in enumerate(ws[grand_total_row_idx]):
+        cell.border = border_thin
+        cell.font = grand_total_font
+        cell.fill = grand_total_fill
+        cell.alignment = align_left if i < text_cols else align_right
+        if i >= text_cols:
+            cell.number_format = currency_format
+
+    # Thin grey borders on all cells
+    for row in ws.iter_rows(min_row=1, max_row=last_row, min_col=1, max_col=num_cols):
         for cell in row:
             cell.border = border_thin
-    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=6 )
-    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=6 )
-    ws.merge_cells(start_row=3, start_column=1, end_row=3, end_column=6 )
-    ws.merge_cells(start_row=4, start_column=1, end_row=4, end_column=6 )
-    ws.merge_cells(start_row=5, start_column=1, end_row=5, end_column=6 )
-    ws.merge_cells(start_row=6, start_column=2, end_row=6, end_column=3 )
-    ws.merge_cells(start_row=6, start_column=5, end_row=6, end_column=6 )
-    ws.merge_cells(start_row=8, start_column=1, end_row=8, end_column=6 )
-    ws.merge_cells(start_row=len(get_data(args))+7, start_column=2, end_row=len(get_data(args))+7, end_column=6)
-    ws.merge_cells(start_row=len(get_data(args))+8, start_column=1, end_row=len(get_data(args))+8, end_column=4 )
-    
+
+    # Merge cells (preserve original layout)
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=num_cols)
+    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=num_cols)
+    ws.merge_cells(start_row=3, start_column=1, end_row=3, end_column=num_cols)
+    ws.merge_cells(start_row=4, start_column=1, end_row=4, end_column=num_cols)
+    ws.merge_cells(start_row=5, start_column=1, end_row=5, end_column=num_cols)
+    ws.merge_cells(start_row=6, start_column=2, end_row=6, end_column=3)
+    ws.merge_cells(start_row=6, start_column=5, end_row=6, end_column=6)
+    ws.merge_cells(start_row=8, start_column=1, end_row=8, end_column=num_cols)
+    ws.merge_cells(start_row=subtotal_row_idx, start_column=2, end_row=subtotal_row_idx, end_column=num_cols)
+    ws.merge_cells(start_row=grand_total_row_idx, start_column=1, end_row=grand_total_row_idx, end_column=4)
+
+    # Row heights
+    ws.row_dimensions[1].height = 22
+    ws.row_dimensions[2].height = 22
+    ws.row_dimensions[3].height = 28
+    ws.row_dimensions[4].height = 20
+    ws.row_dimensions[7].height = 25
+
+    # Page setup: landscape, fit to width
+    setup_page(ws, 'landscape')
 
     xlsx_file = BytesIO()
     wb.save(xlsx_file)

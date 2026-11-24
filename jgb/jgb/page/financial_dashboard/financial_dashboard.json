@@ -1,0 +1,23 @@
+{
+ "content": null,
+ "creation": "2026-02-16 20:18:55.138721",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-02-16 18:12:46.063201",
+ "modified_by": "Administrator",
+ "module": "JGB",
+ "name": "financial-dashboard",
+ "owner": "Administrator",
+ "page_name": "financial-dashboard",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 1,
+ "title": "Financial Dashboard"
+}

@@ -16,11 +16,13 @@ def get_columns():
         _("Quotation") + ":Link/Quotation:200",
         _("Date") + ":Date:110",
         _("Customer") + ":Data:300",
+        _("Customer Name") + ":Data:300",
         _("Sales Person") + ":Data:200",
         _("Total Amount") + ":Currency:150",
         _("Discount Amount") + ":Currency:150",
         _("Net Amount") + ":Currency:150",
-        _("Status") + ":Data:130",
+        # _("Status") + ":Data:130",
+        _("Quotation Status") + ":Data:150",
         _("Phone No") + ":Data:100",
     ]
 
@@ -45,9 +47,29 @@ def get_data(filters):
         conditions += " AND custom_sales_personuser = %(sales_person)s"
         params["sales_person"] = filters.sales_person
 
+    if filters.territory:
+        conditions += " AND territory = %(territory)s"
+        params["territory"] = filters.territory
+
+    if filters.item:
+        conditions += """ AND name IN (
+            SELECT parent FROM `tabQuotation Item`
+            WHERE parenttype = 'Quotation' AND item_code = %(item)s)"""
+        params["item"] = filters.item
+
+    if filters.item_group:
+        conditions += """ AND name IN (
+            SELECT parent FROM `tabQuotation Item`
+            WHERE parenttype = 'Quotation' AND item_group = %(item_group)s)"""
+        params["item_group"] = filters.item_group
+
     if filters.docstatus:
         conditions += " AND status = %(docstatus)s"
         params["docstatus"] = filters.docstatus
+    
+    if filters.quotation_status:
+        conditions += " AND custom_quotation_status = %(quotation_status)s"
+        params["quotation_status"] = filters.quotation_status
 
     # Handle amount condition safely
     if filters.amount_condition:
@@ -82,11 +104,13 @@ def get_data(filters):
                 i.name,
                 i.transaction_date,
                 i.party_name,
+                i.customer_name,
                 i.custom_sales_personuser,
                 round(i.total or 0, 2),
                 round(i.discount_amount or 0, 2),
                 round(i.net_total or 0, 2),
-                i.status,
+                # i.status,
+                i.custom_quotation_status,
                 i.contact_mobile or "",
             ]
             data.append(row)

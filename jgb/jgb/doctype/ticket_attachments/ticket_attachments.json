@@ -1,0 +1,42 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-10-03 12:52:23.822725",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "attachment_details",
+  "ticket_attachment"
+ ],
+ "fields": [
+  {
+   "allow_on_submit": 1,
+   "fieldname": "attachment_details",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Attachment Details"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "ticket_attachment",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "Ticket Attachment"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-03 13:05:59.187050",
+ "modified_by": "pavithra.s@groupteampro.com",
+ "module": "JGB",
+ "name": "Ticket Attachments",
+ "owner": "pavithra.s@groupteampro.com",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

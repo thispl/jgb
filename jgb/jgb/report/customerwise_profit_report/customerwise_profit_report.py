@@ -17,6 +17,7 @@ def get_columns(filters):
 	columns += [
 		_("Sales Invoice") + ":Link/Sales Invoice:200",
 		_("Customer") + ":Link/Customer:200",
+		_("Customer Name") + ":Data:200",
 		_("Date") + ":Date/:200",
 		_("Invoice Type") + ":Data/:200",
 		_("Net Amount") + ":Currency/:200",
@@ -69,7 +70,7 @@ def get_data(filters):
 		grand_total += i.grand_total
 		if i.grand_total > 0:
 			prof = (calc / i.grand_total) * 100
-		row = [i.name, i.customer, i.posting_date, i.custom_invoice_type,
+		row = [i.name, i.customer,i.customer_name, i.posting_date, i.custom_invoice_type,
 		       round(i.grand_total, 2), round(add, 2), round(calc, 2), round(prof, 2)]
 		count += 1
 		total_percentage += prof
@@ -77,7 +78,7 @@ def get_data(filters):
 
 	if count > 0:
 		prc = total_percentage / count
-		to = ["TOTAL", "", "", "", round(grand_total, 2), round(total_add, 2), round(total_calc, 2), round(prc, 2)]
+		to = ["TOTAL", "", "", "","", round(grand_total, 2), round(total_add, 2), round(total_calc, 2), round(prc, 2)]
 		data.append(to)
 
 	return data

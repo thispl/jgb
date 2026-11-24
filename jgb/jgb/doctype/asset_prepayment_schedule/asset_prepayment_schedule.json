@@ -1,0 +1,205 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-11-18 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "asset",
+  "naming_series",
+  "company",
+  "column_break_2",
+  "prepaid_amount",
+  "opening_amortized_prepayment",
+  "prepayment_details_section",
+  "total_number_of_prepayments",
+  "frequency_of_prepayment",
+  "prepayment_start_date",
+  "column_break_8",
+  "prepaid_account",
+  "prepayment_expense_account",
+  "cost_center",
+  "prepayment_schedule_section",
+  "prepayment_schedule",
+  "details_section",
+  "notes",
+  "status",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Asset",
+   "options": "Asset",
+   "reqd": 1
+  },
+  {
+   "default": "ACC-APS-.YYYY.-",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "options": "ACC-APS-.YYYY.-",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "prepaid_amount",
+   "fieldtype": "Currency",
+   "label": "Prepaid Amount",
+   "options": "Company:company:default_currency",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "opening_amortized_prepayment",
+   "fieldtype": "Currency",
+   "label": "Opening Amortized Prepayment",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "prepayment_details_section",
+   "fieldtype": "Section Break",
+   "label": "Prepayment Details"
+  },
+  {
+   "fieldname": "total_number_of_prepayments",
+   "fieldtype": "Int",
+   "label": "Total Number of Prepayments",
+   "reqd": 1
+  },
+  {
+   "fieldname": "frequency_of_prepayment",
+   "fieldtype": "Int",
+   "label": "Frequency of Prepayment (Months)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "prepayment_start_date",
+   "fieldtype": "Date",
+   "label": "Prepayment Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "prepaid_account",
+   "fieldtype": "Link",
+   "label": "Prepaid Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "prepayment_expense_account",
+   "fieldtype": "Link",
+   "label": "Prepayment Expense Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "prepayment_schedule_section",
+   "fieldtype": "Section Break",
+   "label": "Prepayment Schedule"
+  },
+  {
+   "fieldname": "prepayment_schedule",
+   "fieldtype": "Table",
+   "label": "Prepayment Schedule",
+   "options": "Prepayment Schedule"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "details_section",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nActive\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Asset Prepayment Schedule",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-11-18 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "JGB",
+ "name": "Asset Prepayment Schedule",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

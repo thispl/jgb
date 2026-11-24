@@ -33,7 +33,8 @@ def get_columns(filters):
 		
 		])
 	columns += [
-		_("Customer/Party Name") + ":Link/Customer:240",
+		_("Customer/Party") + ":Link/Customer:240",
+		_("Customer Name/Party Name") + ":Data:240",
 		_("Date") + ":Date/:120",
 		_("Item") + ":Link/Item:150",
 		_("Description") + ":Data:200",
@@ -105,7 +106,7 @@ def get_data(filters):
 		""".format(conditions=conditions), params, as_dict=True)
 		for i in quotation:
 			if i.status != "Cancelled":
-				row = [i.name,i.party_name,i.transaction_date,i.item_code,i.description,i.qty,i.rate,i.amount,i.custom_sales_personuser]
+				row = [i.name,i.party_name,i.customer_name,i.transaction_date,i.item_code,i.description,i.qty,i.rate,i.amount,i.custom_sales_personuser]
 				data.append(row)
 	
 	
@@ -158,7 +159,7 @@ def get_data(filters):
 		for i in sales_order:
 			if i.status != "Cancelled":
 				amt=i.qty*i.rate
-				row = [i.name,i.customer,i.transaction_date,i.item_code,i.description,i.qty,i.rate,amt,i.po_no,i.custom_sales_personuser]
+				row = [i.name,i.customer,i.customer_name,i.transaction_date,i.item_code,i.description,i.qty,i.rate,amt,i.po_no,i.custom_sales_personuser]
 				data.append(row)
 
 	#Sales Invoice
@@ -211,7 +212,7 @@ def get_data(filters):
 			if i.status != "Cancelled":
 				if i.stock_transfer!='Stock Transfer':
 					amt=i.qty*i.rate
-					row = [i.name,i.customer,i.posting_date,i.item_code,i.description,i.qty,i.rate,amt,i.po_no,i.custom_sales_personuser]
+					row = [i.name,i.customer,i.customer_name,i.posting_date,i.item_code,i.description,i.qty,i.rate,amt,i.po_no,i.custom_sales_personuser]
 					data.append(row)
 	
 	
@@ -264,6 +265,6 @@ def get_data(filters):
 		for i in sales_Invoice:
 			if i.status != "Cancelled":
 				amt=i.qty*i.rate
-				row = [i.name,i.customer,i.posting_date,i.item_code,i.description,i.qty,i.rate,amt,i.po_no,i.custom_sales_personuser]
+				row = [i.name,i.customer,i.customer_name,i.posting_date,i.item_code,i.description,i.qty,i.rate,amt,i.po_no,i.custom_sales_personuser]
 				data.append(row)
 	return data

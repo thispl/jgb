@@ -1,0 +1,22 @@
+{
+ "content": null,
+ "creation": "2026-08-29 12:27:28.089828",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-08-29 12:27:47.057360",
+ "modified_by": "Administrator",
+ "module": "JGB",
+ "name": "accounts-receivable-",
+ "owner": "Administrator",
+ "page_name": "accounts-receivable-",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0
+}

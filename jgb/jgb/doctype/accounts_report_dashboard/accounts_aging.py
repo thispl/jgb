@@ -38,6 +38,8 @@ from six import BytesIO, string_types
 import openpyxl.styles as styles
 from frappe.utils import flt, fmt_money
 
+from jgb.jgb.doctype.accounts_report_dashboard.report_styles import *
+
 @frappe.whitelist()
 def download():
     filename = 'Accounts Receivable Aging Report'
@@ -76,67 +78,94 @@ def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
     ws.append(header2 + [""] * 6)
 
     customer=args.customer
-    header3=['Party: '+customer]
+    customer_name = frappe.db.get_value("Customer",args.customer,"customer_name")
+
+    header3=['Party: '+(customer_name or 'All')]
     # ws.append(header3 + [""] * 7)
     ws.append(header3 + [""] * 6)
 
-    ws.append([''])
+    currency = frappe.db.get_value('Company', args.company, 'default_currency') or 'SAR'
+    ws.append([f'Currency: {currency}'])
     # ws.append(["Posting Date","Voucher Number","Customer LPO","Invoiced Amount","Paid Amount","Credit Note","Outstanding Amount","Age(Days)","0-30","31-60","61-90","91-120","Above 121"])
     ws.append(["Posting Date","Voucher Number","Customer LPO","Invoiced Amount","Paid Amount","Credit Note","Outstanding Amount","Age(Days)","0-30","31-60","61-90","Above 90"])
     
-    data1= accounts_aging(args)
+    data1 = accounts_aging(args)
     for row in data1:
         ws.append(row)
-    align_center = Alignment(horizontal='center',vertical='center',wrap_text=True)
-    align_right = Alignment(horizontal='right',vertical='bottom',wrap_text=True)
-    align_left = Alignment(horizontal='left', vertical='bottom', wrap_text=True)
-    for header in ws.iter_rows(min_row=1 , max_row=1, min_col=1, max_col=12):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_center
-            # cell.fill = PatternFill(fgColor='fcff42', fill_type = "solid")
-    for header in ws.iter_rows(min_row=2 , max_row=4, min_col=1, max_col=12):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_center
-    for header in ws.iter_rows(min_row=6 , max_row=6, min_col=1, max_col=12):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.fill = PatternFill(fgColor='D3D3D3', fill_type = "solid")
-            cell.alignment = align_center
-    for header in ws.iter_rows(min_row=7 , max_row=len(accounts_aging(args)) , min_col=1, max_col=2):
-        for cell in header:
-            cell.alignment = align_left
-    for header in ws.iter_rows(min_row=7 , max_row=len(accounts_aging(args)) , min_col=3, max_col=3):
-        for cell in header:
-            cell.alignment = align_center
-    for header in ws.iter_rows(min_row=7 , max_row=len(accounts_aging(args)) , min_col=4, max_col=12):
-        for cell in header:
-            cell.alignment = align_right
-    for header in ws.iter_rows(min_row=len(accounts_aging(args)) + 6 , max_row=len(accounts_aging(args)) + 6 , min_col=1, max_col=12):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_right
-    for header in ws.iter_rows(min_row=len(accounts_aging(args)) + 6 , max_row=len(accounts_aging(args)) + 6 , min_col=1, max_col=2):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_center
-    border_thin = Border(
-    left=Side(style='thin'),
-    right=Side(style='thin'),
-    top=Side(style='thin'),
-    bottom=Side(style='thin'))
-    header_range = ws['A1':ws.cell(row=len(accounts_aging(args))+7, column=12).coordinate]
-    for row in header_range:
-        for cell in row:
+
+    # --- Styling using shared report_styles ---
+    num_cols = 12
+    header_row_idx = 6
+    data_start_row = 7
+    data_end_row = data_start_row + len(data1) - 1
+    # Age(Days) column index (0-based) - number, not currency
+    age_col_idx = 7
+
+    # Title rows (1-4): company, title, report date, party
+    for cell in ws[1]:
+        cell.font = company_font
+        cell.alignment = align_center
+    for cell in ws[2]:
+        cell.font = title_font
+        cell.alignment = align_center
+    for cell in ws[3]:
+        cell.font = date_font
+        cell.alignment = align_center
+    for cell in ws[4]:
+        cell.font = date_font
+        cell.alignment = align_center
+
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=num_cols)
+    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=num_cols)
+    ws.merge_cells(start_row=3, start_column=1, end_row=3, end_column=num_cols)
+    ws.merge_cells(start_row=4, start_column=1, end_row=4, end_column=num_cols)
+    ws.merge_cells(start_row=5, start_column=1, end_row=5, end_column=num_cols)
+
+    ws.row_dimensions[1].height = 22
+    ws.row_dimensions[2].height = 28
+    ws.row_dimensions[3].height = 20
+    ws.row_dimensions[4].height = 20
+
+    # Header row styling (row 6) - dark navy fill, white bold text
+    apply_header_row(ws, header_row_idx, num_cols)
+
+    # Data rows styling
+    alt_row = False
+    for row in ws.iter_rows(min_row=data_start_row, max_row=data_end_row, min_col=1, max_col=num_cols):
+        row_label = str(row[0].value or '')
+        is_grand_total = row_label == 'Total'
+
+        for i, cell in enumerate(row):
             cell.border = border_thin
-    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=12 )
-    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=12 )
-    ws.merge_cells(start_row=3, start_column=1, end_row=3, end_column=12 )
-    ws.merge_cells(start_row=4, start_column=1, end_row=4, end_column=12 )
-    ws.merge_cells(start_row=5, start_column=1, end_row=5, end_column=12 )
-    # ws.merge_cells(start_row=6, start_column=1, end_row=6, end_column=12 )
-    ws.merge_cells(start_row=len((accounts_aging(args))) + 6, start_column=1, end_row=len((accounts_aging(args))) + 6, end_column=3 )
+
+            if is_grand_total:
+                cell.font = grand_total_font
+                cell.fill = grand_total_fill
+                cell.alignment = align_left if i < 3 else align_right
+                if i >= 3 and i != age_col_idx:
+                    cell.number_format = currency_format
+            else:
+                cell.font = data_font
+                if i < 2:
+                    cell.alignment = align_left
+                elif i == 2:
+                    cell.alignment = align_center
+                else:
+                    cell.alignment = align_right
+                if i >= 3 and i != age_col_idx:
+                    cell.number_format = currency_format
+                if alt_row:
+                    cell.fill = alt_row_fill
+
+        if is_grand_total:
+            ws.merge_cells(start_row=row[0].row, start_column=1, end_row=row[0].row, end_column=3)
+            alt_row = False
+        else:
+            alt_row = not alt_row
+
+    # Page setup - landscape, fit to width
+    setup_page(ws)
+
     xlsx_file = BytesIO()
     wb.save(xlsx_file)
     return xlsx_file
@@ -167,67 +196,71 @@ def accounts_aging(args):
             SELECT * FROM `tabSales Invoice` 
             WHERE company = %s AND customer = %s AND docstatus = 1 
             AND is_return = 0 
-            AND status != 'Paid' 
             ORDER BY posting_date ASC
         """, (company, customer), as_dict=True)
 
         for i in si_list:
-            result= frappe.db.sql("""
-                SELECT sum(grand_total) as total 
+            # Credit notes (returns) against this invoice - via return_against or custom_return_reason (Zoho migration)
+            result = frappe.db.sql("""
+                SELECT sum(base_grand_total) as total 
                 FROM `tabSales Invoice` 
-                WHERE company = %s AND return_against = %s AND docstatus = 1
-            """, (company, i.name))
+                WHERE company = %s AND docstatus = 1 AND is_return = 1
+                AND (
+                    return_against = %s
+                    OR (custom_return_reason = %s AND (return_against IS NULL OR return_against = ''))
+                )
+            """, (company, i.name, i.name))
             return_amount = result[0][0] if result and result[0][0] else 0
             
-            result_doc = frappe.db.sql("""
-                SELECT name
-                FROM `tabSales Invoice` 
-                WHERE company = %s AND return_against = %s AND docstatus = 1
-            """, (company, i.name), as_dict=True)
-            pay_doc = []
-            if result_doc:
-                pay_doc = frappe.db.sql("""
-                    SELECT per.allocated_amount 
-                    FROM `tabPayment Entry Reference` AS per
-                    LEFT JOIN `tabPayment Entry` AS pe ON per.parent = pe.name
-                    WHERE pe.company = %s AND per.reference_name = %s AND pe.docstatus = 1
-                """, (company, result_doc[0]["name"]), as_dict=True)
+            # Payments from Payment Entry
             pay = frappe.db.sql("""
-                SELECT per.allocated_amount 
+                SELECT per.allocated_amount, per.exchange_rate
                 FROM `tabPayment Entry Reference` AS per
                 LEFT JOIN `tabPayment Entry` AS pe ON per.parent = pe.name
                 WHERE pe.company = %s AND per.reference_name = %s AND pe.docstatus = 1
             """, (company, i.name), as_dict=True)
-            value = sum(j["allocated_amount"] for j in pay) + sum(r["allocated_amount"] for r in pay_doc)
+            pe_amount = sum(j["allocated_amount"] * (j["exchange_rate"] or 1) for j in pay)
 
-            jv = frappe.db.sql("""
-                SELECT credit_in_account_currency 
-                FROM `tabJournal Entry Account` AS per
-                LEFT JOIN `tabJournal Entry` AS pe ON per.parent = pe.name
-                WHERE pe.company = %s AND per.reference_name = %s AND pe.docstatus = 1
-            """, (company, i.name), as_dict=True)
+            # Payments from Journal Entry (direct JE payments against invoice, excluding credit-note linkage JEs)
+            je_pay = frappe.db.sql("""
+                SELECT (jva.credit - jva.debit) AS amount
+                FROM `tabJournal Entry Account` AS jva
+                LEFT JOIN `tabJournal Entry` AS jv ON jva.parent = jv.name
+                WHERE jv.docstatus = 1
+                AND jva.reference_type = 'Sales Invoice'
+                AND jva.reference_name = %s
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM `tabJournal Entry Account` AS jva2
+                    LEFT JOIN `tabSales Invoice` AS si ON jva2.reference_name = si.name
+                    WHERE jva2.parent = jv.name
+                    AND jva2.reference_type = 'Sales Invoice'
+                    AND si.is_return = 1
+                    AND si.return_against = %s
+                )
+            """, (i.name, i.name), as_dict=True)
+            je_amount = sum(j["amount"] for j in je_pay if j["amount"])
 
-            for k in jv:
-                value += k.credit_in_account_currency
+            value = pe_amount + je_amount
 
             if value and return_amount:
-                outstanding = i.grand_total - value + return_amount
+                outstanding = i.base_grand_total - value + return_amount
             elif value:
-                outstanding = i.grand_total - value
+                outstanding = i.base_grand_total - value
             elif return_amount:
-                outstanding = i.grand_total + return_amount
+                outstanding = i.base_grand_total + return_amount
             else:
-                outstanding = i.grand_total
+                outstanding = i.base_grand_total
 
             out_amount += outstanding
             age = date_diff(today(), i.posting_date) if i.posting_date else 0
 
-            if round(outstanding) != 0:
+            if abs(outstanding) > 0.01:
                 if value:
                     paid_amount += value
                 if return_amount:
                     credit_note += return_amount
-                in_amount += i.grand_total
+                in_amount += i.base_grand_total
 
                 if 0 <= age <= 30:
                     age_0_30 += outstanding
@@ -242,7 +275,7 @@ def accounts_aging(args):
                     'posting_date': i.posting_date,
                     'name': i.name,
                     'po_no': i.po_no if i.po_no else '-',
-                    'grand_total': i.grand_total,
+                    'grand_total': i.base_grand_total,
                     'paid_amount': value if value else 0,
                     'credit_note': return_amount if return_amount else 0,
                     'outstanding': outstanding if outstanding else 0,
@@ -253,51 +286,47 @@ def accounts_aging(args):
                     'oustanding_above_90':outstanding if age > 90 else 0,
                 })
 
-        # Fetch Sales Invoices that are returns
-                    # AND invoice_type='Credit' 
-
+        # Fetch standalone credit notes (returns with no return_against and no valid custom_return_reason match)
         sales = frappe.db.sql("""
-            SELECT * FROM `tabSales Invoice` 
-            WHERE company = %s AND customer = %s AND docstatus = 1 
-            AND is_return = 1 
-            AND status != 'Paid' 
-            AND (return_against IS NULL OR return_against = '')  
+            SELECT * FROM `tabSales Invoice`
+            WHERE company = %s AND customer = %s AND docstatus = 1
+            AND is_return = 1
+            AND (return_against IS NULL OR return_against = '')
+            AND (
+                custom_return_reason IS NULL
+                OR custom_return_reason = ''
+                OR custom_return_reason NOT IN (
+                    SELECT name FROM `tabSales Invoice`
+                    WHERE company = %s AND docstatus = 1 AND is_return = 0
+                )
+            )
             ORDER BY posting_date ASC
-        """, (company, customer), as_dict=True)
+        """, (company, customer, company), as_dict=True)
 
         for i in sales:
             pay = frappe.db.sql("""
-                SELECT per.allocated_amount 
+                SELECT per.allocated_amount, per.exchange_rate
                 FROM `tabPayment Entry Reference` AS per
                 LEFT JOIN `tabPayment Entry` AS pe ON per.parent = pe.name
                 WHERE pe.company = %s AND per.reference_name = %s AND pe.docstatus = 1
             """, (company, i.name), as_dict=True)
 
-            value = sum(j.allocated_amount for j in pay)
-            jv = frappe.db.sql("""
-                SELECT credit_in_account_currency 
-                FROM `tabJournal Entry Account` AS per
-                LEFT JOIN `tabJournal Entry` AS pe ON per.parent = pe.name
-                WHERE pe.company = %s AND per.reference_name = %s AND pe.docstatus = 1
-            """, (company, i.name), as_dict=True)
-
-            for k in jv:
-                value += k.credit_in_account_currency
+            value = sum(j["allocated_amount"] * (j["exchange_rate"] or 1) for j in pay)
 
             if value:
-                outstanding = i.grand_total - value
+                outstanding = i.base_grand_total - value
             else:
-                outstanding = i.grand_total
+                outstanding = i.base_grand_total
 
             out_amount += outstanding
             age = date_diff(today(), i.posting_date) if i.posting_date else 0
 
-            if round(outstanding) != 0:
+            if abs(outstanding) > 0.01:
                 if value:
                     paid_amount += value
-                if i.grand_total:
-                    credit_note += i.grand_total
-                in_amount += i.grand_total
+                if i.base_grand_total:
+                    credit_note += i.base_grand_total
+                in_amount += i.base_grand_total
 
                 if 0 <= age <= 30:
                     age_0_30 += outstanding
@@ -313,7 +342,7 @@ def accounts_aging(args):
                     'posting_date': i.posting_date,
                     'name': i.name,
                     'po_no': i.po_no if i.po_no else '-',
-                    'grand_total': i.grand_total,
+                    'grand_total': i.base_grand_total,
                     'paid_amount': value if value else 0,
                     'credit_note': i.grand_total if i.grand_total else 0,
                     'outstanding': outstanding if outstanding else 0,
@@ -324,126 +353,9 @@ def accounts_aging(args):
                     'oustanding_above_90':outstanding if age > 90 else 0,
                 })
 
-        # Fetch Payment Entries
-        payment = frappe.db.sql("""
-            SELECT * FROM `tabPayment Entry` 
-            WHERE company = %s AND party = %s AND docstatus = 1 
-            AND payment_type = 'Receive' 
-            ORDER BY posting_date ASC
-        """, (company, customer), as_dict=True)
-
-        for v in payment:
-            unallocated_amount = v.unallocated_amount
-            paid_amount += unallocated_amount
-            out_amount -= unallocated_amount
-            age = date_diff(today(), v.posting_date)
-
-            if 0 <= age <= 30:
-                age_0_30 -= unallocated_amount
-            elif 31 <= age <= 60:
-                age_31_60 -= unallocated_amount
-            elif 61 <= age <= 90:
-                age_61_90 -= unallocated_amount
-            else:
-                age_above_90 -= unallocated_amount
-            if unallocated_amount != 0:
-                combined_data.append({
-                    'posting_date': v.posting_date,
-                    'name': v.name,
-                    'po_no': v.reference_no if v.reference_no else '-',
-                    'grand_total': 0,
-                    'paid_amount': unallocated_amount if unallocated_amount else 0,
-                    'credit_note': 0,
-                    'outstanding': -unallocated_amount if unallocated_amount else 0,
-                    'age': age,
-                    'oustanding_0_30':-unallocated_amount if 0 <= age <= 30 else 0,
-                    'oustanding_31_60':-unallocated_amount if 31 <= age <= 60 else 0,
-                    'oustanding_61_90':-unallocated_amount if 61 <= age <= 90 else 0,
-                    'oustanding_above_90':-unallocated_amount if age > 90 else 0,
-                })
-
-        journal = frappe.db.sql("""
-            SELECT per.credit_in_account_currency, per.debit_in_account_currency, pe.name, pe.posting_date 
-            FROM `tabJournal Entry Account` AS per
-            LEFT JOIN `tabJournal Entry` AS pe ON per.parent = pe.name
-            WHERE pe.company = %s AND per.account LIKE %s AND pe.docstatus = 1 
-            AND party_type = 'Customer' AND party = %s AND per.reference_name IS NULL
-        """, (company, '%Debtors -%', customer), as_dict=True)
-
-        for jour in journal:
-            pay_journ = frappe.db.sql("""
-                SELECT per.allocated_amount 
-                FROM `tabPayment Entry Reference` AS per
-                LEFT JOIN `tabPayment Entry` AS pe ON per.parent = pe.name
-                WHERE pe.company = %s AND per.reference_name = %s AND pe.docstatus = 1
-            """, (company, jour.name), as_dict=True)
-            value_journ = sum(jo["allocated_amount"] for jo in pay_journ)
-            if value_journ:
-                value_journ = value_journ
-            else:
-                value_journ = 0
-            if jour.credit_in_account_currency:
-                journ_amount_credit = jour.credit_in_account_currency
-                paid_amount += journ_amount_credit - value_journ
-                in_amount -= journ_amount_credit - value_journ
-                out_amount -= journ_amount_credit - value_journ
-                age = date_diff(today(), jour.posting_date)
-                if 0 <= age <= 30:
-                    age_0_30 -= (jour.credit_in_account_currency -value_journ)
-                elif 31 <= age <= 60:
-                    age_31_60 -= (jour.credit_in_account_currency -value_journ)
-                elif 61 <= age <= 90:
-                    age_61_90 -= (jour.credit_in_account_currency -value_journ)
-                else:
-                    age_above_90 -= (jour.credit_in_account_currency -value_journ)
-                combined_data.append({
-                    'posting_date': jour.posting_date,
-                    'name': jour.name,
-                    'po_no':'-',
-                    'grand_total': -jour.credit_in_account_currency,
-                    'paid_amount': 0,
-                    'credit_note': 0,
-                    'outstanding': -(jour.credit_in_account_currency-value_journ) or 0,
-                    'age': age,
-                    'oustanding_0_30':-(jour.credit_in_account_currency-value_journ) if 0 <= age <= 30 else 0,
-                    'oustanding_31_60':-(jour.credit_in_account_currency-value_journ) if 31 <= age <= 60 else 0,
-                    'oustanding_61_90':-(jour.credit_in_account_currency-value_journ) if 61 <= age <= 90 else 0,
-                    'oustanding_above_90':-(jour.credit_in_account_currency-value_journ) if age > 90 else 0,
-                })
-
-            elif jour.debit_in_account_currency:
-                journ_amount_debit = jour.debit_in_account_currency
-                in_amount += journ_amount_debit - value_journ
-                out_amount += journ_amount_debit - value_journ
-                age = date_diff(today(), jour.posting_date)
-
-                if 0 <= age <= 30:
-                    age_0_30 += (jour.debit_in_account_currency -value_journ)
-                elif 31 <= age <= 60:
-                    age_31_60 += (jour.debit_in_account_currency -value_journ)
-                elif 61 <= age <= 90:
-                    age_61_90 += (jour.debit_in_account_currency -value_journ)
-                else:
-                    age_above_90 += (jour.debit_in_account_currency -value_journ)
-                combined_data.append({
-                    'posting_date': jour.posting_date,
-                    'name': jour.name,
-                    'po_no':'-',
-                    'grand_total': jour.debit_in_account_currency,
-                    'paid_amount':value_journ or 0,
-                    'credit_note': 0,
-                    'outstanding': (jour.debit_in_account_currency -value_journ) or 0,
-                    'age': age,
-                    'oustanding_0_30':jour.debit_in_account_currency -value_journ if 0 <= age <= 30 else 0,
-                    'oustanding_31_60':jour.debit_in_account_currency -value_journ if 31 <= age <= 60 else 0,
-                    'oustanding_61_90':jour.debit_in_account_currency -value_journ if 61 <= age <= 90 else 0,
-                    'oustanding_above_90':jour.debit_in_account_currency -value_journ if age > 90 else 0,
-                })
-
     combined_data = sorted(combined_data, key=lambda x: x['posting_date'])
     for entry in combined_data:
-        if entry['outstanding'] != 0:
-            frappe.log_error(title='error',message=entry)
+        if abs(entry['outstanding']) > 0.01:
             data.append([
                 entry['posting_date'].strftime("%d-%m-%Y"),entry['name'],
                 entry['po_no'],(round(entry['grand_total'], 2)),

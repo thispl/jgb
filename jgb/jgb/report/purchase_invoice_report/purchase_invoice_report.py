@@ -21,7 +21,8 @@ def get_columns(filters):
         _("Date") + ":Date/:120",
         _("Invoice No") + ":Data/:200",
         _("Purchase Invoice") + ":Link/Purchase Invoice:200",
-        _("Supplier Name") + ":Data/:150",
+        _("Supplier") + ":Data/:150",
+        _("Supplier Name") + ":Data/:180",
         _("Currency") + ":Data/:70",
         _("Invoice Value") + ":Currency/:150",
         _("Invoice QAR Value") + ":Currency/:150",
@@ -57,7 +58,7 @@ def get_data(filters):
                         p = 0
                     value = lc[0].total_taxes_and_charges if lc and lc[0].total_taxes_and_charges is not None else 0
                     tot = round((i.base_net_total+(value)),2)
-                    row = [i.posting_date, i.bill_no, i.name, i.supplier, i.currency, round(i.net_total, 2), round(i.base_net_total, 2), round(value, 2), round(tot, 2)]
+                    row = [i.posting_date, i.bill_no, i.name, i.supplier, i.supplier_name, i.currency, round(i.net_total, 2), round(i.base_net_total, 2), round(value, 2), round(tot, 2)]
                     data.append(row)
     return data
     

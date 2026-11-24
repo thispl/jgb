@@ -1,0 +1,144 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-08-29 14:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "view_type",
+  "grouping",
+  "customer",
+  "sales_person",
+  "division",
+  "region",
+  "column_break_1",
+  "as_of_date",
+  "aging_method",
+  "show_unapplied",
+  "export_format",
+  "section_break_1",
+  "download",
+  "print"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "default": "Summary",
+   "fieldname": "view_type",
+   "fieldtype": "Select",
+   "label": "Report View Type",
+   "options": "\nSummary\nDetailed"
+  },
+  {
+   "default": "Customer Wise",
+   "fieldname": "grouping",
+   "fieldtype": "Select",
+   "label": "Primary Grouping",
+   "options": "\nCustomer Wise\nSalesperson Wise\nDivision Wise\nRegion Wise"
+  },
+  {
+   "depends_on": "eval:doc.grouping=='Customer Wise'",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "depends_on": "eval:doc.grouping=='Salesperson Wise'",
+   "fieldname": "sales_person",
+   "fieldtype": "Link",
+   "label": "Sales Person",
+   "options": "Sales Person"
+  },
+  {
+   "depends_on": "eval:doc.grouping=='Division Wise'",
+   "fieldname": "division",
+   "fieldtype": "Link",
+   "label": "Division",
+   "options": "Division"
+  },
+  {
+   "depends_on": "eval:doc.grouping=='Region Wise'",
+   "fieldname": "region",
+   "fieldtype": "Link",
+   "label": "Region",
+   "options": "Territory"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "as_of_date",
+   "fieldtype": "Date",
+   "label": "As-of Date (Cut-off)"
+  },
+  {
+   "default": "Due Date",
+   "fieldname": "aging_method",
+   "fieldtype": "Select",
+   "label": "Aging Method / Basis",
+   "options": "\nDue Date\nInvoice Date"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_unapplied",
+   "fieldtype": "Check",
+   "label": "Show Unapplied Payments & Credits as Separate Line"
+  },
+  {
+   "default": "Excel",
+   "fieldname": "export_format",
+   "fieldtype": "Select",
+   "label": "Output / Export Format",
+   "options": "\nExcel\nPDF"
+  },
+  {
+   "fieldname": "section_break_1",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "download",
+   "fieldtype": "Button",
+   "label": "Download"
+  },
+  {
+   "fieldname": "print",
+   "fieldtype": "Button",
+   "label": "Print"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-08-29 14:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "JGB",
+ "name": "Accounts Receivable Aging Report",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,327 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "ASS-REQ-.#####",
+ "creation": "2025-12-24 10:05:16.130796",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "asset_status",
+  "requesting_person_section",
+  "posting_date",
+  "column_break_idzi",
+  "requested_by",
+  "column_break_cmwa",
+  "requested_department",
+  "section_break_eqbd",
+  "amended_from",
+  "employee",
+  "employee_name",
+  "department",
+  "user_id",
+  "column_break_jx4y",
+  "designation",
+  "company",
+  "grade",
+  "date_of_purchase",
+  "requirement_section",
+  "asset",
+  "column_break_tfap",
+  "laptop",
+  "column_break_zdhs",
+  "sim",
+  "column_break_ryds",
+  "car",
+  "column_break_hnzg",
+  "others",
+  "section_break_aspo",
+  "others_remarks",
+  "section_break_vdg8",
+  "required_asset",
+  "tab_break_2iae",
+  "asset_information",
+  "budget_details_section",
+  "total_value",
+  "column_break_xvso",
+  "total_budget",
+  "column_break_gaei",
+  "approved_budget",
+  "column_break_fhqq",
+  "variance"
+ ],
+ "fields": [
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Asset And SIM Request",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Department",
+   "options": "Department",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.designation",
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "label": "Designation",
+   "options": "Designation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_jx4y",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "employee.company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.grade",
+   "fieldname": "grade",
+   "fieldtype": "Link",
+   "label": "Grade",
+   "options": "Employee Grade",
+   "read_only": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_vdg8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "required_asset",
+   "fieldtype": "Small Text",
+   "label": "Remarks",
+   "reqd": 1
+  },
+  {
+   "fieldname": "tab_break_2iae",
+   "fieldtype": "Tab Break",
+   "label": "Asset Information"
+  },
+  {
+   "fieldname": "asset_information",
+   "fieldtype": "Table",
+   "options": "Asset Information"
+  },
+  {
+   "fieldname": "date_of_purchase",
+   "fieldtype": "Date",
+   "label": "Required By Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "requesting_person_section",
+   "fieldtype": "Section Break",
+   "label": "Requesting Person"
+  },
+  {
+   "fieldname": "column_break_idzi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "requested_by",
+   "fieldtype": "Link",
+   "label": "Requested By",
+   "options": "User"
+  },
+  {
+   "fieldname": "requested_department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "section_break_eqbd",
+   "fieldtype": "Section Break",
+   "label": "User Information"
+  },
+  {
+   "depends_on": "eval:doc.workflow_state==\"Pending for Fixed Asset Control\"||doc.workflow_state==\"Approved\"||doc.workflow_state==\"Rejected\"||doc.workflow_state==\"Cancelled\"",
+   "fieldname": "budget_details_section",
+   "fieldtype": "Section Break",
+   "label": "Budget Details"
+  },
+  {
+   "fieldname": "total_value",
+   "fieldtype": "Currency",
+   "label": "Total Value",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_xvso",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_budget",
+   "fieldtype": "Currency",
+   "label": "Total Budget",
+   "read_only_depends_on": "eval:!frappe.user.has_role(\"Accounts Manager\")"
+  },
+  {
+   "fieldname": "column_break_gaei",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approved_budget",
+   "fieldtype": "Currency",
+   "label": "Approved Budget",
+   "read_only_depends_on": "eval:!frappe.user.has_role(\"Accounts Manager\")"
+  },
+  {
+   "fieldname": "column_break_fhqq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "variance",
+   "fieldtype": "Currency",
+   "label": "Variance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_cmwa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "requirement_section",
+   "fieldtype": "Section Break",
+   "label": "Requirement"
+  },
+  {
+   "default": "0",
+   "fieldname": "asset",
+   "fieldtype": "Check",
+   "label": "Asset"
+  },
+  {
+   "fieldname": "column_break_tfap",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "laptop",
+   "fieldtype": "Check",
+   "label": "Laptop"
+  },
+  {
+   "fieldname": "column_break_zdhs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "sim",
+   "fieldtype": "Check",
+   "label": "SIM"
+  },
+  {
+   "fieldname": "column_break_ryds",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "car",
+   "fieldtype": "Check",
+   "label": "Car"
+  },
+  {
+   "fieldname": "column_break_hnzg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "others",
+   "fieldtype": "Check",
+   "label": "Others"
+  },
+  {
+   "fieldname": "section_break_aspo",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.others",
+   "fieldname": "others_remarks",
+   "fieldtype": "Small Text",
+   "label": "Others Remarks"
+  },
+  {
+   "fetch_from": "employee.user_id",
+   "fetch_if_empty": 1,
+   "fieldname": "user_id",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "User Id",
+   "options": "User"
+  },
+  {
+   "fieldname": "asset_status",
+   "fieldtype": "HTML",
+   "label": "Asset Status"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-29 14:29:10.073700",
+ "modified_by": "divya.p@groupteampro.com",
+ "module": "JGB",
+ "name": "Asset And SIM Request",
+ "naming_rule": "Expression (old style)",
+ "owner": "pavithra.s@groupteampro.com",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

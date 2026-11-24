@@ -23,7 +23,7 @@
    "fieldname": "type",
    "fieldtype": "Select",
    "label": "Type",
-   "options": "\nImport\nExport\nBoth"
+   "options": "\nImport\nExport\nBoth\nLocal Purchase"
   },
   {
    "fieldname": "attachment",
@@ -34,8 +34,8 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-14 08:59:23.330324",
- "modified_by": "Administrator",
+ "modified": "2026-01-08 08:57:06.668582",
+ "modified_by": "divya.p@groupteampro.com",
  "module": "JGB",
  "name": "Documents",
  "naming_rule": "By fieldname",

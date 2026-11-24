@@ -14,6 +14,7 @@
   "reports_to",
   "reports_to_name",
   "date_of_joining",
+  "reports_to_email",
   "column_break_7",
   "session_user",
   "relieving_date",
@@ -24,8 +25,9 @@
   "column_break_18",
   "approved_relieving_date",
   "actual_relieving_date",
-  "amended_from",
-  "workflow_state"
+  "workflow_state",
+  "data_cwxv",
+  "amended_from"
  ],
  "fields": [
   {
@@ -63,8 +65,9 @@
   {
    "fetch_from": "employee.reports_to",
    "fieldname": "reports_to",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "label": "Reports To",
+   "options": "Employee",
    "read_only": 1
   },
   {
@@ -132,18 +135,6 @@
    "label": "Actual Relieving Date"
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "options": "Resignation Form"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "options": "Resignation Form"
-  },
-  {
    "fieldname": "workflow_state",
    "fieldtype": "Link",
    "hidden": 1,
@@ -156,14 +147,37 @@
    "fieldtype": "Date",
    "label": "Posting Date",
    "read_only": 1
+  },
+  {
+   "fetch_from": "reports_to.user_id",
+   "fetch_if_empty": 1,
+   "fieldname": "reports_to_email",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Reports To Email",
+   "options": "User"
+  },
+  {
+   "fieldname": "data_cwxv",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Resignation Form",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-29 08:44:24.223509",
- "modified_by": "sivarenisha.m@groupteampro.com",
+ "modified": "2026-01-22 15:13:32.285164",
+ "modified_by": "divya.p@groupteampro.com",
  "module": "JGB",
  "name": "Resignation Form",
  "naming_rule": "Expression (old style)",

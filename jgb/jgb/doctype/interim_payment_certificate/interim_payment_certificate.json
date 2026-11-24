@@ -1,0 +1,325 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "IPC-.######",
+ "creation": "2026-03-02 15:01:10.830856",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "custom",
+  "customer_name",
+  "lpo_no",
+  "sales_order",
+  "ipc",
+  "so_date",
+  "so_value",
+  "addendum_1",
+  "addendum_2",
+  "column_break_w6xd",
+  "company",
+  "project",
+  "project_name",
+  "sow",
+  "date_issued",
+  "up_to_date",
+  "addendum_3",
+  "addendum_4",
+  "section_break_b8ft",
+  "items",
+  "amended_from",
+  "section_break_milv",
+  "total",
+  "column_break_ce8r",
+  "material_on_site",
+  "section_break_e49j",
+  "retention_percentage",
+  "retention_amount",
+  "column_break_4dg4",
+  "advance_percentage",
+  "advance_amount",
+  "column_break_cwj3",
+  "less_credit_of_credit",
+  "column_break_srst",
+  "less_deduction",
+  "column_break_qi7h",
+  "less_with_held",
+  "section_break_ehyg",
+  "total_reduction",
+  "net_certified_to_date",
+  "section_break_b2eg",
+  "previously_certified_value",
+  "delivery_note",
+  "column_break_4dxp",
+  "balance_amount",
+  "in_words"
+ ],
+ "fields": [
+  {
+   "fieldname": "custom",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name"
+  },
+  {
+   "fieldname": "lpo_no",
+   "fieldtype": "Data",
+   "label": "Customer's Purchase Order"
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order"
+  },
+  {
+   "fieldname": "ipc",
+   "fieldtype": "Int",
+   "label": "IPC"
+  },
+  {
+   "fieldname": "so_date",
+   "fieldtype": "Date",
+   "label": "SO Date"
+  },
+  {
+   "fieldname": "so_value",
+   "fieldtype": "Currency",
+   "label": "Contract Price"
+  },
+  {
+   "fieldname": "addendum_1",
+   "fieldtype": "Currency",
+   "label": "Addendum 1"
+  },
+  {
+   "fieldname": "addendum_2",
+   "fieldtype": "Currency",
+   "label": "Addendum 2"
+  },
+  {
+   "fieldname": "column_break_w6xd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name",
+   "options": "project_name"
+  },
+  {
+   "fieldname": "sow",
+   "fieldtype": "Data",
+   "label": "Scope of Work"
+  },
+  {
+   "fieldname": "date_issued",
+   "fieldtype": "Date",
+   "label": "Date Issued"
+  },
+  {
+   "fieldname": "up_to_date",
+   "fieldtype": "Date",
+   "label": "Date at Site"
+  },
+  {
+   "fieldname": "addendum_3",
+   "fieldtype": "Currency",
+   "label": "Addendum 3"
+  },
+  {
+   "fieldname": "addendum_4",
+   "fieldtype": "Currency",
+   "label": "Addendum 4"
+  },
+  {
+   "fieldname": "section_break_b8ft",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "IPC Item",
+   "options": "IPC Item"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Interim Payment Certificate",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_milv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total",
+   "fieldtype": "Currency",
+   "label": "Value of Works Executed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ce8r",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "material_on_site",
+   "fieldtype": "Currency",
+   "label": "Material On Site"
+  },
+  {
+   "fieldname": "section_break_e49j",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "retention_percentage",
+   "fieldtype": "Percent",
+   "label": "Retention Percentage"
+  },
+  {
+   "fieldname": "retention_amount",
+   "fieldtype": "Currency",
+   "label": "Retention Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4dg4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "advance_percentage",
+   "fieldtype": "Percent",
+   "label": "Advance Percentage"
+  },
+  {
+   "fieldname": "advance_amount",
+   "fieldtype": "Currency",
+   "label": "Advance Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_cwj3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "less_credit_of_credit",
+   "fieldtype": "Currency",
+   "label": "Letter of Credit"
+  },
+  {
+   "fieldname": "column_break_srst",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "less_deduction",
+   "fieldtype": "Currency",
+   "label": "Less Deduction"
+  },
+  {
+   "fieldname": "column_break_qi7h",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "less_with_held",
+   "fieldtype": "Currency",
+   "label": "Less With Held"
+  },
+  {
+   "fieldname": "section_break_ehyg",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_reduction",
+   "fieldtype": "Currency",
+   "label": "Total Reduction",
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_certified_to_date",
+   "fieldtype": "Currency",
+   "label": "Net Certified To Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_b2eg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "previously_certified_value",
+   "fieldtype": "Currency",
+   "label": "Previously Certified Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "delivery_note",
+   "fieldtype": "Data",
+   "label": "Delivery Note",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4dxp",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "balance_amount",
+   "fieldtype": "Currency",
+   "label": "Balance Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "in_words",
+   "fieldtype": "Data",
+   "label": "In Words",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-03-02 16:10:32.501951",
+ "modified_by": "jenisha.p@groupteampro.com",
+ "module": "JGB",
+ "name": "Interim Payment Certificate",
+ "naming_rule": "Expression (old style)",
+ "owner": "jenisha.p@groupteampro.com",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -35,5 +35,5 @@ class Nodue(Document):
         #         """
         #     )
 
-        res_doc.workflow_state = "Pending for HOD"
+        res_doc.workflow_state = "HOD Pending"
         res_doc.save(ignore_permissions=True)

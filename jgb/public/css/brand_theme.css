@@ -1,0 +1,87 @@
+/*
+ * JGB brand theme
+ * Colors sampled from /files/jgb_logo.jpeg:
+ *   blue  #2e7cc0 (stripes)  |  navy #1b2f5e (JGB text / chevron)  |  red #c22a1a (stripe)
+ * Loaded via app_include_css, so it overrides the frappe desk bundle.
+ */
+
+:root,
+[data-theme="light"] {
+	--jgb-blue: #2e7cc0;
+	--jgb-navy: #1b2f5e;
+	--jgb-red: #c22a1a;
+
+	--primary-color: var(--jgb-blue);
+	--btn-primary: var(--jgb-blue);
+	--border-primary: var(--jgb-blue);
+	--brand-color: var(--jgb-blue);
+	--progress-bar-bg: var(--jgb-blue);
+	--checkbox-gradient: linear-gradient(180deg, var(--jgb-blue) -124.51%, var(--jgb-blue) 100%);
+	--highlight-shadow: 1px 1px 10px rgba(46, 124, 192, 0.15), 0 0 4px rgba(46, 124, 192, 0.4);
+
+	/* branded navbar */
+	--navbar-bg: var(--jgb-navy);
+}
+
+[data-theme="dark"] {
+	--primary-color: var(--jgb-blue);
+	--btn-primary: var(--jgb-blue);
+	--border-primary: #79b1e0;
+	--brand-color: var(--jgb-blue);
+	--progress-bar-bg: var(--jgb-blue);
+	--checkbox-gradient: linear-gradient(180deg, var(--jgb-blue) -124.51%, var(--jgb-blue) 100%);
+}
+
+/* keep primary button label readable in dark mode (--neutral is black there) */
+[data-theme="dark"] .btn.btn-primary {
+	color: #ffffff;
+}
+[data-theme="dark"] .btn.btn-primary:active {
+	color: #ffffff !important;
+}
+
+.datatable {
+	--dt-primary-color: var(--jgb-blue);
+}
+
+/* newara.css hardcodes a plum 2px border on primary buttons — align with brand blue */
+.btn.btn-primary,
+.btn.btn-primary:hover,
+.btn.btn-new-doc {
+	border-color: var(--jgb-blue) !important;
+}
+
+.btn.btn-new-doc {
+	background-color: var(--jgb-blue) !important;
+}
+
+/* ---- Navbar ---- */
+.navbar {
+	--icon-stroke: #c9d6ec;
+	--dark-border-color: rgba(255, 255, 255, 0.25);
+	/* breadcrumb arrows ship as SVGs with a hardcoded dark stroke — re-tint for navy */
+	--right-arrow-svg: url("data: image/svg+xml;utf8, <svg width='6' height='8' viewBox='0 0 6 8' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M1.25 7.5L4.75 4L1.25 0.5' stroke='%23C9D6EC' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+	--left-arrow-svg: url("data: image/svg+xml;utf8, <svg width='7' height='9' viewBox='0 0 7 9' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M5.5 8.5L2 5l3.5-3.5' stroke='%23C9D6EC' stroke-linecap='round' stroke-linejoin='round'></path></svg>");
+	border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar .nav-item,
+.navbar .nav-link {
+	color: #e6ecf7;
+}
+
+/* newara.css forces breadcrumb links/icons with !important — out-tint it (this file loads later) */
+#navbar-breadcrumbs a {
+	color: #f0f4fa !important;
+}
+
+.navbar .nav-link .es-icon,
+.navbar #navbar-breadcrumbs .es-icon {
+	stroke: #c9d6ec !important;
+	fill: none !important;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus {
+	color: #ffffff;
+}

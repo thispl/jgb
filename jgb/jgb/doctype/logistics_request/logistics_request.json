@@ -33,6 +33,7 @@
   "conv_rate",
   "section_break_12",
   "product_description",
+  "voucher_details",
   "section_break_14",
   "grand_total",
   "grand_total_sar",
@@ -159,7 +160,13 @@
   "outstanding",
   "supplier_invoice_attachment",
   "section_break_hkgw",
-  "lr_status_details"
+  "lr_status_details",
+  "additional_payment_tab",
+  "additional_payment",
+  "allocation_basis",
+  "allocate_charges",
+  "delivery_allocation",
+  "additional"
  ],
  "fields": [
   {
@@ -170,9 +177,7 @@
    "options": "LR-.YYYY.-\nLR-NCPLP-.YYYY.-\nLR-NCPLB-.YYYY.-\nLR-NC-.YYYY.-\nLR-NSA-.YYYY.-\nLR-NSPL-.YYYY.-\nLR-NCUL-.YYYY.-\nLR-SNTL-.YYYY.-\nLR-NCMEF-.YYYY.-\nLR-NCMEFD-.YYYY.-"
   },
   {
-   "default": "WONJIN AUTOPARTS INDIA PVT.LTD.",
-   "fetch_from": "order_no.company",
-   "fetch_if_empty": 1,
+   "default": "Joint Global Business Co LLC",
    "fieldname": "company",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -216,8 +221,7 @@
   },
   {
    "fieldname": "order_no",
-   "fieldtype": "Dynamic Link",
-   "hidden": 1,
+   "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Voucher No",
    "options": "po_so"
@@ -277,6 +281,7 @@
    "reqd": 1
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:doc.inventory_destination == \"Warehouse Bonded\" || doc.inventory_destination==\"JGB Warehouse\"",
    "fieldname": "warehouse",
    "fieldtype": "Link",
@@ -323,6 +328,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "product_description",
    "fieldtype": "Table",
    "label": "Product Description",
@@ -333,6 +339,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "allow_on_submit": 1,
    "fetch_from": "order_no.grand_total",
    "fieldname": "grand_total",
    "fieldtype": "Currency",
@@ -349,6 +356,7 @@
    "label": "Currency INR"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:doc.company != \"Norden Communication UK Limited\" || doc.company != \"Norden Singapore PTE LTD\"",
    "fieldname": "custom_duty",
    "fieldtype": "Currency",
@@ -940,9 +948,9 @@
   {
    "depends_on": "eval:doc.logistic_type=='Local Delivery'",
    "fieldname": "carried_by",
-   "fieldtype": "Link",
-   "label": "Carried By",
-   "options": "Employee"
+   "fieldtype": "Data",
+   "ignore_user_permissions": 1,
+   "label": "Carried By"
   },
   {
    "fieldname": "party_name",
@@ -974,6 +982,7 @@
    "label": "LR Costing"
   },
   {
+   "allow_on_submit": 1,
    "depends_on": "eval:doc.currency!='SAR'",
    "fieldname": "grand_total_sar",
    "fieldtype": "Currency",
@@ -988,7 +997,6 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval:doc.po_so=='Purchase Order'",
    "fieldname": "out_for_delivery_section",
    "fieldtype": "Section Break",
    "label": "Out for Delivery"
@@ -1002,7 +1010,7 @@
    "fieldname": "forwarded_type",
    "fieldtype": "Select",
    "label": "Forwarded Type",
-   "options": "\nForwarder\nCourier\nJGB Vehicle"
+   "options": "\nForwarder\nCourier\nJGB Vehicle\nCustomer Collection"
   },
   {
    "depends_on": "eval:doc.forwarded_type==\"Courier\"",
@@ -1044,6 +1052,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "lr_status_details",
    "fieldtype": "Table",
    "label": "LR Status Details",
@@ -1080,6 +1089,7 @@
    "label": "Customer Forwarder"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "lr_costing_payment_po",
    "fieldtype": "Table",
    "label": "LR Costing Payment",
@@ -1109,12 +1119,65 @@
    "fieldname": "recommendation_remarks",
    "fieldtype": "Small Text",
    "label": "Recommendation Remarks"
+  },
+  {
+   "allow_on_submit": 1,
+   "depends_on": "eval:doc.additional==1",
+   "fieldname": "additional_payment_tab",
+   "fieldtype": "Tab Break",
+   "label": "Additional Payment"
+  },
+  {
+   "allow_on_submit": 1,
+   "depends_on": "eval:doc.additional==1",
+   "fieldname": "additional_payment",
+   "fieldtype": "Table",
+   "label": "Additional Payment",
+   "options": "Additional Payment"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "Value",
+   "depends_on": "eval:doc.additional==1 && doc.logistic_type==\"Local Delivery\"",
+   "fieldname": "allocation_basis",
+   "fieldtype": "Select",
+   "label": "Allocation Basis",
+   "options": "Value\nVolume"
+  },
+  {
+   "allow_on_submit": 1,
+   "depends_on": "eval:doc.additional==1 && doc.logistic_type==\"Local Delivery\"",
+   "fieldname": "allocate_charges",
+   "fieldtype": "Button",
+   "label": "Allocate"
+  },
+  {
+   "allow_on_submit": 1,
+   "depends_on": "eval:doc.additional==1 && doc.logistic_type==\"Local Delivery\"",
+   "fieldname": "delivery_allocation",
+   "fieldtype": "Table",
+   "label": "Delivery Charge Allocation",
+   "options": "LR Delivery Charge Allocation"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "additional",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Additional"
+  },
+  {
+   "fieldname": "voucher_details",
+   "fieldtype": "HTML",
+   "label": "Voucher Details"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2025-12-15 13:41:45.249387",
+ "modified": "2026-05-05 09:38:25.518281",
  "modified_by": "divya.p@groupteampro.com",
  "module": "JGB",
  "name": "Logistics Request",

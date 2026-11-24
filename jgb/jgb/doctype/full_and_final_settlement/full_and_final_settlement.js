@@ -3,10 +3,26 @@
 
 frappe.ui.form.on("Full and Final Settlement", {
     refresh(frm){
+        if (frm.doc.docstatus === 1) {
+            frm.add_custom_button(__("Create Payment"), function () {
+                frappe.call({
+                        method: 'jgb.jgb.doctype.full_and_final_settlement.full_and_final_settlement.create_journal',
+                        args: {
+                            name: frm.doc.name,
+                            
+                        },
+                        callback: function (res) {
+                            console.log(res.message)
+                            frappe.set_route('Form', 'Journal Entry', res.message);
+                            
+                        }
+                    });
+                });
+            }
         if(!frm.doc.__islocal){
             frm.add_custom_button(__("Print"), function () {
     			var f_name = frm.doc.name;
-    			var print_format = "Full and Final Settlement";
+    			var print_format = "Full and Final Settlement Print";
     			window.open(frappe.urllib.get_full_url("/api/method/frappe.utils.print_format.download_pdf?"
     				+ "doctype=" + encodeURIComponent("Full and Final Settlement")
     				+ "&name=" + encodeURIComponent(f_name)

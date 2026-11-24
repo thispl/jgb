@@ -33,6 +33,7 @@ from openpyxl.styles import GradientFill, PatternFill
 from six import BytesIO, string_types
 import openpyxl.styles as styles
 from frappe.utils import flt, fmt_money
+from jgb.jgb.doctype.accounts_report_dashboard.report_styles import *
 
 
 @frappe.whitelist()
@@ -79,7 +80,8 @@ def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
     formatted_to_date = to_date_obj.strftime("%d-%m-%Y")
     header3=["As On: "+ formatted_to_date]
     ws.append(header3 + [""] * 11)
-    ws.append([''])
+    currency = frappe.db.get_value('Company', args.company, 'default_currency') or 'SAR'
+    ws.append([f'Currency: {currency}'])
     ws.append(["Group Name",args.account,"","","","Currency","",args.currency,"","",""])
     ws.append([' ','','Opening',"","",'Movement',"","",'Closing',"",""])
     ws.append(['Party','Party Name','Debit','Credit','Balance','Debit','Credit','Balance','Debit','Credit','Balance'])
@@ -87,60 +89,93 @@ def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
     data1= get_data(args)
     for row in data1:
         ws.append(row)
-    align_center = Alignment(horizontal='center',vertical='center')
-    align_right = Alignment(horizontal='right',vertical='bottom')
-    for header in ws.iter_rows(min_row=1 , max_row=1, min_col=1, max_col=11):
-        for cell in header:
-            cell.font = Font(bold=True)
+    # --- Styling using shared report_styles ---
+    num_cols = 11
+    data_rows = get_data(args)
+    data_start_row = 10
+    data_end_row = data_start_row + len(data_rows) - 1
+
+    # --- Title rows (rows 1-4) ---
+    # Row 1 - company (parent)
+    for cell in ws[1]:
+        cell.font = company_font
+        cell.alignment = align_center
+    # Row 2 - company / sub
+    for cell in ws[2]:
+        cell.font = company_font
+        cell.alignment = align_center
+    # Row 3 - report title
+    for cell in ws[3]:
+        cell.font = title_font
+        cell.alignment = align_center
+    # Row 4 - date
+    for cell in ws[4]:
+        cell.font = date_font
+        cell.alignment = align_center
+
+    # --- Sub-header rows (6-7) ---
+    for r in (6, 7):
+        for cell in ws[r]:
+            cell.font = bold_font
             cell.alignment = align_center
-            # cell.fill = PatternFill(fgColor='fcff42', fill_type = "solid")
-    for header in ws.iter_rows(min_row=2 , max_row=6, min_col=1, max_col=11):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_center
-    # for header in ws.iter_rows(min_row=7 , max_row=7, min_col=1, max_col=11):
-    # 	for cell in header:
-    # 		cell.font = Font(bold=True)
-    # 		cell.alignment = align_right
-    for header in ws.iter_rows(min_row=len(get_data(args))+8 , max_row=len(get_data(args))+8, min_col=1, max_col=11):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_right
-    # for header in ws.iter_rows(min_row=len(get_data(args))+7 , max_row=len(get_data(args))+7, min_col=1, max_col=11):
-    # 	for cell in header:
-    # 		cell.font = Font(bold=True)
-    # 		cell.alignment = align_right
-    for header in ws.iter_rows(min_row=8 , max_row=8, min_col=1, max_col=11):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.fill = PatternFill(fgColor='D3D3D3', fill_type = "solid")
-    for header in ws.iter_rows(min_row=7, max_row=7, min_col=1, max_col=11):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.fill = PatternFill(fgColor='D3D3D3', fill_type = "solid")
-    border_thin = Border(
-    left=Side(style='thin'),
-    right=Side(style='thin'),
-    top=Side(style='thin'),
-    bottom=Side(style='thin'))
-    header_range = ws['A1':ws.cell(row=len(get_data(args))+8, column=11).coordinate]
+            cell.fill = subtotal_fill
+
+    # --- Main header row (row 8) ---
+    apply_header_row(ws, 8, num_cols)
+
+    # --- Data rows ---
+    alt_row = False
+    for row in ws.iter_rows(min_row=data_start_row, max_row=data_end_row, min_col=1, max_col=num_cols):
+        row_label = str(row[0].value or '')
+        is_total = row_label == 'Total'
+        for i, cell in enumerate(row):
+            cell.border = border_thin
+            if is_total:
+                cell.font = subtotal_font
+                cell.fill = subtotal_fill
+                cell.alignment = align_left if i < 2 else align_right
+                if i >= 2:
+                    cell.number_format = currency_format
+            else:
+                cell.font = data_font
+                cell.alignment = align_left if i < 2 else align_right
+                if i >= 2:
+                    cell.number_format = currency_format
+                if alt_row:
+                    cell.fill = alt_row_fill
+        if is_total:
+            alt_row = False
+        else:
+            alt_row = not alt_row
+
+    # --- Borders on all cells ---
+    header_range = ws['A1':ws.cell(row=data_end_row, column=num_cols).coordinate]
     for row in header_range:
         for cell in row:
             cell.border = border_thin
-    
-    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=11 )
-    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=11 )
-    ws.merge_cells(start_row=3, start_column=1, end_row=3, end_column=11 )
-    ws.merge_cells(start_row=4, start_column=1, end_row=4, end_column=11 )
-    ws.merge_cells(start_row=5, start_column=1, end_row=5, end_column=11 )
-    ws.merge_cells(start_row=6, start_column=2, end_row=6, end_column=5 )
-    ws.merge_cells(start_row=6, start_column=6, end_row=6, end_column=7 )
-    ws.merge_cells(start_row=7, start_column=1, end_row=7, end_column=2 )
-    ws.merge_cells(start_row=7, start_column=3, end_row=7, end_column=5 )
-    ws.merge_cells(start_row=7, start_column=6, end_row=7, end_column=8 )
-    ws.merge_cells(start_row=7, start_column=9, end_row=7, end_column=11 )
-    # ws.merge_cells(start_row=8, start_column=1, end_row=8, end_column=11 )
-    
+
+    # --- Row heights ---
+    ws.row_dimensions[1].height = 22
+    ws.row_dimensions[2].height = 22
+    ws.row_dimensions[3].height = 28
+    ws.row_dimensions[4].height = 20
+    ws.row_dimensions[8].height = 25
+
+    # --- Merges (preserved from original) ---
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=11)
+    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=11)
+    ws.merge_cells(start_row=3, start_column=1, end_row=3, end_column=11)
+    ws.merge_cells(start_row=4, start_column=1, end_row=4, end_column=11)
+    ws.merge_cells(start_row=5, start_column=1, end_row=5, end_column=11)
+    ws.merge_cells(start_row=6, start_column=2, end_row=6, end_column=5)
+    ws.merge_cells(start_row=6, start_column=6, end_row=6, end_column=7)
+    ws.merge_cells(start_row=7, start_column=1, end_row=7, end_column=2)
+    ws.merge_cells(start_row=7, start_column=3, end_row=7, end_column=5)
+    ws.merge_cells(start_row=7, start_column=6, end_row=7, end_column=8)
+    ws.merge_cells(start_row=7, start_column=9, end_row=7, end_column=11)
+
+    # --- Page setup ---
+    setup_page(ws)
 
     xlsx_file = BytesIO()
     wb.save(xlsx_file)

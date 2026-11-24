@@ -34,6 +34,8 @@ from six import BytesIO, string_types
 import openpyxl.styles as styles
 from frappe.utils import flt, fmt_money
 
+from jgb.jgb.doctype.accounts_report_dashboard.report_styles import *
+
 @frappe.whitelist()
 def download():
     filename = 'Accounts Ledger Summary Report'
@@ -50,77 +52,117 @@ def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
     ws.column_dimensions['C'].width = 10
     ws.column_dimensions['D'].width = 20
     ws.column_dimensions['E'].width = 20
-    ws.column_dimensions['F'].width = 15 
-    ws.column_dimensions['G'].width = 20 
-    ws.column_dimensions['H'].width = 10 
+    ws.column_dimensions['F'].width = 15
+    ws.column_dimensions['G'].width = 20
+    ws.column_dimensions['H'].width = 10
     ws.column_dimensions['I'].width = 10
     ws.column_dimensions['J'].width = 10
-    ws.column_dimensions['K'].width = 10 
+    ws.column_dimensions['K'].width = 10
     data2=for_limit(args)
     company = frappe.db.get_value('Company',{'name':args.company},'parent_company')
     if(company):
         ws.append([company," "," "," "," "," "," ","","","",""])
         ws.append([args.company," "," "," "," "," "," ","","","",""])
     else:
-        ws.append([args.company," "," "," "," "," "," ","","","",""]) 
+        ws.append([args.company," "," "," "," "," "," ","","","",""])
         ws.append([""," "," "," "," "," "," ","","","",""])
-    ws.append(['','SOA :',args.customer,'','','Credit Limit :',str(data2)])
+    customer_name = frappe.db.get_value("Customer",args.customer,"customer_name")
+    ws.append(['','SOA :',customer_name,'','','Credit Limit :',str(data2)])
     date = datetime.now()
     ws.append(['','Division :',args.company,'','','Posting Date :',date.strftime("%d-%m-%Y")])
     from_date_str = args.from_date
     from_date_obj = datetime.strptime(from_date_str, "%Y-%m-%d")
     formatted_from_date = from_date_obj.strftime("%d-%m-%Y")
     ws.append(['','Due Date Untill :',formatted_from_date])
-    ws.append([''])
-    ws.append(['Invoice No','Date','Age','Account QR','Paid QR','Credit Note QR','Outstanding QR','0-30','31-60','61-90','91-Above'])
+    currency = frappe.db.get_value('Company', args.company, 'default_currency') or 'SAR'
+    ws.append([f'Currency: {currency}'])
+    currency = frappe.db.get_value('Company',args.company,'default_currency')
+    ws.append(['Invoice No','Date','Age',f'Account {currency}',f'Paid {currency}',f'Credit Note {currency}',f'Outstanding {currency}','0-30','31-60','61-90','91-Above'])
     data1= accounts_ledger(args)
     for row in data1:
         ws.append(row)
-    align_center = Alignment(horizontal='center',vertical='center')
-    align_right = Alignment(horizontal='right',vertical='bottom')
-    for header in ws.iter_rows(min_row=1 , max_row=1, min_col=1, max_col=11):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_center
-            # cell.fill = PatternFill(fgColor='fcff42', fill_type = "solid")
-    for header in ws.iter_rows(min_row=2 , max_row=2, min_col=1, max_col=11):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_center
-    for header in ws.iter_rows(min_row=3 , max_row=6, min_col=1, max_col=11):
-        for cell in header:
-            cell.font = Font(bold=True)
-    for header in ws.iter_rows(min_row=7 , max_row=7, min_col=1, max_col=11):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.fill = PatternFill(fgColor='D3D3D3', fill_type = "solid")
-            cell.alignment = align_center
-    for header in ws.iter_rows(min_row=8 , max_row=len(accounts_ledger(args)) +302 , min_col=1, max_col=11):
-        for cell in header:
-            cell.alignment = align_center
-    for header in ws.iter_rows(min_row=len(accounts_ledger(args)) + 7 , max_row=len(accounts_ledger(args)) + 7 , min_col=1, max_col=11):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_right
-    border_thin = Border(
-    left=Side(style='thin'),
-    right=Side(style='thin'),
-    top=Side(style='thin'),
-    bottom=Side(style='thin'))
-    header_range = ws['A1':ws.cell(row=len(accounts_ledger(args))+7, column=11).coordinate]
-    for row in header_range:
+
+    # --- Styling (shared palette from report_styles) ---
+    num_cols = 11
+    header_row_idx = 7
+    data_start_row = 8
+    data_end_row = data_start_row + len(data1) - 1
+    text_cols = 3  # Invoice No, Date, Age
+
+    # Title rows (row 1: parent company, row 2: company)
+    for cell in ws[1]:
+        cell.font = company_font
+        cell.alignment = align_center
+    for cell in ws[2]:
+        cell.font = company_font
+        cell.alignment = align_center
+
+    # Info rows (rows 3-5: SOA / Division / Due Date)
+    for row in ws.iter_rows(min_row=3, max_row=5, min_col=1, max_col=num_cols):
+        for cell in row:
+            cell.font = date_font
+
+    # Header row styling (row 7) - dark navy fill, white bold text
+    apply_header_row(ws, header_row_idx, num_cols)
+
+    # Data rows styling
+    alt_row = False
+    for row in ws.iter_rows(min_row=data_start_row, max_row=data_end_row, min_col=1, max_col=num_cols):
+        row_label = str(row[0].value or '')
+        is_total = row_label == 'Total'
+
+        for i, cell in enumerate(row):
+            cell.border = border_thin
+
+            if is_total:
+                cell.font = subtotal_font
+                cell.fill = subtotal_fill
+                cell.alignment = align_left if i < text_cols else align_right
+                if i >= text_cols:
+                    cell.number_format = currency_format
+            else:
+                cell.font = data_font
+                cell.alignment = align_left if i < text_cols else align_right
+                if i >= text_cols:
+                    cell.number_format = currency_format
+                if alt_row:
+                    cell.fill = alt_row_fill
+
+        if is_total:
+            ws.merge_cells(
+                start_row=row[0].row,
+                start_column=1,
+                end_row=row[0].row,
+                end_column=text_cols
+            )
+            alt_row = False
+        else:
+            alt_row = not alt_row
+
+    # Thin grey borders on all cells (title + info + header + data)
+    for row in ws.iter_rows(min_row=1, max_row=data_end_row, min_col=1, max_col=num_cols):
         for cell in row:
             cell.border = border_thin
-    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=11 )
-    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=11 )
-    ws.merge_cells(start_row=3, start_column=3, end_row=3, end_column=4 )
-    ws.merge_cells(start_row=3, start_column=7, end_row=3, end_column=8 )
-    ws.merge_cells(start_row=4, start_column=3, end_row=4, end_column=4 )
-    ws.merge_cells(start_row=4, start_column=7, end_row=4, end_column=8 )
-    ws.merge_cells(start_row=5, start_column=3, end_row=5, end_column=4 )
-    ws.merge_cells(start_row=5, start_column=7, end_row=5, end_column=8 )
-    ws.merge_cells(start_row=6, start_column=1, end_row=6, end_column=11 )
-    ws.merge_cells(start_row=len((accounts_ledger(args))) + 7, start_column=1, end_row=len((accounts_ledger(args))) + 7, end_column=3 )
+
+    # Merges (unchanged from original layout)
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=11)
+    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=11)
+    ws.merge_cells(start_row=3, start_column=3, end_row=3, end_column=4)
+    ws.merge_cells(start_row=3, start_column=7, end_row=3, end_column=8)
+    ws.merge_cells(start_row=4, start_column=3, end_row=4, end_column=4)
+    ws.merge_cells(start_row=4, start_column=7, end_row=4, end_column=8)
+    ws.merge_cells(start_row=5, start_column=3, end_row=5, end_column=4)
+    ws.merge_cells(start_row=5, start_column=7, end_row=5, end_column=8)
+    ws.merge_cells(start_row=6, start_column=1, end_row=6, end_column=11)
+
+    # Row heights
+    ws.row_dimensions[1].height = 22
+    ws.row_dimensions[2].height = 22
+    ws.row_dimensions[header_row_idx].height = 25
+
+    # Page setup - landscape, fit to width
+    setup_page(ws)
+
     xlsx_file = BytesIO()
     wb.save(xlsx_file)
     return xlsx_file
@@ -179,6 +221,5 @@ def accounts_ledger(args):
              float(fmt_money(round(total_31_60, 2)).replace(',', '')),
              float(fmt_money(round(total_61_90, 2)).replace(',', '')),
              float(fmt_money(round(total_91_above, 2)).replace(',', ''))
-        ])		
-        
+        ])
     return data

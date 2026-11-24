@@ -20,7 +20,7 @@ class ResignationForm(Document):
             self.cancel_no_due()
 
     def validate(self):
-        if self.workflow_state == "Pending for HOD":
+        if self.workflow_state == "HOD Pending":
             self.validate_no_due_approved()
 
     def validate_no_due_approved(self):

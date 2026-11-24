@@ -8,7 +8,11 @@
  "field_order": [
   "division",
   "code",
-  "manager"
+  "manager",
+  "section_break_modh",
+  "division_managers",
+  "section_break_abbv",
+  "account_details"
  ],
  "fields": [
   {
@@ -25,15 +29,36 @@
   {
    "fieldname": "manager",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Division Manager",
    "options": "User"
+  },
+  {
+   "fieldname": "section_break_abbv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "account_details",
+   "fieldtype": "Table",
+   "label": "Account Details",
+   "options": "Division Account Details"
+  },
+  {
+   "fieldname": "section_break_modh",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "division_managers",
+   "fieldtype": "Table",
+   "label": "Division Managers",
+   "options": "Division Manager"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-29 14:57:36.703804",
- "modified_by": "jenisha.p@groupteampro.com",
+ "modified": "2026-06-10 12:11:07.520133",
+ "modified_by": "bhuvaneswari.a@groupteampro.com",
  "module": "JGB",
  "name": "Division",
  "naming_rule": "By fieldname",

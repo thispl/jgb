@@ -33,6 +33,7 @@ from openpyxl.styles import GradientFill, PatternFill
 from six import BytesIO, string_types
 import openpyxl.styles as styles
 from frappe.utils import flt, fmt_money
+from jgb.jgb.doctype.accounts_report_dashboard.report_styles import *
 
 
 @frappe.whitelist()
@@ -77,65 +78,102 @@ def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
     customer = args.customer
     if not args.customer:
         customer='-'
-    header4 = ['Customer: ' + customer]
+    customer_name= frappe.db.get_value("Customer",args.customer,"customer_name")
+    header4 = ['Customer: ' + (customer_name or 'All')]
     ws.append(header4 + [""] * 7)
-    ws.append([''])
-    ws.append(['Date', 'Voucher Type', 'Voucher No', 'Remarks', 'Debit', 'Credit', 'Balance'])
+    currency = frappe.db.get_value('Company', args.company, 'default_currency') or 'SAR'
+    ws.append([f'Currency: {currency}'])
+    currency = frappe.db.get_value('Company',args.company,'default_currency')
+    ws.append(['Date', 'Voucher Type', 'Voucher No', 'Remarks', f'Debit({currency})', f'Credit({currency})', f'Balance({currency})'])
 
     data1 = get_data(args)
     for row in data1:
         ws.append(row)
     
-    align_center = Alignment(horizontal='center', vertical='center')
-    align_right = Alignment(horizontal='right', vertical='bottom')
-    bold_font = Font(bold=True)
+    # --- Styling using shared report_styles ---
+    num_cols = 7
+    text_cols = 4  # first 4 columns are text; last 3 (Debit, Credit, Balance) are amounts
 
-    for header in ws.iter_rows(min_row=1, max_row=1, min_col=1, max_col=7):
-        for cell in header:
-            cell.font = bold_font
-            cell.alignment = align_center
+    # Title rows: row 1 (company), row 2 (company), row 3 (title), row 4 (period), row 5 (customer)
+    for cell in ws[1]:
+        cell.font = company_font
+        cell.alignment = align_center
+    for cell in ws[2]:
+        cell.font = company_font
+        cell.alignment = align_center
+    for cell in ws[3]:
+        cell.font = title_font
+        cell.alignment = align_center
+    for cell in ws[4]:
+        cell.font = date_font
+        cell.alignment = align_center
+    for cell in ws[5]:
+        cell.font = date_font
+        cell.alignment = align_center
 
-    for header in ws.iter_rows(min_row=2, max_row=5, min_col=1, max_col=7):
-        for cell in header:
-            cell.font = bold_font
-            cell.alignment = align_center
+    ws.row_dimensions[1].height = 22
+    ws.row_dimensions[2].height = 22
+    ws.row_dimensions[3].height = 28
+    ws.row_dimensions[4].height = 20
+    ws.row_dimensions[5].height = 20
 
-    for header in ws.iter_rows(min_row=8, max_row=8, min_col=1, max_col=7):
-        for cell in header:
-            cell.font = bold_font
-            cell.alignment = align_right
+    # Header row (row 7) - dark navy fill with white bold text
+    apply_header_row(ws, 7, num_cols)
 
-    for header in ws.iter_rows(min_row=len(data1) + 6, max_row=len(data1) + 6, min_col=1, max_col=6):
-        for cell in header:
-            cell.font = bold_font
-            cell.alignment = align_right
+    # Data rows (row 8 onwards)
+    data_start_row = 8
+    data_end_row = len(data1) + 7
+    alt_row = False
 
-    for header in ws.iter_rows(min_row=len(data1) + 7, max_row=len(data1) + 7, min_col=1, max_col=7):
-        for cell in header:
-            cell.font = bold_font
-            cell.alignment = align_right
+    for row in ws.iter_rows(min_row=data_start_row, max_row=data_end_row, min_col=1, max_col=num_cols):
+        row_label = str(row[0].value or '')
+        is_company = row_label.startswith('Company:')
+        is_opening = 'Opening Balance' in row_label
+        is_closing = 'Closing Balance' in row_label
+        is_total = row_label == 'Total'
+        is_grand_total = is_closing
+        is_subtotal = is_opening or is_total
 
-    for header in ws.iter_rows(min_row=7, max_row=7, min_col=1, max_col=7):
-        for cell in header:
-            cell.font = bold_font
-            cell.fill = PatternFill(fgColor='D3D3D3', fill_type="solid")
+        for i, cell in enumerate(row):
+            cell.border = border_thin
 
-    for row in ws.iter_rows(min_row=9, max_row=len(data1) + 7):
-        if 'Opening Balance' in row[0].value or 'Closing Balance' in row[0].value or 'Total' in row[0].value:
-            for cell in row:
+            if is_company:
                 cell.font = bold_font
+                cell.alignment = align_left
 
-    border_thin = Border(
-        left=Side(style='thin'),
-        right=Side(style='thin'),
-        top=Side(style='thin'),
-        bottom=Side(style='thin'))
+            elif is_grand_total:
+                cell.font = grand_total_font
+                cell.fill = grand_total_fill
+                cell.alignment = align_left if i < text_cols else align_right
+                if i >= text_cols:
+                    cell.number_format = currency_format
 
-    header_range = ws['A1':ws.cell(row=len(data1) + 7, column=7).coordinate]
-    for row in header_range:
+            elif is_subtotal:
+                cell.font = subtotal_font
+                cell.fill = subtotal_fill
+                cell.alignment = align_left if i < text_cols else align_right
+                if i >= text_cols:
+                    cell.number_format = currency_format
+
+            else:
+                cell.font = data_font
+                cell.alignment = align_left if i < text_cols else align_right
+                if i >= text_cols:
+                    cell.number_format = currency_format
+                if alt_row:
+                    cell.fill = alt_row_fill
+
+        if is_company or is_grand_total or is_subtotal:
+            alt_row = False
+        else:
+            alt_row = not alt_row
+
+    # Thin grey borders on title/spacer rows (1-6)
+    for row in ws.iter_rows(min_row=1, max_row=6, min_col=1, max_col=num_cols):
         for cell in row:
             cell.border = border_thin
 
+    # Merge title rows and spacer
     ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=7)
     ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=7)
     ws.merge_cells(start_row=3, start_column=1, end_row=3, end_column=7)
@@ -145,6 +183,9 @@ def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
     ws.merge_cells(start_row=8, start_column=1, end_row=8, end_column=6)
     ws.merge_cells(start_row=len(data1) + 6, start_column=1, end_row=len(data1) + 6, end_column=4)
     ws.merge_cells(start_row=len(data1) + 7, start_column=1, end_row=len(data1) + 7, end_column=6)
+
+    # Page setup - landscape, fit to width
+    setup_page(ws, orientation='landscape')
 
     xlsx_file = BytesIO()
     wb.save(xlsx_file)
@@ -161,33 +202,45 @@ def get_data(args):
     customer =args.customer
 
     company=args.company
+    receivable_accounts = """(account IN (
+        SELECT name FROM `tabAccount`
+        WHERE company = %s AND account_type = 'Receivable' AND root_type = 'Asset'
+    ) OR account = (
+        SELECT default_advance_received_account FROM `tabCompany` WHERE name = %s
+    ))"""
+
     if customer:
         gl_entry = frappe.db.sql("""
-            SELECT voucher_type, voucher_no, posting_date, SUM(debit) AS debit, SUM(credit) AS credit
+            SELECT voucher_type, voucher_no, posting_date,party_type, party, SUM(debit) AS debit, SUM(credit) AS credit
             FROM `tabGL Entry`
             WHERE company = %s AND posting_date BETWEEN %s AND %s AND is_cancelled = 0 AND party = %s
+            AND {0}
             GROUP BY voucher_no
             ORDER BY posting_date
-            """, (company, args.from_date, args.to_date, customer), as_dict=True)
+            """.format(receivable_accounts), (company, args.from_date, args.to_date, customer, company, company), as_dict=True)
 
         gle = frappe.db.sql("""
             SELECT SUM(debit) AS opening_debit, SUM(credit) AS opening_credit
             FROM `tabGL Entry`
-            WHERE company = %s AND (posting_date < %s OR (IFNULL(is_opening, 'No') = 'Yes' AND posting_date >= %s)) AND party = %s AND is_cancelled = 0 and party_type='Customer'                """, (company, args.from_date, args.to_date, customer), as_dict=True)
+            WHERE company = %s AND (posting_date < %s OR (IFNULL(is_opening, 'No') = 'Yes' AND posting_date >= %s)) AND party = %s AND is_cancelled = 0 and party_type='Customer'
+            AND {0}
+            """.format(receivable_accounts), (company, args.from_date, args.to_date, customer, company, company), as_dict=True)
     else:
         gl_entry = frappe.db.sql("""
-            SELECT voucher_type, voucher_no, posting_date, SUM(debit) AS debit, SUM(credit) AS credit
+            SELECT voucher_type, voucher_no, posting_date,party_type, party, SUM(debit) AS debit, SUM(credit) AS credit
             FROM `tabGL Entry`
             WHERE company = %s AND posting_date BETWEEN %s AND %s AND is_cancelled = 0
+            AND {0}
             GROUP BY voucher_no
             ORDER BY posting_date
-            """, (company, args.from_date, args.to_date), as_dict=True)
+            """.format(receivable_accounts), (company, args.from_date, args.to_date, company, company), as_dict=True)
 
         gle = frappe.db.sql("""
             SELECT SUM(debit) AS opening_debit, SUM(credit) AS opening_credit
             FROM `tabGL Entry`
             WHERE company = %s AND (posting_date < %s OR (IFNULL(is_opening, 'No') = 'Yes' AND posting_date >= %s)) AND is_cancelled = 0 and party_type='Customer'
-            """, (company, args.from_date, args.to_date), as_dict=True)
+            AND {0}
+            """.format(receivable_accounts), (company, args.from_date, args.to_date, company, company), as_dict=True)
 
     opening_balance = 0
     t_p_debit = 0
@@ -208,13 +261,22 @@ def get_data(args):
     balance = opening_balance
     for i in gl_entry:
         row =[]
+        remarks = ""
+        check_no = ""
         balance += (i.debit -i.credit)
+        voucher_type_display = i.voucher_type 
         if i.voucher_type == "Payment Entry":
             ref_no = frappe.db.get_value("Payment Entry",{"name":i.voucher_no},['reference_no'])
             if ref_no:
                 check_no = ref_no
             else:
                 check_no = ''
+            payment_entry = frappe.db.get_all("Payment Entry",{"name": i.voucher_no},["party_type", "party_name"])
+            if payment_entry:
+                r = payment_entry[0]
+                if r.get("party_type") == "Employee":
+                    party_name = r.get("party_name") or ''
+                    remarks = f"{party_name}"
         else:
             check_no = ''
         if i.voucher_type == "Sales Invoice":
@@ -225,18 +287,23 @@ def get_data(args):
                 remark_data = remark[0]
                 dn = remark_data.get('delivery_note', '')
                 po = remark_data.get('po_no', '')
+                ref_no = remark_data.get('custom_supplier_ref_') or ''
+                return_doc=remark_data.get('is_return', '')
+                if return_doc:
+                    voucher_type_display = "Credit Note"
 
                 if dn and po:
                     remarks = f"DN No.{dn} & LPO No.{po}"
                 elif dn:
                     remarks = f"DN No.{dn}"
                 elif po:
-                    remarks =f"LPO No.{po}"
+                    remarks =f"{ref_no} LPO No.{po}"
+                else:
+                    remarks=f"{ref_no}"
         elif i.voucher_type == "Journal Entry":
             remarks = ''
-            
-        
             remark = frappe.db.get_value("Journal Entry", {"name": i.voucher_no}, "user_remark")
+            other_remark=frappe.db.get_value("Journal Entry", {"name": i.voucher_no}, "remark")
             cheque_no = frappe.db.get_value("Journal Entry", {"name": i.voucher_no}, "cheque_no")
             
             if cheque_no:
@@ -251,12 +318,26 @@ def get_data(args):
             elif cheque_no:
                 remarks = f"LPO No.{po_no}" if po_no else ''
                 check_no = cheque_no
-
+            else:
+                if other_remark:
+                    remarks=other_remark
+                else:
+                    if i.party:
+                        account = frappe.db.get_value("GL Entry",{"voucher_no": i.voucher_no,"party": i.party},"account")
+                        if account and "salary" in account.lower():
+                            remarks = "Salary"
+        elif i.voucher_type == "Expense Claim":
+            employee_name = frappe.db.get_value("Expense Claim",i.voucher_no,"employee")
+            remarks = employee_name or ''
+        elif i.party:
+            account = frappe.db.get_value("GL Entry",{"voucher_no": i.voucher_no,"party": i.party},"account")
+            if account and "salary" in account.lower():
+                remarks = "Salary"
         else:
             remarks = ''
 
         row.append(i.posting_date.strftime("%d-%m-%Y"))
-        row.append(i.voucher_type)
+        row.append(voucher_type_display)
         row.append(i.voucher_no)
         row.append(f"{remarks}{check_no}")
         row.append(float(fmt_money(round(i.debit, 2)).replace(',', '')) or "-")

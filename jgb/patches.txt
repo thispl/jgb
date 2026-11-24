@@ -4,3 +4,10 @@
 
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
+jgb.patches.backfill_sales_team
+jgb.patches.create_fs_mapping_fields
+jgb.patches.create_cf_mapping_field
+jgb.patches.add_attendance_dashboard_workspace
+jgb.patches.setup_general_payment_request_workflow
+jgb.patches.add_delivery_charges_account
+jgb.patches.create_asset_prepayment_fields

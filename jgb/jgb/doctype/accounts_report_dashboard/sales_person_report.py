@@ -34,32 +34,30 @@ from six import BytesIO, string_types
 import openpyxl.styles as styles
 from frappe.utils import flt, fmt_money
 
+from jgb.jgb.doctype.accounts_report_dashboard.report_styles import *
+
 
 @frappe.whitelist()
 def download():
     filename = 'Sales Person Wise Income Report'
     test = build_xlsx_response(filename)
-    
+
 def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
     args = frappe.local.form_dict
     column_widths = column_widths or []
     if wb is None:
         wb = openpyxl.Workbook()
-        
-def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
-    args = frappe.local.form_dict
-    column_widths = column_widths or []
-    if wb is None:
-        wb = openpyxl.Workbook()
-         
+
     ws = wb.create_sheet(sheet_name, 0)
+    if 'Sheet' in wb.sheetnames:
+        wb.remove(wb['Sheet'])
     ws.column_dimensions['A'].width = 15
     ws.column_dimensions['B'].width = 15
-    ws.column_dimensions['C'].width = 15 
-    ws.column_dimensions['D'].width = 15
+    ws.column_dimensions['C'].width = 15
+    ws.column_dimensions['D'].width = 40
     ws.column_dimensions['E'].width = 15
-    ws.column_dimensions['F'].width = 15 
-    ws.column_dimensions['G'].width = 15 
+    ws.column_dimensions['F'].width = 15
+    ws.column_dimensions['G'].width = 15
     ws.column_dimensions['H'].width = 15
     ws.column_dimensions['I'].width = 15
     ws.column_dimensions['J'].width = 15
@@ -69,43 +67,62 @@ def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
         ws.append([company," "," "," "," "," "," ","","","",""])
         ws.append([args.company," "," "," "," "," "," ","","","",""])
     else:
-        ws.append([args.company," "," "," "," "," "," ","","","",""]) 
+        ws.append([args.company," "," "," "," "," "," ","","","",""])
         ws.append([""," "," "," "," "," "," ","","","",""])
     ws.append(["Sales Person Wise Income Report"," "," "," "," "," "," ","","","",""])
     ws.append(['','','','','','','',"","",""])
+    currency = frappe.db.get_value('Company', args.company, 'default_currency') or 'SAR'
+    ws.append([f"Currency: {currency}","","","","","","","","","",""])
     ws.append(["SL No",'Date','Invoice Number','Customer Name','LPO No','Gross Amount','Discount','Ret Amount','Net','Collected','Balance'])
-    
-    data1= get_data(args)
+
+    data1 = get_data(args)
     for row in data1:
         ws.append(row)
-    align_center = Alignment(horizontal='center',vertical='center')
-    align_right = Alignment(horizontal='right',vertical='bottom')
-    for header in ws.iter_rows(min_row=1 , max_row=1, min_col=1, max_col=11):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_center
-            # cell.fill = PatternFill(fgColor='fcff42', fill_type = "solid")
-    for header in ws.iter_rows(min_row=2 , max_row=3, min_col=1, max_col=11):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_center
-    for header in ws.iter_rows(min_row=5 , max_row=5, min_col=1, max_col=11):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.fill = PatternFill(fgColor='D3D3D3', fill_type = "solid")
-    border_thin = Border(
-    left=Side(style='thin'),
-    right=Side(style='thin'),
-    top=Side(style='thin'),
-    bottom=Side(style='thin'))
-    header_range = ws['A1':ws.cell(row=len(get_data(args))+5, column=11).coordinate]
-    for row in header_range:
-        for cell in row:
-            cell.border = border_thin
-    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=11 )
-    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=11 )
-    ws.merge_cells(start_row=3, start_column=1, end_row=3, end_column=11 )
-    ws.merge_cells(start_row=4, start_column=1, end_row=4, end_column=11 )
+
+    num_cols = 11
+    header_row_idx = 5
+    data_start_row = 6
+    data_end_row = data_start_row + len(data1) - 1
+    text_cols = 5  # SL No, Date, Invoice, Customer, LPO are text; cols 6-11 are amounts
+
+    # --- Title rows (rows 1-3) ---
+    apply_title_rows(ws, num_cols, "Sales Person Wise Income Report")
+    # Row 4 spacer
+    ws.merge_cells(start_row=4, start_column=1, end_row=4, end_column=num_cols)
+
+    # --- Header row (row 5) ---
+    apply_header_row(ws, header_row_idx, num_cols)
+
+    # --- Data rows styling ---
+    alt_row = False
+    for row in ws.iter_rows(min_row=data_start_row, max_row=data_end_row, min_col=1, max_col=num_cols):
+        row_label = str(row[0].value or '')
+        # Single-element rows are salesperson / company section headers
+        is_section_header = len([c for c in row if c.value not in (None, '')]) == 1
+        is_subtotal = row_label.startswith('Total for')
+        is_grand_total = row_label == 'GRAND TOTAL'
+        # Company-total rows: 11 cols, first is a string, cols 2-5 empty
+        is_company_total = (not is_subtotal and not is_grand_total and not is_section_header
+                            and not isinstance(row[0].value, (int, float))
+                            and all(row[c].value in (None, '', ' ') for c in range(1, text_cols)))
+
+        style_data_row(row, num_cols, text_cols,
+                       is_subtotal=is_subtotal or is_company_total,
+                       is_grand_total=is_grand_total,
+                       is_salesperson=is_section_header,
+                       alt_row=alt_row)
+
+        if is_section_header:
+            ws.merge_cells(start_row=row[0].row, start_column=1, end_row=row[0].row, end_column=num_cols)
+            alt_row = False
+        elif is_subtotal or is_company_total or is_grand_total:
+            ws.merge_cells(start_row=row[0].row, start_column=1, end_row=row[0].row, end_column=text_cols)
+            alt_row = False
+        else:
+            alt_row = not alt_row
+
+    # --- Page setup ---
+    setup_page(ws, orientation='landscape')
 
     xlsx_file = BytesIO()
     wb.save(xlsx_file)
@@ -142,8 +159,8 @@ def get_data(args):
                 convert_float = int(net_amount)
                 collected = (net - i.outstanding_amount)
                 collected_int = int(collected)
-
-                data.append([j, i.posting_date.strftime("%d-%m-%Y"), i.name, i.customer, i.po_no, i.total, i.discount_amount, convert_float, net_int, collected_int, i.outstanding_amount])
+                customer_name = frappe.db.get_value("Customer",i.customer,"customer_name")
+                data.append([j, i.posting_date.strftime("%d-%m-%Y"), i.name, customer_name, i.po_no, i.total, i.discount_amount, convert_float, net_int, collected_int, i.outstanding_amount])
 
                 if company_name not in company_totals:
                     company_totals[company_name] = {
@@ -214,8 +231,8 @@ def get_data(args):
                     convert_float = int(net_amount)
                     collected = (net - i.outstanding_amount)
                     collected_int = int(collected)
-
-                    data.append([j, i.posting_date.strftime("%d-%m-%Y"), i.name, i.customer, i.po_no, i.total, i.discount_amount, convert_float, net_int, collected_int, i.outstanding_amount])
+                    customer_name = frappe.db.get_value("Customer",i.customer,"customer_name")
+                    data.append([j, i.posting_date.strftime("%d-%m-%Y"), i.name,customer_name, i.po_no, i.total, i.discount_amount, convert_float, net_int, collected_int, i.outstanding_amount])
 
                     if c.name not in company_totals:
                         company_totals[c.name] = {
@@ -283,7 +300,8 @@ def get_data(args):
                     convert_float = int(net_amount)
                     collected = (net - i.outstanding_amount)
                     collected_int = int(collected)
-                    data.append([j, i.posting_date.strftime("%d-%m-%Y"), i.name, i.customer, i.po_no, i.total, i.discount_amount, convert_float, net_int, collected_int, i.outstanding_amount])
+                    customer_name = frappe.db.get_value("Customer",i.customer,"customer_name")
+                    data.append([j, i.posting_date.strftime("%d-%m-%Y"), i.name, customer_name, i.po_no, i.total, i.discount_amount, convert_float, net_int, collected_int, i.outstanding_amount])
                     j += 1
                     sales_person_totals["total"] += i.total
                     sales_person_totals["discount_amount"] += i.discount_amount
@@ -333,7 +351,8 @@ def get_data(args):
                 convert_float = int(net_amount)
                 collected = (net - i.outstanding_amount)
                 collected_int = int(collected)
-                data.append([j, i.posting_date.strftime("%d-%m-%Y"), i.name, i.customer, i.po_no, i.total, i.discount_amount, convert_float, net_int, collected_int, i.outstanding_amount])
+                customer_name = frappe.db.get_value("Customer",i.customer,"customer_name")
+                data.append([j, i.posting_date.strftime("%d-%m-%Y"), i.name,customer_name, i.po_no, i.total, i.discount_amount, convert_float, net_int, collected_int, i.outstanding_amount])
                 j += 1
                 company_totals["total"] += i.total
                 company_totals["discount_amount"] += i.discount_amount

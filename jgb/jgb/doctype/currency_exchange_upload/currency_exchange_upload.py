@@ -165,7 +165,6 @@ def upload_currency_exchange_excel(file_url):
 	}
 
 	
-
 import frappe
 from frappe.utils import add_days
 from frappe.utils import getdate, add_days
@@ -207,40 +206,97 @@ def update_internal_work(doc, method):
 	designation = None
 	department = None
 	branch = None
+	grade = None
+	employment_type = None
+	reports_to = None
+	travel_allowance = 0.0
+	vacation_pay =0.0
 	basic = 0.0
 	hra =0.0
 	telephone =0.0
 	gosi =0.0
+	designation1 = None
+	department1 = None
+	branch1 = None
+	grade1 = None
+	employment_type1 = None
+	reports_to1 = None
+	travel_allowance1 = 0.0
+	vacation_pay1 =0.0
+	basic1 = 0.0
+	hra1 =0.0
+	telephone1 =0.0
+	gosi1 =0.0
+	promotion_date = doc.promotion_date
 
 	for promo in doc.promotion_details:
 		if promo.property == "Designation":
 			designation = promo.current
+			designation1 = promo.new
 		elif promo.property == "Department":
 			department = promo.current
+			department1 = promo.new
 		elif promo.property == "Branch":
 			branch = promo.current
+			branch1 = promo.new
 		elif promo.property == "Basic":
 			basic = promo.current
+			basic1 = promo.new
 		elif promo.property == "HRA":
 			hra = promo.current
+			hra1 = promo.new
 		elif promo.property == "GOSI":
 			gosi = promo.current
+			gosi1 = promo.new
 		elif promo.property == "Telephone":
 			telephone = promo.current
+			telephone1 = promo.new
+		elif promo.property == "Grade":
+			grade = promo.current
+			grade1 = promo.new
+		elif promo.property == "Employment Type":
+			employment_type = promo.current
+			employment_type1 = promo.new
+		elif promo.property == "Reports to":
+			reports_to = promo.current
+			reports_to1 = promo.new
+		elif promo.property == "Travel Allowance":
+			travel_allowance = promo.current
+			travel_allowance1 = promo.new
+		elif promo.property == "Vacation Pay":
+			vacation_pay = promo.current
+			vacation_pay1 = promo.new
 
 	mis_doc.append("custom_internal_work_historys", {
-		"from_date": from_date,
-		"to_date": to_date,
+		"promotion_date":promotion_date ,
+		"branch":branch,
+		"new_branch":branch1,
 		"designation": designation,
+		"new_designation":designation1,
 		"department": department,
-		"branch": branch,
+		"new_department":department1,
+		"grade":grade,
+		"new_grade":grade1,
+		"employment_type": employment_type,
+		"new_employment_type":employment_type1,
+		"reports_to":reports_to,
+		"new_reports_to":reports_to1,
 		"basic":basic,
+		"new_basic":basic1,
 		"hra":hra,
+		"new_hra":hra1,
 		"telephone":telephone,
-		"gosi":gosi
+		"new_telephone":telephone1,
+		"gosi":gosi,
+		"new_gosi":gosi1,
+		"travel_allowance":travel_allowance,
+		"new_travel_allowance":travel_allowance1,
+		"vacation_pay":vacation_pay,
+		"new_vacation_pay":vacation_pay1
 	})
 
 	mis_doc.save(ignore_permissions=True)
+
 
 
 

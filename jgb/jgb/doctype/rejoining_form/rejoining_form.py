@@ -51,7 +51,33 @@ class RejoiningForm(Document):
 
         if self.start_date and self.end_date and getdate(self.end_date) < getdate(self.start_date):
             frappe.throw(_("End date cannot be before start date"))
-    
+
+    def on_cancel(self):
+        self.clear_leave_application_rejoining_fields()
+
+    def on_trash(self):
+        self.clear_leave_application_rejoining_fields()
+
+    def clear_leave_application_rejoining_fields(self):
+        if not self.leave_application:
+            return
+        # don't clear if the Leave Application has since been linked to another form
+        linked_form = frappe.db.get_value(
+            "Leave Application", self.leave_application, "custom_rejoining_form"
+        )
+        if linked_form != self.name:
+            return
+        frappe.db.set_value(
+            "Leave Application",
+            self.leave_application,
+            {
+                "custom_rejoining_date": None,
+                "custom_rejoining_created_by_": None,
+                "custom_rejoining_form": None,
+                "custom_rejoining_created_on": None,
+            },
+        )
+
 
 @frappe.whitelist()
 def send_reminder_for_rejoining(employee,company,user_id):

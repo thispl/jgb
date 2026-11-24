@@ -105,6 +105,7 @@ def upload_and_create_items(file_url):
             item_code = create_item_series(item_group=item_group, product=product)
             item = frappe.new_doc("Item")
             item.item_code = item_code
+            item.custom_item = item_code
             item.item_group = item_group
             item.custom_product = product
             item.stock_uom = row_data.get("Default UOM") or "Nos"

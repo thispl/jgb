@@ -1,0 +1,149 @@
+{
+ "actions": [],
+ "creation": "2026-08-29 14:30:45.507030",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "report_view_type",
+  "primary_grouping",
+  "customer",
+  "customer_name",
+  "sales_person",
+  "division",
+  "region",
+  "column_break_lxoj",
+  "as_of_date",
+  "aging_method__basis",
+  "show_unapplied_payments_and_credits_as_separate_line",
+  "advance_sales_invoice",
+  "download",
+  "print"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "default": "Summary",
+   "fieldname": "report_view_type",
+   "fieldtype": "Select",
+   "label": "Report View Type",
+   "options": "\nSummary\nDetailed",
+   "reqd": 1
+  },
+  {
+   "default": "Customer Wise",
+   "fieldname": "primary_grouping",
+   "fieldtype": "Select",
+   "label": "Primary Grouping",
+   "options": "\nCustomer Wise\nSalesperson Wise\nDivision Wise\nRegion Wise",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.primary_grouping ==\"Customer Wise\"",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "depends_on": "eval:doc.primary_grouping=='Customer Wise'",
+   "fetch_from": "customer.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Read Only",
+   "label": "Customer Name"
+  },
+  {
+   "depends_on": "eval:doc.primary_grouping ==\"Salesperson Wise\"",
+   "fieldname": "sales_person",
+   "fieldtype": "Link",
+   "label": "Sales person",
+   "options": "Sales Person"
+  },
+  {
+   "depends_on": "eval:doc.primary_grouping == \"Division Wise\"",
+   "fieldname": "division",
+   "fieldtype": "Link",
+   "label": "Division",
+   "options": "Division"
+  },
+  {
+   "depends_on": "eval:doc.primary_grouping == \"Region Wise\"",
+   "fieldname": "region",
+   "fieldtype": "Link",
+   "label": "Region",
+   "options": "Territory"
+  },
+  {
+   "fieldname": "column_break_lxoj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "as_of_date",
+   "fieldtype": "Date",
+   "label": "As of Date"
+  },
+  {
+   "default": "Due Date",
+   "fieldname": "aging_method__basis",
+   "fieldtype": "Select",
+   "label": "Aging Method / Basis",
+   "options": "\nDue Date\nInvoice Date"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_unapplied_payments_and_credits_as_separate_line",
+   "fieldtype": "Check",
+   "label": "Show Unapplied Payments and Credits as Separate Line"
+  },
+  {
+   "default": "0",
+   "fieldname": "advance_sales_invoice",
+   "fieldtype": "Check",
+   "label": "Advance Sales Invoice"
+  },
+  {
+   "fieldname": "download",
+   "fieldtype": "Button",
+   "label": "Download"
+  },
+  {
+   "fieldname": "print",
+   "fieldtype": "Button",
+   "label": "Print"
+  }
+ ],
+ "grid_page_length": 50,
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-09-19 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "JGB",
+ "name": "Accounts Receivable Dashboard",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

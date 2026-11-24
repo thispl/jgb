@@ -68,7 +68,8 @@ def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
 	from_date_obj = datetime.strptime(from_date_str, "%Y-%m-%d")
 	formatted_from_date = from_date_obj.strftime("%d-%b-%Y")
 	ws.append(["PROJECT PROFIT REPORT AS ON " +formatted_from_date ])
-	ws.append([''])
+	currency = frappe.db.get_value('Company', args.company, 'default_currency') or 'SAR'
+	ws.append([f'Currency: {currency}'])
 	ws.append(['Customer','Order Ref.','Project Ref.','Order Value','Invoice Value till Date','Material Cost','Operational Cost','Cost Till Date','Gross Profit','Gross Profit %','Balance To Invoice','Total Collection','O/S Receipts'])
 	data1 = get_data(args)
 	for row in data1:

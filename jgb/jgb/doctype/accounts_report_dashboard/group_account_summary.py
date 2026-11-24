@@ -6,6 +6,7 @@ from frappe.utils.file_manager import save_file
 from io import BytesIO
 from datetime import datetime
 from openpyxl.styles import GradientFill, PatternFill
+from jgb.jgb.doctype.accounts_report_dashboard.report_styles import *
 @frappe.whitelist()
 def download():
     filename = 'Group Summary Report'
@@ -42,7 +43,8 @@ def make_xlsx(sheet_name=None, wb=None, column_widths=None):
     to_date_obj = datetime.strptime(to_date_str, "%Y-%m-%d")
     formatted_to_date = to_date_obj.strftime("%d-%m-%Y")
     ws.append(["As On: " + formatted_to_date])
-    ws.append([''])
+    currency = frappe.db.get_value('Company', args.company, 'default_currency') or 'SAR'
+    ws.append([f'Currency: {currency}'])
     ws.append(["Group Name", args.get("account"), "", "", "Currency", "", args.get("currency")])
     ws.append(["Account Number", "Account Name", "Opening", "", "Movement", "", "Closing", ""])
     ws.append(["", "", "Debit", "Credit", "Debit", "Credit", "Debit", "Credit"])
@@ -60,38 +62,71 @@ def make_xlsx(sheet_name=None, wb=None, column_widths=None):
     for row in data:
         ws.append(row)
     
-    align_center = Alignment(horizontal='center', vertical='center')
-    bold_white_font = Font(bold=True, color="FFFFFF")
-    dark_blue_fill = PatternFill(start_color="0F0F5C", end_color="0F0F5C", fill_type="solid")
-    
-    lightgray_fill = PatternFill(start_color="D3D3D3", end_color="D3D3D3", fill_type="solid")
-    for row in range(1, 8):
-        for cell in ws[row]:
+    # --- Styling using shared report_styles ---
+    num_cols = 8
+    text_cols = 2
+    amount_start = 3  # 1-based: columns C-H are amounts
+
+    # Title rows: row 1 (company), row 2 (company/sub), row 3 (title), row 4 (date)
+    for cell in ws[1]:
+        cell.font = company_font
+        cell.alignment = align_center
+    for cell in ws[2]:
+        cell.font = company_font
+        cell.alignment = align_center
+    for cell in ws[3]:
+        cell.font = title_font
+        cell.alignment = align_center
+    for cell in ws[4]:
+        cell.font = date_font
+        cell.alignment = align_center
+
+    ws.row_dimensions[1].height = 22
+    ws.row_dimensions[2].height = 22
+    ws.row_dimensions[3].height = 28
+    ws.row_dimensions[4].height = 20
+
+    # Header rows: rows 6, 7, 8 (dark navy fill, white bold text)
+    for header_row_idx in (6, 7, 8):
+        for cell in ws[header_row_idx]:
+            cell.font = header_font
+            cell.fill = header_fill
             cell.alignment = align_center
-            if row in (1,3,4):
-                cell.font = Font(bold=True)
-                # cell.fill = lightgray_fill
-            if row in (6,7):
-                cell.fill = lightgray_fill
-                cell.font = Font(bold=True)
-            
-    
-    # for cell in ws[6]:
-    #     cell.font = Font(bold=True)
-        
-    #     cell.alignment = align_center
-    # for header in ws[1]:
-    #     header.alignment = align_center
-    #     cell.font = bold_white_font
-    #     cell.fill = dark_blue_fill
-        
-    ws.merge_cells(start_row=ws.max_row, start_column=1, end_row=ws.max_row, end_column=2)
-    border_thin = Border(left=Side(style='thin'), right=Side(style='thin'), top=Side(style='thin'), bottom=Side(style='thin'))
-    
-    for row in ws.iter_rows():
-        for cell in row:
             cell.border = border_thin
-    
+        ws.row_dimensions[header_row_idx].height = 22
+
+    # Data rows with alternating row colors
+    data_start_row = 9
+    total_row_idx = ws.max_row
+    data_end_row = total_row_idx - 1
+    alt_row = False
+
+    for row in ws.iter_rows(min_row=data_start_row, max_row=data_end_row, min_col=1, max_col=num_cols):
+        for i, cell in enumerate(row):
+            cell.border = border_thin
+            cell.font = data_font
+            cell.alignment = align_left if i < text_cols else align_right
+            if i >= amount_start - 1:
+                cell.number_format = currency_format
+            if alt_row:
+                cell.fill = alt_row_fill
+        alt_row = not alt_row
+
+    # Total row (last row) - light blue fill, dark blue bold text
+    for i, cell in enumerate(ws[total_row_idx]):
+        cell.border = border_thin
+        cell.font = subtotal_font
+        cell.fill = subtotal_fill
+        cell.alignment = align_left if i < text_cols else align_right
+        if i >= amount_start - 1:
+            cell.number_format = currency_format
+
+    # Merge first two columns of the Total row
+    ws.merge_cells(start_row=total_row_idx, start_column=1, end_row=total_row_idx, end_column=2)
+
+    # Page setup: landscape, fit to width
+    setup_page(ws, orientation='landscape')
+
     xlsx_file = BytesIO()
     wb.save(xlsx_file)
     return xlsx_file

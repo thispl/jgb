@@ -33,6 +33,7 @@ from openpyxl.styles import GradientFill, PatternFill
 from six import BytesIO, string_types
 import openpyxl.styles as styles
 from frappe.utils import flt, fmt_money
+from jgb.jgb.doctype.accounts_report_dashboard.report_styles import *
 
 @frappe.whitelist()
 def download():
@@ -68,67 +69,98 @@ def make_xlsx(data, sheet_name=None, wb=None, column_widths=None):
     formatted_to_date = to_date_obj.strftime("%d-%m-%Y")
     header2=["Report Period: "+formatted_from_date + " " +" to "+ " "+formatted_to_date]
     ws.append( header2 + [""] * 5)
-    ws.append([''])
+    currency = frappe.db.get_value('Company', args.company, 'default_currency') or 'SAR'
+    ws.append([f'Currency: {currency}'])
     ws.append(["SI NO","Posting Date","Voucher Number","Party Name","Received Amount","Sales Person","Remarks"])
     data1= receipt_report(args)
     for row in data1:
         ws.append(row)
-    align_center = Alignment(horizontal='center',vertical='center',wrap_text=True)
-    align_right = Alignment(horizontal='right',vertical='bottom',wrap_text=True)
-    align_left = Alignment(horizontal='left', vertical='bottom', wrap_text=True)
-    for header in ws.iter_rows(min_row=1 , max_row=1, min_col=1, max_col=7):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_center
 
-    for header in ws.iter_rows(min_row=2 , max_row=3, min_col=1, max_col=7):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_center
-    for header in ws.iter_rows(min_row=5 , max_row=5, min_col=1, max_col=7):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_center
-            cell.fill = PatternFill(fgColor='D3D3D3', fill_type = "solid")
-    for header in ws.iter_rows(min_row=len(receipt_report(args)) + 5 , max_row=len(receipt_report(args)) + 5 , min_col=1, max_col=5):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_right
-    for header in ws.iter_rows(min_row=6 , max_row=len(receipt_report(args)) +301 , min_col=1, max_col=7):
-        for cell in header:
-            cell.alignment = align_center
-    for header in ws.iter_rows(min_row=len(receipt_report(args)) + 5 , max_row=len(receipt_report(args)) + 5 , min_col=1, max_col=7):
-        for cell in header:
-            cell.font = Font(bold=True)
-            cell.alignment = align_right
-    for col in ws.iter_rows(min_row=6 , max_row=ws.max_row, min_col=5, max_col=5):
-        for cell in col:
-            cell.alignment = align_right
-    for col in ws.iter_rows(min_row=6 , max_row=ws.max_row, min_col=6, max_col=7):
-        for cell in col:
-            cell.alignment = align_left
-    for col in ws.iter_rows(min_row=6 , max_row=ws.max_row, min_col=3, max_col=4):
-        for cell in col:
-            cell.alignment = align_left
-    for col in ws.iter_rows(min_row=6 , max_row=ws.max_row, min_col=1, max_col=2):
-        for cell in col:
-            cell.alignment = align_right
-    border_thin = Border(
-    left=Side(style='thin'),
-    right=Side(style='thin'),
-    top=Side(style='thin'),
-    bottom=Side(style='thin'))
-    header_range = ws['A1':ws.cell(row=len(receipt_report(args))+5, column=7).coordinate]
-    for row in header_range:
+    num_cols = 7
+    amount_col = 5
+    data_start_row = 6
+    data_end_row = data_start_row + len(data1) - 1
+    total_row_idx = data_end_row
+
+    # --- Title rows styling (rows 1-3) ---
+    for row in ws.iter_rows(min_row=1, max_row=1, min_col=1, max_col=num_cols):
         for cell in row:
-            cell.border = border_thin
-            
+            cell.font = company_font
+            cell.alignment = align_center
+    for row in ws.iter_rows(min_row=2, max_row=2, min_col=1, max_col=num_cols):
+        for cell in row:
+            cell.font = company_font
+            cell.alignment = align_center
+    for row in ws.iter_rows(min_row=3, max_row=3, min_col=1, max_col=num_cols):
+        for cell in row:
+            cell.font = date_font
+            cell.alignment = align_center
 
-    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=7 )
-    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=7 )
-    ws.merge_cells(start_row=3, start_column=1, end_row=3, end_column=7 )
-    ws.merge_cells(start_row=4, start_column=1, end_row=4, end_column=7 )
-    ws.merge_cells(start_row=len((receipt_report(args))) + 5, start_column=1, end_row=len((receipt_report(args))) + 5, end_column=4 )
+    # --- Header row styling (row 5) ---
+    header_row_idx = 5
+    for cell in ws[header_row_idx]:
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = align_center
+        cell.border = border_thin
+
+    # --- Data rows styling ---
+    alt_row = False
+    for row in ws.iter_rows(min_row=data_start_row, max_row=data_end_row, min_col=1, max_col=num_cols):
+        row_label = str(row[0].value or '')
+        is_total = row_label == "Total"
+
+        for i, cell in enumerate(row):
+            cell.border = border_thin
+
+            if is_total:
+                cell.font = subtotal_font
+                cell.fill = subtotal_fill
+                if i == 0:
+                    cell.alignment = align_left
+                elif i + 1 == amount_col:
+                    cell.alignment = align_right
+                    cell.number_format = currency_format
+                else:
+                    cell.alignment = align_center
+            else:
+                cell.font = data_font
+                if i + 1 == amount_col:
+                    cell.alignment = align_right
+                    cell.number_format = currency_format
+                elif i + 1 in (1, 2):
+                    cell.alignment = align_center
+                else:
+                    cell.alignment = align_left
+                if alt_row:
+                    cell.fill = alt_row_fill
+
+        if is_total:
+            ws.merge_cells(
+                start_row=row[0].row,
+                start_column=1,
+                end_row=row[0].row,
+                end_column=4
+            )
+            alt_row = False
+        else:
+            alt_row = not alt_row
+
+    # --- Merge title rows ---
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=num_cols)
+    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=num_cols)
+    ws.merge_cells(start_row=3, start_column=1, end_row=3, end_column=num_cols)
+    ws.merge_cells(start_row=4, start_column=1, end_row=4, end_column=num_cols)
+
+    # --- Row heights ---
+    ws.row_dimensions[1].height = 22
+    ws.row_dimensions[2].height = 22
+    ws.row_dimensions[3].height = 20
+    ws.row_dimensions[header_row_idx].height = 25
+
+    # --- Page setup ---
+    setup_page(ws, orientation='landscape')
+
     xlsx_file = BytesIO()
     wb.save(xlsx_file)
     return xlsx_file
@@ -145,7 +177,7 @@ def receipt_report(args):
     total = 0
     ind = 0
     sa = frappe.db.sql("""
-        SELECT name,received_amount,posting_date,party_name,remarks
+        SELECT name,base_received_amount,posting_date,party_name,remarks
         FROM `tabPayment Entry`
         WHERE company = %s AND posting_date BETWEEN %s AND %s AND payment_type ='Receive' AND party_type = 'Customer' AND docstatus = 1 order by posting_date  ASC
     """, (args.company, args.from_date, args.to_date), as_dict=True)
@@ -162,12 +194,12 @@ def receipt_report(args):
     """, (args.company, args.from_date, args.to_date), as_dict=True)	
     
     for journ in journal:
-        doc_journal = frappe.get_all("Journal Entry Account", {"parent": journ.name,"party_type":"customer"}, ["party", "credit_in_account_currency"])
+        doc_journal = frappe.get_all("Journal Entry Account", {"parent": journ.name,"party_type":"customer"}, ["party", "credit"])
         for c in doc_journal:
-            if c.credit_in_account_currency>0:
+            if c.credit>0:
                 ind += 1
-                total += c.credit_in_account_currency
-                row=[len(data) + 1,journ.posting_date.strftime("%d-%m-%Y"), journ.name, c.party, float(fmt_money(round(c.credit_in_account_currency, 2)).replace(',', '')), '',journ.remark]
+                total += c.credit
+                row=[len(data) + 1,journ.posting_date.strftime("%d-%m-%Y"), journ.name, c.party, float(fmt_money(round(c.credit, 2)).replace(',', '')), '',journ.remark]
                 data.append(row)
 
     for i in sa:
@@ -180,8 +212,8 @@ def receipt_report(args):
                 elif j.reference_doctype == "Sales Invoice":
                     sales_person = frappe.db.get_value("Sales Invoice", {"name": j.reference_name}, ["owner"])	
         ind += 1
-        total += i.received_amount
-        row = [len(data) + 1, i.posting_date.strftime("%d-%m-%Y"), i.name, i.party_name, float(fmt_money(round(i.received_amount, 2)).replace(',', '')), sales_person,i.remarks]
+        total += i.base_received_amount
+        row = [len(data) + 1, i.posting_date.strftime("%d-%m-%Y"), i.name, i.party_name, float(fmt_money(round(i.base_received_amount, 2)).replace(',', '')), sales_person,i.remarks]
         data.append(row)
 
     data.append(["Total", "", "", "", float(fmt_money(round(total, 2)).replace(',', '')), '',''])

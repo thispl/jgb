@@ -17,6 +17,7 @@ def get_columns(filters):
         _("Sales Order") + ":Link/Sales Order:200",
         _("Date") + ":Date/:110",
         _("Customer") + ":Link/Customer:200",
+		_("Customer Name") + ":Data:200",
         _("L.P.O.No") + ":Data/ :200",
         # _("Net Amount") + ":Currency/:100",
         _("Order Qty") + ":Data/:100",
@@ -33,7 +34,7 @@ def get_columns(filters):
 def get_data(filters):
 	data = []
 	total = 0
-	sa = frappe.get_list("Sales Order", {"transaction_date": ('between', (filters.from_date, filters.to_date)), "status": ('!=', "Closed"),"docstatus":1}, ["name", "transaction_date", "customer", "po_no"])
+	sa = frappe.get_list("Sales Order", {"transaction_date": ('between', (filters.from_date, filters.to_date)), "status": ('!=', "Closed"),"docstatus":1}, ["name", "transaction_date", "customer", "customer_name", "po_no"])
 	for so in sa:
 		sb = frappe.get_all("Sales Order Item", {"parent": so.name, "item_code": filters.item_code}, ["qty", "delivered_qty", "rate"])
 		for j in sb:
@@ -42,7 +43,7 @@ def get_data(filters):
 			else:
 				bal = j.qty - j.delivered_qty
 				total = bal * j.rate
-				row = [so.name, so.transaction_date, so.customer,so.po_no,round(j.qty,2), round(j.delivered_qty,2),round(bal,2), round(j.rate,2), round(total,2)]
+				row = [so.name, so.transaction_date, so.customer, so.customer_name, so.po_no,round(j.qty,2), round(j.delivered_qty,2),round(bal,2), round(j.rate,2), round(total,2)]
 				data.append(row)
 
 	return data

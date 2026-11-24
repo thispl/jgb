@@ -1,0 +1,213 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "LCM.####",
+ "creation": "2026-10-05 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "name_of_licence",
+  "category",
+  "reference_number",
+  "issuing_authority",
+  "company",
+  "vehicle",
+  "column_break_1",
+  "issue_date",
+  "renewability",
+  "last_renewal_date",
+  "expiry_date",
+  "frequency_days",
+  "days_left",
+  "status",
+  "attachment",
+  "custodian_section",
+  "custodian",
+  "custodian_name",
+  "column_break_2",
+  "custodian_id",
+  "custodian_email",
+  "contact_number",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "name_of_licence",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Name of the License",
+   "options": "Name of the License",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "name_of_licence.group",
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Category",
+   "options": "Corporate\nLegal\nVehicle\nEnvironmental\nOperational\nOther"
+  },
+  {
+   "fieldname": "reference_number",
+   "fieldtype": "Data",
+   "label": "Reference / Certificate #"
+  },
+  {
+   "fieldname": "issuing_authority",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Issuing Authority"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "depends_on": "eval:doc.category=='Vehicle'",
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "label": "Vehicle",
+   "options": "Vehicle"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "issue_date",
+   "fieldtype": "Date",
+   "label": "Issue Date"
+  },
+  {
+   "default": "Renewable",
+   "fieldname": "renewability",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Renewability",
+   "options": "Renewable\nNon-Renewable\nPermanent / Lifetime"
+  },
+  {
+   "depends_on": "eval:doc.renewability=='Renewable'",
+   "fieldname": "last_renewal_date",
+   "fieldtype": "Date",
+   "label": "Last Renewal Date"
+  },
+  {
+   "depends_on": "eval:doc.renewability=='Renewable'",
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Expiry / Next Due Date"
+  },
+  {
+   "depends_on": "eval:doc.renewability=='Renewable'",
+   "fieldname": "frequency_days",
+   "fieldtype": "Int",
+   "label": "Renewal Cycle (Days)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "days_left",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Days Left",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Compliance Status",
+   "options": "Valid\nExpiring Soon\nExpired\nNot Renewable\nPermanent",
+   "read_only": 1
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Document Attachment"
+  },
+  {
+   "fieldname": "custodian_section",
+   "fieldtype": "Section Break",
+   "label": "Custodian / Responsible Person"
+  },
+  {
+   "fieldname": "custodian",
+   "fieldtype": "Link",
+   "label": "Custodian (Employee)",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "custodian.employee_name",
+   "fieldname": "custodian_name",
+   "fieldtype": "Data",
+   "label": "Custodian Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "custodian_id",
+   "fieldtype": "Data",
+   "label": "National ID / Identification",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "custodian.company_email",
+   "fieldname": "custodian_email",
+   "fieldtype": "Data",
+   "label": "Contact Email",
+   "read_only": 1
+  },
+  {
+   "fieldname": "contact_number",
+   "fieldtype": "Data",
+   "label": "Contact Phone",
+   "options": "Phone"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-05 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "JGB",
+ "name": "Legal Compliance Monitor",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "name_of_licence",
+ "track_changes": 1
+}

@@ -8,16 +8,22 @@
   "report",
   "from_date",
   "to_date",
+  "transaction_date",
   "company",
   "account",
+  "region",
+  "division",
   "column_break_rhas",
   "download",
   "print",
   "customer",
+  "customer_name",
   "sales_person",
   "project",
   "sales_order",
-  "supplier"
+  "purchase_order",
+  "supplier",
+  "supplier_name"
  ],
  "fields": [
   {
@@ -25,18 +31,27 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Report",
-   "options": "\nGroup Summary Report\nCustomer Ledger Report\nLedger Summary Report\nSales Person Wise Income Report\nStatement of Account\nAccounts Ledger Summary\nSupplier Statement of Account\nReceipt Report\nConsolidated Ledger Report\nAccounts Receivable Aging Report\nGroup Account Summary Report\nSupplier Statement of Account",
+   "options": "\nGroup Summary Report\nCustomer Ledger Report\nLedger Summary Report\nSales Person Wise Income Report\nGroup Account Summary Report\nAccounts Ledger Summary\nReceipt Report\nConsolidated Ledger Report\nStatement of Account\nAccounts Receivable Aging Report\nAccounts Receivable Aging Summary\nAccounts Receivable Aging Summary by Sales Person\nAccounts Receivable Summary by Sales Person\nAccounts Receivable Aging Report SO wise\nAdvance Received From Customer\nAdvance Sales Tax Invoice Report\nSupplier Statement of Account\nAccounts Payable Aging Report\nAccounts Payable Aging Report PO wise\nAccounts Payable Aging Summary\nDaily Transaction Report\nVAT Report\nFixed Asset Register Report",
    "reqd": 1
   },
   {
+   "depends_on": "eval:doc.report!='Accounts Receivable Aging Summary by Sales Person' && doc.report != \"Accounts Receivable Aging Summary\" && doc.report != \"Accounts Receivable Summary by Sales Person\" && doc.report != 'Daily Transaction Report' && doc.report != 'Fixed Asset Register Report'",
    "fieldname": "from_date",
    "fieldtype": "Date",
    "label": "From Date"
   },
   {
+   "depends_on": "eval:doc.report != 'Daily Transaction Report'",
    "fieldname": "to_date",
    "fieldtype": "Date",
    "label": "To Date"
+  },
+  {
+   "depends_on": "eval:doc.report=='Daily Transaction Report'",
+   "fieldname": "transaction_date",
+   "fieldtype": "Date",
+   "label": "Transaction Date",
+   "mandatory_depends_on": "eval:doc.report=='Daily Transaction Report'"
   },
   {
    "fieldname": "company",
@@ -45,6 +60,7 @@
    "options": "Company"
   },
   {
+   "depends_on": "eval:doc.report!='Accounts Receivable Aging Summary by Sales Person' && doc.report != \"Accounts Receivable Aging Summary\" && doc.report != \"Accounts Receivable Summary by Sales Person\" && doc.report != \"Accounts Payable Aging Summary\" && doc.report != 'Daily Transaction Report' && doc.report != 'VAT Report' && doc.report != 'Fixed Asset Register Report'",
    "fieldname": "account",
    "fieldtype": "Link",
    "label": "Account",
@@ -57,7 +73,7 @@
    "label": "Download"
   },
   {
-   "depends_on": "eval:doc.report=='Customer Ledger Report' || doc.report=='Statement of Account' || doc.report=='Accounts Ledger Summary'|| doc.report =='Accounts Receivable Aging Report'|| doc.report =='Consolidated Customer and Supplier Ledger Summary'",
+   "depends_on": "eval:doc.report=='Customer Ledger Report' || doc.report=='Statement of Account' || doc.report=='Accounts Ledger Summary'|| doc.report =='Accounts Receivable Aging Report'|| doc.report =='Consolidated Customer and Supplier Ledger Summary'|| doc.report =='Accounts Receivable Aging Report SO wise' || doc.report == \"Advance Sales Tax Invoice Report\"",
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
@@ -68,7 +84,7 @@
    "fieldtype": "Column Break"
   },
   {
-   "depends_on": "eval:doc.report=='Sales Person Wise Income Report'",
+   "depends_on": "eval:doc.report=='Sales Person Wise Income Report' || doc.report ==\"Accounts Receivable Aging Summary by Sales Person\" || doc.report ==\"Accounts Receivable Summary by Sales Person\"",
    "fieldname": "sales_person",
    "fieldtype": "Link",
    "label": "Sales person",
@@ -89,25 +105,61 @@
    "options": "Sales Order"
   },
   {
-   "depends_on": "eval:doc.report=='Supplier Statement of Account' || doc.report =='Consolidated Customer and Supplier Ledger Summary'",
+   "depends_on": "eval:doc.report=='Supplier Statement of Account' || doc.report =='Consolidated Customer and Supplier Ledger Summary'||doc.report==\"Accounts Payable Aging Report\"||doc.report==\"Accounts Payable Aging Report PO wise\"",
    "fieldname": "supplier",
    "fieldtype": "Link",
    "label": "Supplier",
    "options": "Supplier"
   },
   {
-   "depends_on": "eval:doc.report != \"Sales Person Wise Summary\"",
+   "depends_on": "eval:doc.report != \"Sales Person Wise Summary\" && doc.report != 'VAT Report'",
    "fieldname": "print",
    "fieldtype": "Button",
    "label": "Print"
+  },
+  {
+   "depends_on": "eval:doc.report=='Customer Ledger Report' || doc.report=='Statement of Account' || doc.report=='Accounts Ledger Summary'|| doc.report =='Accounts Receivable Aging Report'|| doc.report =='Consolidated Customer and Supplier Ledger Summary'",
+   "fetch_from": "customer.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Read Only",
+   "label": "Customer Name"
+  },
+  {
+   "depends_on": "eval:doc.report=='Supplier Statement of Account' || doc.report =='Consolidated Customer and Supplier Ledger Summary'||doc.report==\"Accounts Payable Aging Report\"",
+   "fetch_from": "supplier.supplier_name",
+   "fieldname": "supplier_name",
+   "fieldtype": "Read Only",
+   "label": "Supplier Name"
+  },
+  {
+   "depends_on": "eval:doc.report == \"Accounts Receivable Aging Summary by Sales Person\" || doc.report == \"Accounts Receivable Summary by Sales Person\"",
+   "fieldname": "region",
+   "fieldtype": "Link",
+   "label": "Region",
+   "options": "Territory"
+  },
+  {
+   "depends_on": "eval:doc.report=='Accounts Receivable Aging Report SO wise' || doc.report=='Accounts Payable Aging Report PO wise'",
+   "fieldname": "division",
+   "fieldtype": "Link",
+   "label": "Division",
+   "options": "Division"
+  },
+  {
+   "depends_on": "eval:doc.report=='Accounts Payable Aging Report PO wise'",
+   "fieldname": "purchase_order",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Purchase Order",
+   "options": "Purchase Order"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-06-27 13:41:19.656243",
- "modified_by": "jothi.m@groupteampro.com",
+ "modified": "2026-08-28 15:50:37.044218",
+ "modified_by": "bhuvaneswari.a@groupteampro.com",
  "module": "JGB",
  "name": "Accounts Report Dashboard",
  "owner": "Administrator",

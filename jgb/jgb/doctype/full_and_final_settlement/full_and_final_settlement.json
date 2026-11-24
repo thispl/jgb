@@ -17,6 +17,7 @@
   "company",
   "grade",
   "last_day_of_work",
+  "type",
   "basic_salary",
   "food_allowance",
   "monthly_allowance",
@@ -32,11 +33,13 @@
   "earned_food_allowance",
   "normal_over_time",
   "holiday_over_time",
-  "column_break_yjpa",
-  "leave_balance_amount",
   "total_ot",
   "earned_basic",
+  "column_break_yjpa",
+  "leave_balance_amount",
   "hra_pay",
+  "transport",
+  "telephone",
   "month_allowance",
   "prod_allowance",
   "arrears",
@@ -50,6 +53,7 @@
   "eligible_gratuity",
   "loan_other_deduction",
   "leave_pay",
+  "eos_benefit",
   "column_break_9nom",
   "gratuity_amount",
   "additions",
@@ -221,7 +225,6 @@
    "default": "0",
    "fieldname": "earned_basic",
    "fieldtype": "Currency",
-   "hidden": 1,
    "label": "Earned Basic"
   },
   {
@@ -260,7 +263,6 @@
    "default": "0",
    "fieldname": "hra_pay",
    "fieldtype": "Currency",
-   "hidden": 1,
    "label": "HRA"
   },
   {
@@ -355,7 +357,6 @@
    "default": "0",
    "fieldname": "additions",
    "fieldtype": "Currency",
-   "hidden": 1,
    "label": "Additions"
   },
   {
@@ -424,9 +425,35 @@
    "read_only": 1
   },
   {
+   "default": "0",
    "fieldname": "leave_balance_amount",
    "fieldtype": "Currency",
    "label": "Leave Balance Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "\nRetirement\nResignation\nTermination",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "transport",
+   "fieldtype": "Currency",
+   "label": "Transport"
+  },
+  {
+   "default": "0",
+   "fieldname": "telephone",
+   "fieldtype": "Currency",
+   "label": "Telephone"
+  },
+  {
+   "fieldname": "eos_benefit",
+   "fieldtype": "Currency",
+   "label": "EOS Benefit",
    "read_only": 1
   }
  ],
@@ -434,8 +461,8 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-12-19 10:32:09.352392",
- "modified_by": "pavithra.s@groupteampro.com",
+ "modified": "2026-09-11 14:21:50.075975",
+ "modified_by": "gifty.p@groupteampro.com",
  "module": "JGB",
  "name": "Full and Final Settlement",
  "naming_rule": "Expression",

@@ -19,6 +19,7 @@
   "product_bundle",
   "voucher_no",
   "requester_name",
+  "po_item",
   "package_details_section",
   "packing_weight_kg",
   "box_name",
@@ -47,6 +48,7 @@
   "quantity_and_rate",
   "qty",
   "stock_uom",
+  "currency",
   "col_break2",
   "uom",
   "conversion_factor",
@@ -84,6 +86,8 @@
    "fieldname": "item_name",
    "fieldtype": "Data",
    "in_global_search": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Item Name",
    "oldfieldname": "item_name",
    "oldfieldtype": "Data",
@@ -132,6 +136,7 @@
   {
    "fieldname": "description",
    "fieldtype": "Text Editor",
+   "in_list_view": 1,
    "label": "Description",
    "oldfieldname": "description",
    "oldfieldtype": "Small Text",
@@ -162,6 +167,7 @@
    "label": "Quantity and Rate"
   },
   {
+   "allow_on_submit": 1,
    "bold": 1,
    "columns": 1,
    "fieldname": "qty",
@@ -237,22 +243,20 @@
    "columns": 2,
    "fieldname": "rate",
    "fieldtype": "Currency",
-   "in_list_view": 1,
    "label": "Rate",
    "oldfieldname": "import_rate",
    "oldfieldtype": "Currency",
    "options": "currency"
   },
   {
+   "allow_on_submit": 1,
    "columns": 2,
    "fieldname": "amount",
    "fieldtype": "Currency",
-   "in_list_view": 1,
    "label": "Amount",
    "oldfieldname": "import_amount",
    "oldfieldtype": "Currency",
-   "options": "currency",
-   "read_only": 1
+   "options": "currency"
   },
   {
    "fieldname": "col_break4",
@@ -272,6 +276,7 @@
    "width": "100px"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "base_amount",
    "fieldtype": "Currency",
    "label": "Amount (Company Currency)",
@@ -279,7 +284,6 @@
    "oldfieldtype": "Currency",
    "options": "Company:company:default_currency",
    "print_hide": 1,
-   "read_only": 1,
    "reqd": 1
   },
   {
@@ -300,9 +304,10 @@
   },
   {
    "fieldname": "voucher_no",
-   "fieldtype": "Dynamic Link",
+   "fieldtype": "Data",
    "label": "Voucher No",
-   "options": "voucher_type"
+   "options": "voucher_type",
+   "read_only": 1
   },
   {
    "depends_on": "eval:doc.voucher_type==\"Sales Invoice\" || doc.voucher_type==\"Sales Order\" || doc.voucher_type==\"Delivery Note\"",
@@ -461,14 +466,27 @@
    "fieldtype": "Float",
    "label": "Gross Weight (kg)",
    "read_only": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "po_item",
+   "fieldtype": "Data",
+   "label": "PO Item",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-07-30 10:12:23.747860",
- "modified_by": "divya.p@groupteampro.com",
+ "modified": "2026-07-14 08:28:57.486131",
+ "modified_by": "bhuvaneswari.a@groupteampro.com",
  "module": "JGB",
  "name": "Logistics Request Item",
  "naming_rule": "Random",
